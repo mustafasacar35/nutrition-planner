@@ -1,0 +1,253 @@
+{
+  "version": "1.0.0",
+  "lastUpdate": "2025-08-06T12:00:00Z",
+  "description": "Beslenme planlayıcısı yemek veritabanı",
+  "categories": [
+    {
+      "name": "KAHVALTI",
+      "description": "Kahvaltı yemekleri",
+      "items": [
+        {
+          "name": "Menemen",
+          "calories": 180,
+          "protein": 12,
+          "carbs": 8,
+          "fat": 12,
+          "maxQuantity": 2,
+          "minQuantity": 0.5,
+          "tags": ["yumurta", "sebze", "domates"],
+          "role": "mainDish",
+          "mealType": ["breakfast"],
+          "keto": false,
+          "lowcarb": true,
+          "fillerLunch": false,
+          "fillerDinner": false,
+          "seasonRange": "[1,12]"
+        },
+        {
+          "name": "Scrambled Eggs",
+          "calories": 220,
+          "protein": 15,
+          "carbs": 2,
+          "fat": 18,
+          "maxQuantity": 2,
+          "minQuantity": 0.5,
+          "tags": ["keto", "yumurta"],
+          "role": "mainDish",
+          "mealType": ["breakfast"],
+          "keto": true,
+          "lowcarb": true,
+          "fillerLunch": false,
+          "fillerDinner": false,
+          "seasonRange": "[1,12]"
+        },
+        {
+          "name": "Avokado",
+          "calories": 160,
+          "protein": 2,
+          "carbs": 9,
+          "fat": 15,
+          "maxQuantity": 1,
+          "minQuantity": 0.3,
+          "tags": ["keto", "sağlıklı", "avokado"],
+          "role": "sideDish",
+          "mealType": ["breakfast", "lunch"],
+          "keto": true,
+          "lowcarb": true,
+          "fillerLunch": true,
+          "fillerDinner": false,
+          "seasonRange": "[1,12]"
+        }
+      ]
+    },
+    {
+      "name": "ÖĞLEN",
+      "description": "Öğle yemekleri",
+      "items": [
+        {
+          "name": "Izgara Tavuk",
+          "calories": 250,
+          "protein": 30,
+          "carbs": 0,
+          "fat": 14,
+          "maxQuantity": 2,
+          "minQuantity": 1,
+          "tags": ["keto", "protein", "tavuk"],
+          "role": "mainDish",
+          "mealType": ["lunch", "dinner"],
+          "keto": true,
+          "lowcarb": true,
+          "fillerLunch": false,
+          "fillerDinner": false,
+          "seasonRange": "[1,12]"
+        },
+        {
+          "name": "Karışık Salata",
+          "calories": 80,
+          "protein": 3,
+          "carbs": 8,
+          "fat": 4,
+          "maxQuantity": 2,
+          "minQuantity": 0.5,
+          "tags": ["keto", "salata", "sebze"],
+          "role": "sideDish",
+          "mealType": ["lunch", "dinner"],
+          "keto": true,
+          "lowcarb": true,
+          "fillerLunch": true,
+          "fillerDinner": true,
+          "seasonRange": "[1,12]"
+        }
+      ]
+    },
+    {
+      "name": "AKŞAM",
+      "description": "Akşam yemekleri",
+      "items": [
+        {
+          "name": "Köfte",
+          "calories": 280,
+          "protein": 20,
+          "carbs": 3,
+          "fat": 20,
+          "maxQuantity": 2,
+          "minQuantity": 1,
+          "tags": ["keto", "et", "protein"],
+          "role": "mainDish",
+          "mealType": ["dinner"],
+          "keto": true,
+          "lowcarb": true,
+          "fillerLunch": false,
+          "fillerDinner": false,
+          "seasonRange": "[1,12]"
+        },
+        {
+          "name": "Brokoli",
+          "calories": 25,
+          "protein": 3,
+          "carbs": 5,
+          "fat": 0,
+          "maxQuantity": 2,
+          "minQuantity": 0.5,
+          "tags": ["keto", "sebze", "brokoli"],
+          "role": "sideDish",
+          "mealType": ["lunch", "dinner"],
+          "keto": true,
+          "lowcarb": true,
+          "fillerLunch": true,
+          "fillerDinner": true,
+          "seasonRange": "[10,4]"
+        }
+      ]
+    },
+    {
+      "name": "ÇORBALAR",
+      "description": "Çorba çeşitleri",
+      "items": [
+        {
+          "name": "Tavuk Çorbası",
+          "calories": 120,
+          "protein": 10,
+          "carbs": 6,
+          "fat": 6,
+          "maxQuantity": 1,
+          "minQuantity": 0.5,
+          "tags": ["keto", "çorba", "tavuk"],
+          "role": "soup",
+          "mealType": ["lunch", "dinner"],
+          "keto": true,
+          "lowcarb": true,
+          "fillerLunch": false,
+          "fillerDinner": false,
+          "seasonRange": "[10,3]"
+        }
+      ]
+    },
+    {
+      "name": "MEYVELER",
+      "description": "Meyve seçenekleri",
+      "items": [
+        {
+          "name": "Böğürtlen",
+          "calories": 40,
+          "protein": 1,
+          "carbs": 7,
+          "fat": 0,
+          "maxQuantity": 1,
+          "minQuantity": 0.3,
+          "tags": ["keto", "meyve", "antioksidan"],
+          "role": "fruit",
+          "mealType": ["breakfast", "lunch"],
+          "keto": true,
+          "lowcarb": true,
+          "fillerLunch": false,
+          "fillerDinner": false,
+          "seasonRange": "[6,8]"
+        }
+      ]
+    },
+    {
+      "name": "KURUYEMİŞLER",
+      "description": "Kuruyemiş seçenekleri",
+      "items": [
+        {
+          "name": "Badem",
+          "calories": 160,
+          "protein": 6,
+          "carbs": 6,
+          "fat": 14,
+          "maxQuantity": 1,
+          "minQuantity": 0.2,
+          "tags": ["keto", "kuruyemiş", "badem"],
+          "role": "snack",
+          "mealType": ["lunch", "dinner"],
+          "keto": true,
+          "lowcarb": true,
+          "fillerLunch": false,
+          "fillerDinner": false,
+          "seasonRange": "[1,12]"
+        }
+      ]
+    },
+    {
+      "name": "DİĞER",
+      "description": "Diğer besinler ve ekler",
+      "items": [
+        {
+          "name": "Zeytinyağı",
+          "calories": 120,
+          "protein": 0,
+          "carbs": 0,
+          "fat": 14,
+          "maxQuantity": 2,
+          "minQuantity": 0.2,
+          "tags": ["keto", "yağ", "zeytinyağı"],
+          "role": "supplement",
+          "mealType": ["lunch", "dinner"],
+          "keto": true,
+          "lowcarb": true,
+          "fillerLunch": true,
+          "fillerDinner": true,
+          "seasonRange": "[1,12]"
+        },
+        {
+          "name": "Kollajen",
+          "calories": 40,
+          "protein": 10,
+          "carbs": 0,
+          "fat": 0,
+          "maxQuantity": 1,
+          "minQuantity": 0.5,
+          "tags": ["keto", "protein", "supplement"],
+          "role": "supplement",
+          "mealType": ["breakfast", "lunch", "dinner"],
+          "keto": true,
+          "lowcarb": true,
+          "fillerLunch": true,
+          "fillerDinner": true,
+          "seasonRange": "[1,12]"
+        }
+      ]
+    }
+  ]
+}
