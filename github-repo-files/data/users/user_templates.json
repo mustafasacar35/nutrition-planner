@@ -1,0 +1,127 @@
+{
+  "version": "1.0.0",
+  "lastUpdate": "2025-08-06T12:00:00Z",
+  "description": "Kullanıcı profil şablonları",
+  "templates": [
+    {
+      "id": "default_male_keto",
+      "name": "Varsayılan Erkek - Keto",
+      "isDefault": true,
+      "profile": {
+        "name": "Varsayılan Kullanıcı",
+        "age": 30,
+        "gender": "male",
+        "height": 175,
+        "weight": 75,
+        "activityLevel": 3,
+        "goal": "maintain"
+      },
+      "preferences": {
+        "dietType": "keto",
+        "likedFoods": [],
+        "dislikedFoods": [],
+        "allergies": [],
+        "restrictions": []
+      },
+      "targets": {
+        "calculationMethod": "automatic",
+        "customCalories": null,
+        "customProtein": null,
+        "customCarbs": null,
+        "customFat": null
+      },
+      "settings": {
+        "mealDistribution": {
+          "breakfast": 0.25,
+          "lunch": 0.40,
+          "dinner": 0.35
+        },
+        "planningPreferences": {
+          "prioritizeVariety": true,
+          "respectSeasonality": true,
+          "allowDuplicates": false
+        }
+      }
+    },
+    {
+      "id": "default_female_keto",
+      "name": "Varsayılan Kadın - Keto",
+      "isDefault": false,
+      "profile": {
+        "name": "Varsayılan Kullanıcı",
+        "age": 28,
+        "gender": "female",
+        "height": 165,
+        "weight": 60,
+        "activityLevel": 2,
+        "goal": "lose"
+      },
+      "preferences": {
+        "dietType": "keto",
+        "likedFoods": ["avokado", "somon", "brokoli"],
+        "dislikedFoods": ["balık"],
+        "allergies": [],
+        "restrictions": []
+      },
+      "targets": {
+        "calculationMethod": "automatic",
+        "customCalories": null,
+        "customProtein": null,
+        "customCarbs": null,
+        "customFat": null
+      },
+      "settings": {
+        "mealDistribution": {
+          "breakfast": 0.20,
+          "lunch": 0.45,
+          "dinner": 0.35
+        },
+        "planningPreferences": {
+          "prioritizeVariety": true,
+          "respectSeasonality": true,
+          "allowDuplicates": false
+        }
+      }
+    },
+    {
+      "id": "athlete_male_lowcarb",
+      "name": "Sporcu Erkek - Low-Carb",
+      "isDefault": false,
+      "profile": {
+        "name": "Sporcu Kullanıcı",
+        "age": 25,
+        "gender": "male",
+        "height": 180,
+        "weight": 80,
+        "activityLevel": 5,
+        "goal": "gain"
+      },
+      "preferences": {
+        "dietType": "lowcarb",
+        "likedFoods": ["tavuk", "balık", "yumurta"],
+        "dislikedFoods": [],
+        "allergies": [],
+        "restrictions": []
+      },
+      "targets": {
+        "calculationMethod": "automatic",
+        "customCalories": null,
+        "customProtein": null,
+        "customCarbs": null,
+        "customFat": null
+      },
+      "settings": {
+        "mealDistribution": {
+          "breakfast": 0.30,
+          "lunch": 0.35,
+          "dinner": 0.35
+        },
+        "planningPreferences": {
+          "prioritizeVariety": false,
+          "respectSeasonality": false,
+          "allowDuplicates": true
+        }
+      }
+    }
+  ]
+}
