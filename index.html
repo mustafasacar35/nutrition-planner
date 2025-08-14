@@ -29,6 +29,29 @@
     };
   </script>
   
+  <!-- Google Drive API -->
+  <script src="https://apis.google.com/js/api.js"></script>
+  <script>
+    // Google Drive API Konfigürasyonu
+    window.GOOGLE_DRIVE_CONFIG = {
+      API_KEY: 'YOUR_API_KEY_HERE', // Buraya API Key'inizi ekleyin
+      CLIENT_ID: 'YOUR_CLIENT_ID_HERE', // Buraya Client ID'nizi ekleyin
+      DISCOVERY_DOC: 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest',
+      SCOPES: 'https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/spreadsheets.readonly'
+    };
+    
+    // Google API yüklenme durumu
+    window.googleApiLoaded = false;
+    window.googleSignedIn = false;
+    window.googleApiAvailable = false;
+    
+    // File protokolü kontrol
+    window.isFileProtocol = window.location.protocol === 'file:';
+    if (window.isFileProtocol) {
+      console.log('⚠️ File protokolünde çalışıyor - Google API sınırlı olabilir');
+    }
+  </script>
+  
   <style>
     body { 
       font-family: sans-serif; 
@@ -524,7 +547,27 @@
   <div class="main-container">
     <!-- Header -->
     <div class="header">
-      <h2>Lipedem Hasta Takip Sistemi</h2>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>Lipedem Hasta Takip Sistemi</h2>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <div id="googleDriveStatus" style="font-size: 12px; color: #666;">Drive: Bağlantı Yok</div>
+          <button id="googleDriveBtn" onclick="signInToGoogle()" style="
+            padding: 8px 15px; 
+            background: #4285f4; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+          ">
+            <span style="font-size: 14px;">💾</span>
+            Google Drive'a Bağlan
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Sol Sidebar -->
@@ -722,7 +765,7 @@
       <div class="sidebar-section">
         <h3>⚡ İşlemler</h3>
         <input type="password" id="githubToken" placeholder="GitHub Token" style="width:100%; margin-bottom:5px; padding:6px; font-size:11px; border:1px solid #ddd; border-radius:3px;" oninput="saveTokenToStorage()">
-        <input type="text" id="githubRepo" placeholder="GitHub Repo (owner/repo)" value="mustafasacar35/nutrition-planner" style="width:100%; margin-bottom:5px; padding:6px; font-size:11px; border:1px solid #ddd; border-radius:3px;">
+        <input type="text" id="githubRepo" placeholder="GitHub Repo (owner/repo)" value="mustafasacar35/lipodem-takip-paneli" style="width:100%; margin-bottom:5px; padding:6px; font-size:11px; border:1px solid #ddd; border-radius:3px;">
         <button onclick="testGitHubToken()" style="width:100%; margin-bottom:5px; padding:6px; font-size:11px; background:#17a2b8; color:white; border:none; border-radius:3px; cursor:pointer;">🔍 Token Test Et</button>
       </div>
 
@@ -2313,7 +2356,7 @@
     async function loadPublicGitHubData() {
       try {
         console.log('📥 Public manuel eşleştirmeler yükleniyor...');
-        const manuelUrl = 'https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/data/manuel_eslestirmeler.json';
+        const manuelUrl = 'https://raw.githubusercontent.com/mustafasacar35/lipodem-takip-paneli/main/data/manuel_eslestirmeler.json';
         
         try {
           const manuelResp = await fetch(manuelUrl);
@@ -2333,7 +2376,7 @@
         }
 
         console.log('📥 Public yasak kuralları yükleniyor...');
-        const yasakUrl = 'https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/data/eslesmeme_kurallari.json';
+        const yasakUrl = 'https://raw.githubusercontent.com/mustafasacar35/lipodem-takip-paneli/main/data/eslesmeme_kurallari.json';
         
         try {
           const yasakResp = await fetch(yasakUrl);
@@ -2451,7 +2494,7 @@
         }
         
         const owner = 'mustafasacar35';
-        const repo = 'nutrition-planner';
+        const repo = 'lipodem-takip-paneli';
         const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/patients/hastalar_listesi.json`, {
           headers: { 'Authorization': `token ${token}` }
         });
@@ -2509,7 +2552,7 @@
       
       try {
         const owner = 'mustafasacar35';
-        const repo = 'nutrition-planner';
+        const repo = 'lipodem-takip-paneli';
         
         // UTF-8 için doğru encoding
         const content = encodeUTF8ToBase64(hastaListesi);
@@ -2652,7 +2695,7 @@
         console.log('📤 PDF GitHub\'a yükleniyor:', file.name);
         
         const owner = 'mustafasacar35';
-        const repo = 'nutrition-planner';
+        const repo = 'lipodem-takip-paneli';
         
         // Güvenli dosya adı oluştur (sadece problemli karakterleri temizle)
         const guvenliDosyaAdi = file.name
@@ -2766,7 +2809,7 @@
       
       try {
         const owner = 'mustafasacar35';
-        const repo = 'nutrition-planner';
+        const repo = 'lipodem-takip-paneli';
         
         // README.md dosyası ile klasör oluştur
         const content = btoa(`# Hasta Dosyaları
@@ -2826,7 +2869,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         console.log(`💾 ${hasta.isim} hastası kaydediliyor...`);
         
         const owner = 'mustafasacar35';
-        const repo = 'nutrition-planner';
+        const repo = 'lipodem-takip-paneli';
         const branch = 'main';
         
         // Son güncelleme tarihini ekle
@@ -3163,7 +3206,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
       }
 
       const owner = 'mustafasacar35';
-      const repo = 'nutrition-planner';
+      const repo = 'lipodem-takip-paneli';
       const path = 'data/eslesmeme_kurallari.json';
       const branch = 'main';
 
@@ -3237,7 +3280,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
       }
 
       const owner = 'mustafasacar35';
-      const repo = 'nutrition-planner';
+      const repo = 'lipodem-takip-paneli';
       const path = 'data/eslesmeme_kurallari.json';
       const branch = 'main';
 
@@ -3300,7 +3343,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
     }
 
     // --- Manuel Eşleştirme Paneli Fonksiyonları ---
-    const MANUEL_ESLESTIRME_KEY = 'manuel_eslestirmeler';
+    const MANUEL_ESLESTIRME_KEY = 'lipedem_manuel_eslestirmeler';
     let manuelEslestirmeler = {};
 
     // Global karakter düzeltme fonksiyonu
@@ -3989,7 +4032,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
       gitHubKaydetmeDevamEdiyor = true;
 
       const owner = 'mustafasacar35';
-      const repo = 'nutrition-planner';
+      const repo = 'lipodem-takip-paneli';
       const path = 'data/manuel_eslestirmeler.json';
       const branch = 'main';
 
@@ -4124,7 +4167,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
       }
 
       const owner = 'mustafasacar35';
-      const repo = 'nutrition-planner';
+      const repo = 'lipodem-takip-paneli';
       const path = 'data/manuel_eslestirmeler.json';
       const branch = 'main';
 
@@ -4385,7 +4428,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
       }
 
       const owner = 'mustafasacar35';
-      const repo = 'nutrition-planner';
+      const repo = 'lipodem-takip-paneli';
       const branch = 'main';
 
       try {
@@ -4529,7 +4572,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
       try {
         const token = document.getElementById('githubToken').value.trim();
         const owner = 'mustafasacar35';
-        const repo = 'nutrition-planner';
+        const repo = 'lipodem-takip-paneli';
         
         const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/tarifler/list.json`, {
           headers: { 'Authorization': `token ${token}` }
@@ -4569,7 +4612,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         
         // Kart önizlemesi
         const img = document.createElement('img');
-        img.src = `https://mustafasacar35.github.io/nutrition-planner/tarifler/${kartAdi}`;
+        img.src = `https://mustafasacar35.github.io/lipodem-takip-paneli/tarifler/${kartAdi}`;
         img.style.cssText = 'width:40px; height:40px; object-fit:cover; border-radius:4px;';
         img.onerror = () => {
           img.style.display = 'none';
@@ -4698,7 +4741,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
       
       onizlemeDiv.innerHTML = `
         <div style="display:flex; align-items:center; gap:15px;">
-          <img src="https://mustafasacar35.github.io/nutrition-planner/tarifler/${kartAdi}" 
+          <img src="https://mustafasacar35.github.io/lipodem-takip-paneli/tarifler/${kartAdi}" 
                style="width:80px; height:80px; object-fit:cover; border-radius:8px; border:1px solid #ddd;" 
                onerror="this.style.display='none'; this.nextElementSibling.querySelector('.error-msg').style.display='block'">
           <div>
@@ -4741,7 +4784,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         console.log('🔄 List.json temizliği başlatıldı...');
         
         // Önce list.json'u al
-        const response = await fetch('https://api.github.com/repos/mustafasacar35/nutrition-planner/contents/tarifler/list.json', {
+        const response = await fetch('https://api.github.com/repos/mustafasacar35/lipodem-takip-paneli/contents/tarifler/list.json', {
           headers: {
             'Authorization': `token ${token}`,
             'Accept': 'application/vnd.github.v3+json'
@@ -4763,7 +4806,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         
         for (const fileName of currentContent) {
           try {
-            const checkResponse = await fetch(`https://mustafasacar35.github.io/nutrition-planner/tarifler/${fileName}`, {
+            const checkResponse = await fetch(`https://mustafasacar35.github.io/lipodem-takip-paneli/tarifler/${fileName}`, {
               method: 'HEAD'
             });
             
@@ -4787,7 +4830,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         statusGoster(`${removedCount} dosya temizleniyor...`, 'info');
         
         // Güncellenmiş list.json'u gönder
-        const updateResponse = await fetch('https://api.github.com/repos/mustafasacar35/nutrition-planner/contents/tarifler/list.json', {
+        const updateResponse = await fetch('https://api.github.com/repos/mustafasacar35/lipodem-takip-paneli/contents/tarifler/list.json', {
           method: 'PUT',
           headers: {
             'Authorization': `token ${token}`,
@@ -4871,7 +4914,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         duzenlemeStatusGoster('Kart düzenleniyor...', 'info');
         
         const owner = 'mustafasacar35';
-        const repo = 'nutrition-planner';
+        const repo = 'lipodem-takip-paneli';
         
         // 1. Eski kartı sil
         if (normalizeEdilmisAd !== seciliDuzenleKart) {
@@ -4885,7 +4928,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
           gorselBase64 = await dosyayiBase64Cevir(yeniDosya);
         } else {
           // Dosya seçilmemişse mevcut dosyayı indir ve tekrar yükle
-          const mevcutResponse = await fetch(`https://mustafasacar35.github.io/nutrition-planner/tarifler/${seciliDuzenleKart}`);
+          const mevcutResponse = await fetch(`https://mustafasacar35.github.io/lipodem-takip-paneli/tarifler/${seciliDuzenleKart}`);
           const mevcutBlob = await mevcutResponse.blob();
           gorselBase64 = await new Promise(resolve => {
             const reader = new FileReader();
@@ -5131,7 +5174,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         });
 
         const owner = 'mustafasacar35';
-        const repo = 'nutrition-planner';
+        const repo = 'lipodem-takip-paneli';
         const branch = 'main';
 
         statusGoster('Görsel GitHub\'a yükleniyor...', 'info');
@@ -5263,7 +5306,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         // Her zaman bulunduğun dizinin köküne göre tarifler/ yolunu oluştur
         // Önce GitHub'dan tarifler yüklemeyi deneyelim
         console.log('🌐 GitHub\'dan tarifler yükleniyor...');
-        const githubTariflerUrl = 'https://mustafasacar35.github.io/nutrition-planner/tarifler/list.json';
+        const githubTariflerUrl = 'https://mustafasacar35.github.io/lipodem-takip-paneli/tarifler/list.json';
         
         try {
           const githubResp = await fetch(githubTariflerUrl);
@@ -5276,7 +5319,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
             
             tariflerKlasoruGorselleri = files.map(name => ({
               name,
-              url: 'https://mustafasacar35.github.io/nutrition-planner/tarifler/' + name
+              url: 'https://mustafasacar35.github.io/lipodem-takip-paneli/tarifler/' + name
             }));
             
             window.tarifKartlari = files;
@@ -5493,7 +5536,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
               
               for (const dosyaAdi of dosyaAdlari) {
                 try {
-                  const response = await fetch(`https://api.github.com/repos/mustafasacar35/nutrition-planner/contents/patients/${dosyaAdi}`, {
+                  const response = await fetch(`https://api.github.com/repos/mustafasacar35/lipodem-takip-paneli/contents/patients/${dosyaAdi}`, {
                     headers: { 'Authorization': `token ${token}` }
                   });
                   
@@ -5670,7 +5713,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         console.log('👤 Yeni sistemde hasta seçiliyor:', hastaBilgi.isim);
         
         const owner = 'mustafasacar35';
-        const repo = 'nutrition-planner';
+        const repo = 'lipodem-takip-paneli';
         
         // Dosya adı alternatifleri dene
         const dosyaAdlari = [
@@ -6164,7 +6207,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         
         // GitHub'dan hasta dosyasını sil
         const owner = 'mustafasacar35';
-        const repo = 'nutrition-planner';
+        const repo = 'lipodem-takip-paneli';
         const token = document.getElementById('githubToken').value.trim();
         
         if (!token) {
@@ -6798,8 +6841,22 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
             <!-- PDF Bölümü -->
             <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;" class="${hafta.kilitli ? 'locked-area' : ''}">
               <h4 style="margin: 0 0 10px 0; color: #28a745; font-size: 14px;">📄 PDF</h4>
-              <input type="file" accept="application/pdf" onchange="pdfYukleHafta(${i}, this)" 
-                     style="width: 100%; margin-bottom: 10px; font-size: 12px;" ${hafta.kilitli ? 'disabled' : ''}>
+              
+              <!-- PDF Yükleme Seçenekleri -->
+              <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <div style="flex: 1;">
+                  <input type="file" accept="application/pdf" onchange="pdfYukleHafta(${i}, this)" 
+                         style="width: 100%; font-size: 12px;" ${hafta.kilitli ? 'disabled' : ''}>
+                </div>
+                <button onclick="drivedenPdfYukle(${i})" 
+                        style="padding: 8px 12px; font-size: 11px; background: #4285f4; color: white; border: none; border-radius: 4px; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 5px;" 
+                        ${hafta.kilitli ? 'disabled' : ''} 
+                        title="Google Drive'dan ${seciliHasta?.hastaIsim || 'hasta'} için ${i}. hafta PDF'ini yükle">
+                  <span style="font-size: 12px;">💾</span>
+                  Drive'dan Yükle
+                </button>
+              </div>
+              
               ${hafta.pdf || hafta.pdfYolu ? `
                 <div style="color: green; font-weight: bold; font-size: 12px; background: #d4edda; padding: 8px; border-radius: 4px; border-left: 3px solid #28a745;">
                   ✅ <strong style="color: #155724; font-size: 13px;">${hafta.pdfOrijinalIsim || hafta.pdfName || 'hafta.pdf'}</strong>
@@ -9708,7 +9765,7 @@ function duzenleHafta(i) {
       (hafta.tarifKartlar||[]).forEach(kart => {
         const img = document.createElement('img');
         // Güvenli src atama - undefined hatası önleme
-        img.src = kart.data || kart.kartData || `https://mustafasacar35.github.io/nutrition-planner/tarifler/${kart.kartResmi || 'default.jpg'}`;
+        img.src = kart.data || kart.kartData || `https://mustafasacar35.github.io/lipodem-takip-paneli/tarifler/${kart.kartResmi || 'default.jpg'}`;
         img.alt = kart.name || kart.tarifAdi || 'Tarif kartı';
         img.style.width = '100px';
         img.style.margin = '4px';
@@ -10086,7 +10143,7 @@ function duzenleHafta(i) {
         grup.kartlar.forEach(kart => {
           const img = document.createElement('img');
           // Güvenli src atama - undefined hatası önleme
-          img.src = kart.data || kart.kartData || `https://mustafasacar35.github.io/nutrition-planner/tarifler/${kart.kartResmi || kart.name || 'default.jpg'}`;
+          img.src = kart.data || kart.kartData || `https://mustafasacar35.github.io/lipodem-takip-paneli/tarifler/${kart.kartResmi || kart.name || 'default.jpg'}`;
           img.alt = tarif;
           img.title = kart.name || kart.tarifAdi || 'Tarif kartı';
           img.style.width = '120px';
@@ -10201,7 +10258,7 @@ function duzenleHafta(i) {
   hafta.tarifKartlar = eslesenKartlarListesi.map(e => ({
     tarifAdi: e.tarif,
     kartResmi: e.kart.name,
-    kartData: e.kart.data || `https://mustafasacar35.github.io/nutrition-planner/tarifler/${e.kart.name}`,
+    kartData: e.kart.data || `https://mustafasacar35.github.io/lipodem-takip-paneli/tarifler/${e.kart.name}`,
     eslesmeTuru: e.tip
   }));
   
@@ -11057,7 +11114,7 @@ function duzenleHafta(i) {
         const repoElement = document.getElementById('githubRepo');
         
         const GITHUB_TOKEN = tokenElement ? tokenElement.value.trim() : '';
-        const GITHUB_REPO = repoElement ? repoElement.value.trim() || 'mustafasacar35/nutrition-planner' : 'mustafasacar35/nutrition-planner';
+        const GITHUB_REPO = repoElement ? repoElement.value.trim() || 'mustafasacar35/lipodem-takip-paneli' : 'mustafasacar35/lipodem-takip-paneli';
         
         if (!GITHUB_TOKEN) {
           console.warn('⚠️ GitHub token bulunamadı');
@@ -12294,7 +12351,7 @@ Detaylı bilgiler için tarayıcı konsolunu (F12) açın.`);
       secilenManuelKartlar.forEach(kartAdi => {
         hafta.manuelKartlar.push({
           name: kartAdi,
-          data: `https://mustafasacar35.github.io/nutrition-planner/tarifler/${kartAdi}`,
+          data: `https://mustafasacar35.github.io/lipodem-takip-paneli/tarifler/${kartAdi}`,
           eklenmeTarihi: new Date().toISOString()
         });
       });
@@ -13048,7 +13105,7 @@ ${mesajlar.join('\n')}
         const repoElement = document.getElementById('githubRepo');
         
         const GITHUB_TOKEN = tokenElement ? tokenElement.value.trim() : '';
-        const GITHUB_REPO = repoElement ? repoElement.value.trim() || 'mustafasacar35/nutrition-planner' : 'mustafasacar35/nutrition-planner';
+        const GITHUB_REPO = repoElement ? repoElement.value.trim() || 'mustafasacar35/lipodem-takip-paneli' : 'mustafasacar35/lipodem-takip-paneli';
         
         if (!GITHUB_TOKEN) {
           alert('GitHub token ayarlanmamış. Lütfen önce GitHub token\'ınızı girin.');
@@ -13181,7 +13238,7 @@ ${mesajlar.join('\n')}
                 } else {
                   // Standart raw format ile dene
                   const encodedFileName = encodeURIComponent(pdfFileName);
-                  pdfUrl = `https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/pdfs/${encodedFileName}`;
+                  pdfUrl = `https://raw.githubusercontent.com/mustafasacar35/lipodem-takip-paneli/main/pdfs/${encodedFileName}`;
                 }
                 
                 console.log(`  PDF URL: ${pdfUrl}`);
@@ -13748,10 +13805,430 @@ ${mesajlar.join('\n')}
     window.haftaKaydet = haftaKaydet;
     window.haftaKilidiAc = haftaKilidiAc;
 
+    // ============================================
+    // 🔰 GOOGLE DRIVE API ENTEGRASYONU
+    // ============================================
+    
+    // Google API'yi yükle ve başlat
+    async function initGoogleApi() {
+      try {
+        if (window.googleApiLoaded) return true;
+        
+        // File protokolü kontrolü
+        if (window.isFileProtocol) {
+          console.log('⚠️ File protokolünde Google API kısıtlı - HTTP/HTTPS sunucu gerekli');
+          window.googleApiAvailable = false;
+          return false;
+        }
+        
+        // API Key kontrolü
+        if (window.GOOGLE_DRIVE_CONFIG.API_KEY === 'YOUR_API_KEY_HERE') {
+          console.log('⚠️ Google API Key ayarlanmamış');
+          window.googleApiAvailable = false;
+          return false;
+        }
+        
+        console.log('🔄 Google Drive API yükleniyor...');
+        
+        // API'yi yükle
+        await new Promise((resolve, reject) => {
+          gapi.load('auth2:client', {
+            callback: resolve,
+            onerror: (error) => {
+              console.error('❌ GAPI yükleme hatası:', error);
+              reject(error);
+            }
+          });
+        });
+        
+        // Client'ı başlat
+        await gapi.client.init({
+          apiKey: window.GOOGLE_DRIVE_CONFIG.API_KEY,
+          clientId: window.GOOGLE_DRIVE_CONFIG.CLIENT_ID,
+          discoveryDocs: [window.GOOGLE_DRIVE_CONFIG.DISCOVERY_DOC],
+          scope: window.GOOGLE_DRIVE_CONFIG.SCOPES
+        });
+        
+        window.googleApiLoaded = true;
+        window.googleApiAvailable = true;
+        console.log('✅ Google Drive API yüklendi');
+        return true;
+        
+      } catch (error) {
+        console.error('❌ Google API yükleme hatası:', error);
+        window.googleApiAvailable = false;
+        return false;
+      }
+    }
+    
+    // Google Drive'a giriş yap
+    async function signInToGoogle() {
+      try {
+        // File protokolü kontrolü
+        if (window.isFileProtocol) {
+          alert('⚠️ Google Drive entegrasyonu için HTTP/HTTPS sunucu gereklidir.\n\nDosyayı bir web sunucusunda çalıştırın (örn: Live Server, Apache, IIS)');
+          updateGoogleDriveStatus('error');
+          return false;
+        }
+        
+        // API Key kontrolü
+        if (window.GOOGLE_DRIVE_CONFIG.API_KEY === 'YOUR_API_KEY_HERE') {
+          alert('⚠️ Google Drive API ayarları eksik!\n\nLütfen konfigürasyon bölümünde API_KEY ve CLIENT_ID değerlerini ayarlayın.');
+          updateGoogleDriveStatus('error');
+          return false;
+        }
+        
+        if (!window.googleApiLoaded) {
+          const loaded = await initGoogleApi();
+          if (!loaded) return false;
+        }
+        
+        if (window.googleSignedIn) {
+          console.log('✅ Zaten Google Drive\'a bağlı');
+          updateGoogleDriveStatus();
+          return true;
+        }
+        
+        console.log('🔄 Google Drive\'a giriş yapılıyor...');
+        updateGoogleDriveStatus('connecting');
+        
+        const authInstance = gapi.auth2.getAuthInstance();
+        const user = await authInstance.signIn();
+        
+        if (user.isSignedIn()) {
+          window.googleSignedIn = true;
+          console.log('✅ Google Drive\'a başarıyla giriş yapıldı');
+          updateGoogleDriveStatus('connected');
+          return true;
+        }
+        
+        updateGoogleDriveStatus('disconnected');
+        return false;
+        
+      } catch (error) {
+        console.error('❌ Google Drive giriş hatası:', error);
+        updateGoogleDriveStatus('error');
+        
+        if (error.toString().includes('cookiePolicy')) {
+          alert('❌ Google Drive giriş hatası!\n\nFile protokolünde çalışıyorsunuz. Lütfen dosyayı bir web sunucusunda (HTTP/HTTPS) çalıştırın.');
+        } else {
+          alert('Google Drive\'a giriş yapılamadı: ' + error.message);
+        }
+        return false;
+      }
+    }
+    
+    // Google Drive durumunu güncelle
+    function updateGoogleDriveStatus(status = null) {
+      const statusDiv = document.getElementById('googleDriveStatus');
+      const btn = document.getElementById('googleDriveBtn');
+      
+      if (!statusDiv || !btn) return;
+      
+      // File protokolü kontrolü
+      if (window.isFileProtocol) {
+        statusDiv.textContent = 'Drive: HTTP/HTTPS Gerekli';
+        statusDiv.style.color = '#fd7e14';
+        btn.innerHTML = '<span style="font-size: 14px;">⚠️</span> Sunucu Gerekli';
+        btn.style.background = '#fd7e14';
+        btn.disabled = false;
+        btn.onclick = () => {
+          alert('⚠️ Google Drive entegrasyonu için HTTP/HTTPS sunucu gereklidir.\n\nÇözümler:\n1. Live Server extension kullanın\n2. XAMPP/WAMP ile Apache başlatın\n3. Python: python -m http.server\n4. Node.js: npx http-server');
+        };
+        return;
+      }
+      
+      if (status === 'connecting') {
+        statusDiv.textContent = 'Drive: Bağlanıyor...';
+        statusDiv.style.color = '#ffc107';
+        btn.innerHTML = '<span style="font-size: 14px;">⏳</span> Bağlanıyor...';
+        btn.disabled = true;
+        
+      } else if (status === 'connected' || window.googleSignedIn) {
+        statusDiv.textContent = 'Drive: Bağlı ✅';
+        statusDiv.style.color = '#28a745';
+        btn.innerHTML = '<span style="font-size: 14px;">✅</span> Bağlı';
+        btn.style.background = '#28a745';
+        btn.disabled = false;
+        btn.onclick = () => alert('Google Drive\'a zaten bağlısınız!');
+        
+      } else if (status === 'error') {
+        statusDiv.textContent = 'Drive: Hata ❌';
+        statusDiv.style.color = '#dc3545';
+        btn.innerHTML = '<span style="font-size: 14px;">💾</span> Tekrar Dene';
+        btn.style.background = '#dc3545';
+        btn.disabled = false;
+        
+      } else {
+        statusDiv.textContent = 'Drive: Bağlantı Yok';
+        statusDiv.style.color = '#666';
+        btn.innerHTML = '<span style="font-size: 14px;">💾</span> Google Drive\'a Bağlan';
+        btn.style.background = '#4285f4';
+        btn.disabled = false;
+        btn.onclick = signInToGoogle;
+      }
+    }
+    
+    // Google Sheets'te hasta adına göre dosya ara
+    async function findPatientSheet(hastaAdi) {
+      try {
+        const query = `name contains '${hastaAdi}' and mimeType='application/vnd.google-apps.spreadsheet'`;
+        
+        const response = await gapi.client.drive.files.list({
+          q: query,
+          fields: 'files(id,name,webViewLink)'
+        });
+        
+        const files = response.result.files;
+        console.log(`🔍 "${hastaAdi}" için ${files.length} adet sheet dosyası bulundu`, files);
+        
+        // Tam eşleşme ara
+        let exactMatch = files.find(file => 
+          file.name.toLowerCase().includes(hastaAdi.toLowerCase()) ||
+          hastaAdi.toLowerCase().includes(file.name.toLowerCase())
+        );
+        
+        if (!exactMatch && files.length > 0) {
+          exactMatch = files[0]; // İlkini al
+        }
+        
+        return exactMatch;
+        
+      } catch (error) {
+        console.error('❌ Google Sheets arama hatası:', error);
+        throw error;
+      }
+    }
+    
+    // Google Sheets'ten belirli tab'ı PDF olarak export et
+    async function exportSheetTabAsPdf(sheetId, tabName) {
+      try {
+        console.log(`📄 Sheet PDF export ediliyor: ${sheetId}, Tab: ${tabName}`);
+        
+        // Önce sheet'in tab'larını listele
+        const sheetsResponse = await gapi.client.request({
+          path: `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}`,
+          params: {
+            fields: 'sheets.properties'
+          }
+        });
+        
+        const sheets = sheetsResponse.result.sheets;
+        const targetSheet = sheets.find(sheet => 
+          sheet.properties.title.toLowerCase() === tabName.toLowerCase()
+        );
+        
+        if (!targetSheet) {
+          throw new Error(`Tab bulunamadı: ${tabName}`);
+        }
+        
+        const sheetGid = targetSheet.properties.sheetId;
+        console.log(`✅ Tab bulundu: ${tabName} (ID: ${sheetGid})`);
+        
+        // PDF export URL'ini oluştur
+        const exportUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=pdf&gid=${sheetGid}&portrait=true&fitw=true&source=web`;
+        
+        // Access token'ı al
+        const authInstance = gapi.auth2.getAuthInstance();
+        const user = authInstance.currentUser.get();
+        const accessToken = user.getAuthResponse().access_token;
+        
+        // PDF'i indir
+        const response = await fetch(exportUrl, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`PDF export hatası: ${response.status}`);
+        }
+        
+        const pdfBlob = await response.blob();
+        console.log('✅ PDF başarıyla export edildi');
+        
+        return pdfBlob;
+        
+      } catch (error) {
+        console.error('❌ Google Sheets PDF export hatası:', error);
+        throw error;
+      }
+    }
+    
+    // Drive'dan PDF yükle (ana fonksiyon)
+    async function drivedenPdfYukle(haftaIndeks) {
+      try {
+        console.log(`🔄 Drive'dan PDF yükleniyor: Hafta ${haftaIndeks + 1}`);
+        
+        // File protokolü kontrolü
+        if (window.isFileProtocol) {
+          alert('⚠️ Google Drive entegrasyonu için HTTP/HTTPS sunucu gereklidir.\n\nDosyayı bir web sunucusunda çalıştırın.');
+          return;
+        }
+        
+        // Seçili hasta kontrolü
+        if (!window.seciliHasta && !window.secilenHasta) {
+          alert('Önce bir hasta seçmelisiniz!');
+          return;
+        }
+        
+        const hasta = window.seciliHasta || window.secilenHasta;
+        
+        // Hafta kilit kontrolü
+        const hafta = hasta.haftalar[haftaIndeks];
+        if (hafta?.kilitli) {
+          alert('🔒 Bu hafta kilitli! PDF yüklemek için önce kilidi açın.');
+          return;
+        }
+        
+        // Google API'yi başlat ve giriş yap
+        const signedIn = await signInToGoogle();
+        if (!signedIn) {
+          return;
+        }
+        
+        // Hasta sheet'ini ara
+        const hastaAdi = hasta.hastaIsim || hasta.isim;
+        console.log(`🔍 "${hastaAdi}" için Google Sheets araştırılıyor...`);
+        
+        const patientSheet = await findPatientSheet(hastaAdi);
+        if (!patientSheet) {
+          alert(`"${hastaAdi}" için Google Sheets dosyası bulunamadı!\n\nLütfen Google Drive'da "${hastaAdi}" isimli bir spreadsheet dosyası oluşturun.`);
+          return;
+        }
+        
+        console.log('✅ Hasta sheet\'i bulundu:', patientSheet.name);
+        
+        // PDF tab ismini oluştur
+        const haftaNo = haftaIndeks + 1;
+        const pdfTabAdi = `${haftaNo}. hafta pdf`;
+        
+        console.log(`📄 "${pdfTabAdi}" tab'ı aranıyor...`);
+        
+        // PDF'i export et
+        const pdfBlob = await exportSheetTabAsPdf(patientSheet.id, pdfTabAdi);
+        
+        // PDF dosyasını File objesine çevir
+        const pdfFile = new File([pdfBlob], `${hastaAdi}_${haftaNo}_hafta.pdf`, {
+          type: 'application/pdf'
+        });
+        
+        console.log('✅ PDF dosyası hazırlandı:', pdfFile.name);
+        
+        // Mevcut PDF yükleme fonksiyonunu kullan
+        await pdfYukleHaftaManuel(haftaIndeks, pdfFile);
+        
+        alert(`✅ PDF başarıyla Drive'dan yüklendi!\n\nDosya: ${pdfFile.name}\nKaynak: ${patientSheet.name} / ${pdfTabAdi}`);
+        
+      } catch (error) {
+        console.error('❌ Drive PDF yükleme hatası:', error);
+        alert(`❌ Drive'dan PDF yüklenemedi!\n\nHata: ${error.message}`);
+      }
+    }
+    
+    // Manuel PDF yükleme fonksiyonu (input olmadan)
+    async function pdfYukleHaftaManuel(haftaIndeks, pdfFile) {
+      try {
+        console.log('🔍 Manuel PDF yükleniyor:', pdfFile.name);
+        
+        const hasta = window.seciliHasta || window.secilenHasta;
+        if (!hasta) {
+          throw new Error('Hasta seçilmemiş');
+        }
+        
+        // PDF'den tarih ve hafta bilgisi çıkar
+        let pdfTarihi = null;
+        let pdfHaftasi = haftaIndeks + 1;
+        
+        try {
+          const parsedInfo = parseProfessionalPdfName(pdfFile.name);
+          if (parsedInfo?.tarih) {
+            pdfTarihi = parsedInfo.tarih;
+          }
+          if (parsedInfo?.hafta) {
+            pdfHaftasi = parsedInfo.hafta;
+          }
+        } catch (error) {
+          console.log('⚠️ PDF isim parse hatası (devam ediliyor):', error.message);
+        }
+        
+        // GitHub'a PDF yükle
+        console.log('  PDF GitHub\'a yükleniyor...');
+        const githubSonuc = await pdfGithubYukle(pdfFile, hasta.id, haftaIndeks + 1);
+        
+        if (githubSonuc.success) {
+          // Hafta verisini güncelle
+          if (!hasta.haftalar[haftaIndeks]) {
+            hasta.haftalar[haftaIndeks] = {
+              haftaNo: haftaIndeks + 1,
+              aciklama: '',
+              tarifler: [],
+              tarihler: [],
+              kayitTarihi: null,
+              kilitli: false
+            };
+          }
+          
+          // PDF bilgilerini kaydet
+          hasta.haftalar[haftaIndeks].pdf = githubSonuc.content;
+          hasta.haftalar[haftaIndeks].pdfYolu = githubSonuc.path;
+          hasta.haftalar[haftaIndeks].pdfName = githubSonuc.fileName;
+          hasta.haftalar[haftaIndeks].pdfOrijinalIsim = pdfFile.name;
+          hasta.haftalar[haftaIndeks].githubUrl = githubSonuc.githubUrl;
+          hasta.haftalar[haftaIndeks].githubLink = githubSonuc.githubUrl;
+          hasta.haftalar[haftaIndeks].githubRawLink = githubSonuc.rawUrl;
+          hasta.haftalar[haftaIndeks].indirmeUrl = githubSonuc.rawUrl;
+          
+          // Tarih bilgisini ekle
+          if (pdfTarihi) {
+            hasta.haftalar[haftaIndeks].pdfTarihi = pdfTarihi;
+            hasta.haftalar[haftaIndeks].tarihler.push(pdfTarihi);
+          }
+          
+          // Kayıt tarihini güncelle
+          hasta.haftalar[haftaIndeks].kayitTarihi = new Date().toISOString();
+          
+          // UI'ı güncelle
+          if (typeof renderSecilenHasta === 'function') {
+            renderSecilenHasta();
+          } else if (typeof gosterHaftalar === 'function') {
+            gosterHaftalar();
+          }
+          
+          console.log('✅ Manuel PDF yükleme başarılı:', pdfFile.name);
+          
+        } else {
+          throw new Error(githubSonuc.error || 'GitHub yükleme başarısız');
+        }
+        
+      } catch (error) {
+        console.error('❌ Manuel PDF yükleme hatası:', error);
+        throw error;
+      }
+    }
+    
+    // Global fonksiyonları ekle
+    window.drivedenPdfYukle = drivedenPdfYukle;
+    window.initGoogleApi = initGoogleApi;
+    window.signInToGoogle = signInToGoogle;
+    window.updateGoogleDriveStatus = updateGoogleDriveStatus;
+    
+    // Sayfa yüklendiğinde Google API'yi hazırla
+    window.addEventListener('load', function() {
+      // Google API'yi arka planda hazırla (kullanıcı işlemi gerektirmez)
+      setTimeout(() => {
+        initGoogleApi().catch(error => {
+          console.log('ℹ️ Google API otomatik yükleme atlandı (normal):', error.message);
+        });
+      }, 2000);
+      
+      // Drive durumunu başlat
+      updateGoogleDriveStatus();
+    });
+
   </script>
 </body>
 </html>
-
 
 
 
