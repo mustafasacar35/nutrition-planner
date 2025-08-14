@@ -14325,7 +14325,7 @@ ${mesajlar.join('\n')}
         
         // GitHub'a PDF yükle
         console.log('  PDF GitHub\'a yükleniyor...');
-        const githubSonuc = await pdfGithubYukle(pdfFile, hasta.id, haftaIndeks + 1);
+        const githubSonuc = await pdfYukleGithub(pdfFile, hasta.id, haftaIndeks + 1);
         
         if (githubSonuc.success) {
           // Hafta verisini güncelle
