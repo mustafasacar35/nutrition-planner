@@ -14120,12 +14120,34 @@ ${mesajlar.join('\n')}
         });
         
         const sheets = sheetsResponse.result.sheets;
-        const targetSheet = sheets.find(sheet => 
+        console.log('📋 Mevcut tab\'lar:', sheets.map(s => s.properties.title));
+        
+        // Tab adını esnek arama
+        let targetSheet = sheets.find(sheet => 
           sheet.properties.title.toLowerCase() === tabName.toLowerCase()
         );
         
+        // Eğer tam eşleşme bulunamazsa, benzer arama yap
         if (!targetSheet) {
-          throw new Error(`Tab bulunamadı: ${tabName}`);
+          // Boşlukları ve noktalama işaretlerini normalize et
+          const normalizeTabName = (name) => name.toLowerCase().replace(/[\s\.]/g, '');
+          const normalizedTargetName = normalizeTabName(tabName);
+          
+          targetSheet = sheets.find(sheet => {
+            const normalizedSheetName = normalizeTabName(sheet.properties.title);
+            return normalizedSheetName.includes(normalizedTargetName) || 
+                   normalizedTargetName.includes(normalizedSheetName);
+          });
+          
+          if (targetSheet) {
+            console.log(`✅ Benzer tab bulundu: "${targetSheet.properties.title}" ~ "${tabName}"`);
+          }
+        }
+        
+        if (!targetSheet) {
+          console.error('❌ Tab bulunamadı:', tabName);
+          console.error('📋 Mevcut tab\'lar:', sheets.map(s => s.properties.title));
+          throw new Error(`Tab bulunamadı: ${tabName}. Mevcut tab'lar: ${sheets.map(s => s.properties.title).join(', ')}`);
         }
         
         const sheetGid = targetSheet.properties.sheetId;
@@ -14207,14 +14229,42 @@ ${mesajlar.join('\n')}
         
         console.log('✅ Hasta sheet\'i bulundu:', patientSheet.name);
         
-        // PDF tab ismini oluştur
+        // PDF tab ismini oluştur - farklı varyasyonları dene
         const haftaNo = haftaIndeks + 1;
-        const pdfTabAdi = `${haftaNo}. hafta pdf`;
+        const possibleTabNames = [
+          `${haftaNo}. hafta pdf`,      // "1. hafta pdf"
+          `${haftaNo}.hafta pdf`,       // "1.hafta pdf"
+          `${haftaNo} hafta pdf`,       // "1 hafta pdf"
+          `${haftaNo}hafta pdf`,        // "1hafta pdf"
+          `${haftaNo}. hafta`,          // "1. hafta"
+          `${haftaNo}.hafta`,           // "1.hafta"
+          `hafta ${haftaNo}`,           // "hafta 1"
+          `hafta${haftaNo}`,            // "hafta1"
+        ];
         
-        console.log(`📄 "${pdfTabAdi}" tab'ı aranıyor...`);
+        console.log(`📄 Tab aranıyor, olası isimler:`, possibleTabNames);
         
-        // PDF'i export et
-        const pdfBlob = await exportSheetTabAsPdf(patientSheet.id, pdfTabAdi);
+        // İlk bulunan tab adını kullan
+        let pdfBlob = null;
+        let foundTabName = null;
+        
+        for (const tabName of possibleTabNames) {
+          try {
+            console.log(`🔍 Deneniyor: "${tabName}"`);
+            pdfBlob = await exportSheetTabAsPdf(patientSheet.id, tabName);
+            foundTabName = tabName;
+            console.log(`✅ Tab bulundu: "${tabName}"`);
+            break;
+          } catch (error) {
+            console.log(`❌ "${tabName}" bulunamadı`);
+            continue;
+          }
+        }
+        
+        if (!pdfBlob) {
+          alert(`❌ Hiçbir hafta tab'ı bulunamadı!\n\n🔍 Aranan varyasyonlar:\n${possibleTabNames.join('\n')}\n\n💡 Google Sheets'te yukardaki isimlerden birini kullanın.`);
+          return;
+        }
         
         // PDF dosyasını File objesine çevir
         const pdfFile = new File([pdfBlob], `${hastaAdi}_${haftaNo}_hafta.pdf`, {
@@ -14226,7 +14276,7 @@ ${mesajlar.join('\n')}
         // Mevcut PDF yükleme fonksiyonunu kullan
         await pdfYukleHaftaManuel(haftaIndeks, pdfFile);
         
-        alert(`✅ PDF başarıyla Drive'dan yüklendi!\n\nDosya: ${pdfFile.name}\nKaynak: ${patientSheet.name} / ${pdfTabAdi}`);
+        alert(`✅ PDF başarıyla Drive'dan yüklendi!\n\nDosya: ${pdfFile.name}\nKaynak: ${patientSheet.name} / ${foundTabName}`);
         
       } catch (error) {
         console.error('❌ Drive PDF yükleme hatası:', error);
