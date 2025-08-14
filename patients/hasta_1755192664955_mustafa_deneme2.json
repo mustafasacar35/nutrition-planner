@@ -16,12 +16,27 @@
       "githubUrl": "https://github.com/mustafasacar35/nutrition-planner/blob/main/pdfs/AAAAC_DENEME 18-24 AĞUSTOS 3. HAFTA.pdf",
       "indirmeUrl": "https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/pdfs/AAAAC_DENEME 18-24 AĞUSTOS 3. HAFTA.pdf",
       "kayitTarihi": "2025-08-14T17:50:57.292Z",
-      "tarifKartlar": [],
-      "tarifler": [],
-      "gptMesaj": "",
-      "pdfFile": {},
-      "manuelKartlar": [],
-      "eslesmeyenTarifler": [
+      "tarifKartlar": [
+        {
+          "tarifAdi": "kıymalı taze fasulye / kabak yemeği (100 gr kıyma ile)",
+          "kartResmi": "kiymali_taze_fasulye.jpg",
+          "kartData": "https://mustafasacar35.github.io/nutrition-planner/tarifler/kiymali_taze_fasulye.jpg",
+          "eslesmeTuru": "tam eşleşme"
+        },
+        {
+          "tarifAdi": "közlenmiş patlıcan salatası",
+          "kartResmi": "kozlenmis_patlican_salatasi.jpg",
+          "kartData": "https://mustafasacar35.github.io/nutrition-planner/tarifler/kozlenmis_patlican_salatasi.jpg",
+          "eslesmeTuru": "tam eşleşme"
+        },
+        {
+          "tarifAdi": "kremalı mantarlı tavuk",
+          "kartResmi": "kremali_mantarli_tavuk.jpg",
+          "kartData": "https://mustafasacar35.github.io/nutrition-planner/tarifler/kremali_mantarli_tavuk.jpg",
+          "eslesmeTuru": "tam eşleşme"
+        }
+      ],
+      "tarifler": [
         "selma tural",
         "her sabah güne başlarken:",
         "ılık su + 1 yk. zeytinyağı + 5-10 damla limon - 1 yk. elma sirkesi",
@@ -54,6 +69,7 @@
         "ceviz (5 adet)",
         "badem unu ekmeği (1 dilim)",
         "akşam (tercihen hava kararınca)",
+        "kıymalı taze fasulye / kabak yemeği (100 gr kıyma ile)",
         "semizotu salatası (2 avuç semizotu,1 adet orta boy domates,1 adet salatalık,1 adet biber ve 1 yemek kaşığı",
         "kollajen (1 ölçek 10 gram)",
         "perşembe",
@@ -78,6 +94,7 @@
         "ceviz (5 adet)",
         "akşam (tercihen hava kararınca)",
         "tavuk pirzola ya da kanat",
+        "közlenmiş patlıcan salatası",
         "fındık (20 adet)",
         "cumartesi̇",
         "öğle (tercihen saat 12:00 civarında)",
@@ -99,12 +116,16 @@
         "ceviz (3 adet)",
         "badem unu ekmeği (1 dilim)",
         "akşam (tercihen hava kararınca)",
+        "kremalı mantarlı tavuk",
         "çiğ badem (10 adet)",
         "yaban mersini ya da 5 adet çilek",
         "ara öğün (tercihen saat 15:00-16:00 civarında): maden suyu (2 çimdik kaya tuzu ve limon 5-10 damla limon",
         "günlük ortalama 5000 adım önerilir",
         "günlük su tüketimi 2 litrenin üzerinde olması önerilir"
       ],
+      "gptMesaj": "",
+      "pdfFile": {},
+      "manuelKartlar": [],
       "eslesenTarifler": [
         "kıymalı taze fasulye / kabak yemeği (100 gr kıyma ile)",
         "közlenmiş patlıcan salatası",
@@ -114,6 +135,6 @@
   ],
   "olusturmaTarihi": "2025-08-14T17:31:04.955Z",
   "yeniSistem": true,
-  "sonGuncelleme": "2025-08-14T17:50:57.294Z",
+  "sonGuncelleme": "2025-08-14T17:51:00.231Z",
   "githubKaydedildi": true
 }
