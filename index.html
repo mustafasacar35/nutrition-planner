@@ -2787,12 +2787,17 @@
           console.log('✅ PDF başarıyla yüklendi:', dosyaYolu);
           
           return {
+            success: true,
             dosyaYolu: dosyaYolu,
             orijinalAd: file.name,
             guvenliAd: guvenliDosyaAdi,
             githubUrl: `https://github.com/${owner}/${repo}/blob/main/${dosyaYolu}`,
             indirmeUrl: `https://raw.githubusercontent.com/${owner}/${repo}/main/${dosyaYolu}`,
-            sha: result.content.sha
+            rawUrl: `https://raw.githubusercontent.com/${owner}/${repo}/main/${dosyaYolu}`,
+            sha: result.content.sha,
+            content: result.content.sha,
+            path: dosyaYolu,
+            fileName: guvenliDosyaAdi
           };
         } else {
           throw new Error(`GitHub API hatası: ${response.status}`);
@@ -2801,7 +2806,10 @@
       } catch (error) {
         console.error('❌ PDF yükleme hatası:', error);
         alert(`PDF yüklenemedi: ${error.message}`);
-        return null;
+        return {
+          success: false,
+          error: error.message
+        };
       }
     }
 
