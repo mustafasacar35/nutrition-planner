@@ -3,9 +3,28 @@
   "isim": "MUSTAFA DENEME2",
   "not": "",
   "arsiv": false,
-  "haftalar": [],
+  "haftalar": [
+    {
+      "haftaNo": 3,
+      "baslangic": "2025-08-18",
+      "bitis": "2025-08-24",
+      "aciklama": "",
+      "pdf": null,
+      "pdfName": "AAAAC_DENEME 18-24 AĞUSTOS 3. HAFTA.pdf",
+      "pdfOrijinalIsim": "AAAAC_DENEME 18-24 AĞUSTOS 3. HAFTA.pdf",
+      "pdfYolu": "pdfs/AAAAC_DENEME 18-24 AĞUSTOS 3. HAFTA.pdf",
+      "githubUrl": "https://github.com/mustafasacar35/nutrition-planner/blob/main/pdfs/AAAAC_DENEME 18-24 AĞUSTOS 3. HAFTA.pdf",
+      "indirmeUrl": "https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/pdfs/AAAAC_DENEME 18-24 AĞUSTOS 3. HAFTA.pdf",
+      "kayitTarihi": "2025-08-14T17:32:01.472Z",
+      "tarifKartlar": [],
+      "tarifler": [],
+      "gptMesaj": "",
+      "pdfFile": {},
+      "manuelKartlar": []
+    }
+  ],
   "olusturmaTarihi": "2025-08-14T17:31:04.955Z",
   "yeniSistem": true,
-  "sonGuncelleme": "2025-08-14T17:31:04.955Z",
+  "sonGuncelleme": "2025-08-14T17:32:01.475Z",
   "githubKaydedildi": true
 }
