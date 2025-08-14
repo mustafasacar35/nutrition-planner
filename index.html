@@ -34,14 +34,39 @@
   <script>
     // Google Drive API Konfigürasyonu
     window.GOOGLE_DRIVE_CONFIG = {
-      // 🔑 BU ALANLARI DOLDURUN:
-      API_KEY: 'YOUR_API_KEY_HERE', // ← Google Cloud Console'dan aldığınız API Key'i buraya yazın
-      CLIENT_ID: 'YOUR_CLIENT_ID_HERE', // ← Google Cloud Console'dan aldığınız Client ID'yi buraya yazın
+      // 🔑 BU ALANLAR localStorage'dan yüklenir:
+      API_KEY: 'YOUR_API_KEY_HERE', // ← localStorage'dan yüklenecek
+      CLIENT_ID: 'YOUR_CLIENT_ID_HERE', // ← localStorage'dan yüklenecek
       
       // Bu alanları değiştirmeyin:
       DISCOVERY_DOC: 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest',
       SCOPES: 'https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/spreadsheets.readonly'
     };
+    
+    // localStorage'dan Google API ayarlarını yükle
+    function loadGoogleApiSettings() {
+      const savedApiKey = localStorage.getItem('googleDriveApiKey');
+      const savedClientId = localStorage.getItem('googleDriveClientId');
+      
+      if (savedApiKey && savedApiKey !== 'YOUR_API_KEY_HERE') {
+        window.GOOGLE_DRIVE_CONFIG.API_KEY = savedApiKey;
+        console.log('✅ Google API Key localStorage\'dan yüklendi');
+      }
+      
+      if (savedClientId && savedClientId !== 'YOUR_CLIENT_ID_HERE') {
+        window.GOOGLE_DRIVE_CONFIG.CLIENT_ID = savedClientId;
+        console.log('✅ Google Client ID localStorage\'dan yüklendi');
+      }
+      
+      if (savedApiKey && savedClientId) {
+        console.log('🔧 Google Drive API ayarları localStorage\'dan hazır');
+      } else {
+        console.log('⚠️ Google Drive API ayarları eksik - konfigürasyon gerekli');
+      }
+    }
+    
+    // Sayfa yüklendiğinde API ayarlarını yükle
+    loadGoogleApiSettings();
     
     // Google API yüklenme durumu
     window.googleApiLoaded = false;
@@ -14238,9 +14263,12 @@ ${mesajlar.join('\n')}
       const apiKeyInput = document.getElementById('googleApiKeyInput');
       const clientIdInput = document.getElementById('googleClientIdInput');
       
-      // Mevcut değerleri yükle
-      apiKeyInput.value = window.GOOGLE_DRIVE_CONFIG.API_KEY === 'YOUR_API_KEY_HERE' ? '' : window.GOOGLE_DRIVE_CONFIG.API_KEY;
-      clientIdInput.value = window.GOOGLE_DRIVE_CONFIG.CLIENT_ID === 'YOUR_CLIENT_ID_HERE' ? '' : window.GOOGLE_DRIVE_CONFIG.CLIENT_ID;
+      // localStorage'dan mevcut değerleri yükle
+      const savedApiKey = localStorage.getItem('googleDriveApiKey');
+      const savedClientId = localStorage.getItem('googleDriveClientId');
+      
+      apiKeyInput.value = savedApiKey && savedApiKey !== 'YOUR_API_KEY_HERE' ? savedApiKey : '';
+      clientIdInput.value = savedClientId && savedClientId !== 'YOUR_CLIENT_ID_HERE' ? savedClientId : '';
       
       // Mevcut origin'i örneklerde göster
       const currentOrigin = window.location.origin;
@@ -14250,11 +14278,19 @@ ${mesajlar.join('\n')}
       if (example2) example2.textContent = currentOrigin;
       
       modal.style.display = 'flex';
+      
+      // Eğer ayarlar zaten mevcutsa bilgilendirme göster
+      if (savedApiKey && savedClientId) {
+        console.log('💾 Mevcut ayarlar localStorage\'dan yüklendi');
+      }
     }
     
     function hideGoogleApiConfig() {
       const modal = document.getElementById('googleApiConfigModal');
       modal.style.display = 'none';
+      
+      // Google Drive durumunu güncelle
+      updateGoogleDriveStatus();
     }
     
     function saveGoogleApiConfig() {
@@ -14279,6 +14315,11 @@ ${mesajlar.join('\n')}
         return;
       }
       
+      // localStorage'a kaydet
+      localStorage.setItem('googleDriveApiKey', apiKey);
+      localStorage.setItem('googleDriveClientId', clientId);
+      console.log('💾 Google API ayarları localStorage\'a kaydedildi');
+      
       // Konfigürasyonu güncelle
       window.GOOGLE_DRIVE_CONFIG.API_KEY = apiKey;
       window.GOOGLE_DRIVE_CONFIG.CLIENT_ID = clientId;
@@ -14297,8 +14338,9 @@ ${mesajlar.join('\n')}
       console.log('📍 Current URL:', currentUrl);
       console.log('🔑 API Key (ilk 10 karakter):', apiKey.substring(0, 10) + '...');
       console.log('🆔 Client ID (ilk 20 karakter):', clientId.substring(0, 20) + '...');
+      console.log('💾 localStorage\'a kaydedildi - sayfa yenilendiğinde kalacak');
       
-      alert(`✅ Google Drive API ayarları kaydedildi!\n\n🌐 Mevcut URL: ${currentUrl}\n\n⚠️ OAuth Ayarları Kontrol Listesi:\n✓ Google Cloud Console > Credentials > OAuth 2.0 Client ID\n✓ Authorized JavaScript origins: ${currentUrl.replace(/\/[^\/]*$/, '')}\n✓ Authorized redirect URIs: aynı URL\n\n💡 Ayarların etkili olması 5-10 dakika sürebilir!`);
+      alert(`✅ Google Drive API ayarları kaydedildi ve localStorage'a saklandı!\n\n💾 Artık sayfa yenilendiğinde ayarlarınız kaybolmayacak!\n\n🌐 Mevcut URL: ${currentUrl}\n\n⚠️ OAuth Ayarları Kontrol Listesi:\n✓ Google Cloud Console > Credentials > OAuth 2.0 Client ID\n✓ Authorized JavaScript origins: ${currentUrl.replace(/\/[^\/]*$/, '').replace(/\/[^\/]*$/, '')}\n✓ Authorized redirect URIs: aynı URL\n\n💡 Ayarların etkili olması 5-10 dakika sürebilir!`);
       
       console.log('✅ Google Drive API konfigürasyonu güncellendi');
     }
