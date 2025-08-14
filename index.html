@@ -136,6 +136,35 @@
       background: #f8f9fa;
     }
     
+    /* Seçili hasta stili */
+    #hastaListesi li.secili-hasta {
+      position: relative;
+      border: 2px solid #dc3545 !important;
+      box-shadow: 0 0 10px rgba(220, 53, 69, 0.3) !important;
+      transform: scale(1.02) !important;
+    }
+    
+    #hastaListesi li.secili-hasta::after {
+      content: '👈 SEÇİLİ';
+      position: absolute;
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%);
+      background: #dc3545;
+      color: white;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 9px;
+      font-weight: bold;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 1; transform: translateY(-50%) scale(1); }
+      50% { opacity: 0.7; transform: translateY(-50%) scale(1.1); }
+      100% { opacity: 1; transform: translateY(-50%) scale(1); }
+    }
+    
     /* Orta Panel */
     .center-panel {
       display: flex;
@@ -294,6 +323,109 @@
     .status-kartlar { background: #ffc107; }
     .status-eslesen { background: #17a2b8; }
     .status-empty { background: #dc3545; }
+    .status-locked { background: #fd7e14; }
+    
+    /* Kilit ikonu stili */
+    .tab-lock-icon {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      font-size: 10px;
+      color: #fd7e14;
+      text-shadow: 0 0 2px rgba(0,0,0,0.5);
+    }
+    
+    /* Kilitli hafta stili */
+    .hafta-tab.locked {
+      background: linear-gradient(135deg, #fff 0%, #fff5e6 100%);
+      border-color: #fd7e14;
+      position: relative;
+    }
+    
+    .hafta-tab.locked.active {
+      background: linear-gradient(135deg, #fff 0%, #fff5e6 100%);
+      border-color: #fd7e14;
+      color: #fd7e14;
+    }
+    
+    /* Kayıt butonu stili */
+    .kayit-btn {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+    
+    .kayit-btn:hover {
+      background: #218838;
+      transform: translateY(-1px);
+    }
+    
+    .kayit-btn.saved {
+      background: #6c757d;
+      cursor: default;
+    }
+    
+    .kayit-btn.saved:hover {
+      transform: none;
+    }
+    
+    /* Kilit açma butonu */
+    .kilit-ac-btn {
+      background: #fd7e14;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      margin-left: 8px;
+    }
+    
+    .kilit-ac-btn:hover {
+      background: #e8630a;
+    }
+    
+    /* Kilitli alan stili */
+    .locked-area {
+      position: relative;
+      opacity: 0.6;
+    }
+    
+    /* Kilitli alandaki input ve textarea'ları devre dışı bırak */
+    .locked-area input,
+    .locked-area textarea {
+      pointer-events: none;
+    }
+    
+    /* ZIP butonları her zaman aktif kalacak */
+    .locked-area button[onclick*="zipEslesenGorseller"],
+    .locked-area button[onclick*="haftaZipIndir"],
+    .locked-area button[onclick*="kopyalaGptMesaj"] {
+      pointer-events: auto !important;
+      opacity: 1 !important;
+    }
+    
+    .locked-area::before {
+      content: '🔒 Bu alan kilitli - Kilidi açmak için kilit açma butonunu kullanın';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(253, 126, 20, 0.9);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 11px;
+      z-index: 10;
+      white-space: nowrap;
+      pointer-events: none;
+    }
     
     .yeni-hafta-tab {
       background: #28a745;
@@ -590,7 +722,7 @@
       <div class="sidebar-section">
         <h3>⚡ İşlemler</h3>
         <input type="password" id="githubToken" placeholder="GitHub Token" style="width:100%; margin-bottom:5px; padding:6px; font-size:11px; border:1px solid #ddd; border-radius:3px;" oninput="saveTokenToStorage()">
-        <input type="text" id="githubRepo" placeholder="GitHub Repo (owner/repo)" value="mustafasacar35/nutrition-planner" style="width:100%; margin-bottom:5px; padding:6px; font-size:11px; border:1px solid #ddd; border-radius:3px;">
+        <input type="text" id="githubRepo" placeholder="GitHub Repo (owner/repo)" value="mustafasacar35/lipodem-takip-paneli" style="width:100%; margin-bottom:5px; padding:6px; font-size:11px; border:1px solid #ddd; border-radius:3px;">
         <button onclick="testGitHubToken()" style="width:100%; margin-bottom:5px; padding:6px; font-size:11px; background:#17a2b8; color:white; border:none; border-radius:3px; cursor:pointer;">🔍 Token Test Et</button>
       </div>
 
@@ -876,14 +1008,22 @@
             sonuc = {
               hastaAdi: match[1].trim().toUpperCase(),
               haftaNo: parseInt(match[6]),
-              tarihAraligi: `${match[2]} ${match[3]} - ${match[4]} ${match[5]}`.toUpperCase()
+              tarihAraligi: `${match[2]} ${match[3]} - ${match[4]} ${match[5]}`.toUpperCase(),
+              baslangicGun: parseInt(match[2]),
+              baslangicAy: match[3].toUpperCase(),
+              bitisGun: parseInt(match[4]),
+              bitisAy: match[5].toUpperCase()
             };
           } else if (pattern === patterns[1]) {
             // "FİGEN TEZMAN 4-10 AĞUSTOS 1.HAFTA"
             sonuc = {
               hastaAdi: match[1].trim().toUpperCase(),
               haftaNo: parseInt(match[5]),
-              tarihAraligi: `${match[2]}-${match[3]} ${match[4]}`.toUpperCase()
+              tarihAraligi: `${match[2]}-${match[3]} ${match[4]}`.toUpperCase(),
+              baslangicGun: parseInt(match[2]),
+              bitisGun: parseInt(match[3]),
+              baslangicAy: match[4].toUpperCase(),
+              bitisAy: match[4].toUpperCase() // Aynı ay
             };
           } else {
             // Genel format
@@ -901,6 +1041,45 @@
       
       console.warn('⚠️ Hiçbir pattern uyuşmadı:', cleanName);
       return null;
+    }
+
+    // Türkçe ay adını sayıya çevir
+    function turkceAyToNumber(ayAdi) {
+      const aylar = {
+        'OCAK': 1, 'ŞUBAT': 2, 'MART': 3, 'NİSAN': 4, 'MAYIS': 5, 'HAZİRAN': 6,
+        'TEMMUZ': 7, 'AĞUSTOS': 8, 'EYLÜL': 9, 'EKİM': 10, 'KASIM': 11, 'ARALIK': 12
+      };
+      return aylar[ayAdi.toUpperCase()] || null;
+    }
+
+    // Parse edilen tarih bilgisini Date formatına çevir
+    function parseEdilmistarihleriDateOlarak(parsedData) {
+      if (!parsedData || !parsedData.baslangicGun || !parsedData.baslangicAy) {
+        return null;
+      }
+      
+      const currentYear = new Date().getFullYear();
+      const baslangicAyNo = turkceAyToNumber(parsedData.baslangicAy);
+      const bitisAyNo = parsedData.bitisAy ? turkceAyToNumber(parsedData.bitisAy) : baslangicAyNo;
+      
+      if (!baslangicAyNo || !bitisAyNo) {
+        console.warn('⚠️ Ay adı çevrilemedi:', parsedData.baslangicAy, parsedData.bitisAy);
+        return null;
+      }
+      
+      // Başlangıç ve bitiş tarihlerini oluştur
+      const baslangicTarih = new Date(currentYear, baslangicAyNo - 1, parsedData.baslangicGun);
+      const bitisTarih = new Date(currentYear, bitisAyNo - 1, parsedData.bitisGun || parsedData.baslangicGun);
+      
+      // Bitiş tarihi başlangıçtan küçükse, sonraki yıla geç
+      if (bitisTarih < baslangicTarih) {
+        bitisTarih.setFullYear(currentYear + 1);
+      }
+      
+      return {
+        baslangic: baslangicTarih.toISOString().slice(0, 10),
+        bitis: bitisTarih.toISOString().slice(0, 10)
+      };
     }
 
     // Dosyayı Base64'e çevirme
@@ -2134,7 +2313,7 @@
     async function loadPublicGitHubData() {
       try {
         console.log('📥 Public manuel eşleştirmeler yükleniyor...');
-        const manuelUrl = 'https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/data/manuel_eslestirmeler.json';
+        const manuelUrl = 'https://raw.githubusercontent.com/mustafasacar35/lipodem-takip-paneli/main/data/manuel_eslestirmeler.json';
         
         try {
           const manuelResp = await fetch(manuelUrl);
@@ -2154,7 +2333,7 @@
         }
 
         console.log('📥 Public yasak kuralları yükleniyor...');
-        const yasakUrl = 'https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/data/eslesmeme_kurallari.json';
+        const yasakUrl = 'https://raw.githubusercontent.com/mustafasacar35/lipodem-takip-paneli/main/data/eslesmeme_kurallari.json';
         
         try {
           const yasakResp = await fetch(yasakUrl);
@@ -2272,7 +2451,7 @@
         }
         
         const owner = 'mustafasacar35';
-        const repo = 'nutrition-planner';
+        const repo = 'lipodem-takip-paneli';
         const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/patients/hastalar_listesi.json`, {
           headers: { 'Authorization': `token ${token}` }
         });
@@ -2330,7 +2509,7 @@
       
       try {
         const owner = 'mustafasacar35';
-        const repo = 'nutrition-planner';
+        const repo = 'lipodem-takip-paneli';
         
         // UTF-8 için doğru encoding
         const content = encodeUTF8ToBase64(hastaListesi);
@@ -2473,7 +2652,7 @@
         console.log('📤 PDF GitHub\'a yükleniyor:', file.name);
         
         const owner = 'mustafasacar35';
-        const repo = 'nutrition-planner';
+        const repo = 'lipodem-takip-paneli';
         
         // Güvenli dosya adı oluştur (sadece problemli karakterleri temizle)
         const guvenliDosyaAdi = file.name
@@ -2587,7 +2766,7 @@
       
       try {
         const owner = 'mustafasacar35';
-        const repo = 'nutrition-planner';
+        const repo = 'lipodem-takip-paneli';
         
         // README.md dosyası ile klasör oluştur
         const content = btoa(`# Hasta Dosyaları
@@ -2647,7 +2826,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         console.log(`💾 ${hasta.isim} hastası kaydediliyor...`);
         
         const owner = 'mustafasacar35';
-        const repo = 'nutrition-planner';
+        const repo = 'lipodem-takip-paneli';
         const branch = 'main';
         
         // Son güncelleme tarihini ekle
@@ -2984,7 +3163,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
       }
 
       const owner = 'mustafasacar35';
-      const repo = 'nutrition-planner';
+      const repo = 'lipodem-takip-paneli';
       const path = 'data/eslesmeme_kurallari.json';
       const branch = 'main';
 
@@ -3058,7 +3237,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
       }
 
       const owner = 'mustafasacar35';
-      const repo = 'nutrition-planner';
+      const repo = 'lipodem-takip-paneli';
       const path = 'data/eslesmeme_kurallari.json';
       const branch = 'main';
 
@@ -3810,7 +3989,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
       gitHubKaydetmeDevamEdiyor = true;
 
       const owner = 'mustafasacar35';
-      const repo = 'nutrition-planner';
+      const repo = 'lipodem-takip-paneli';
       const path = 'data/manuel_eslestirmeler.json';
       const branch = 'main';
 
@@ -3945,7 +4124,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
       }
 
       const owner = 'mustafasacar35';
-      const repo = 'nutrition-planner';
+      const repo = 'lipodem-takip-paneli';
       const path = 'data/manuel_eslestirmeler.json';
       const branch = 'main';
 
@@ -4206,7 +4385,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
       }
 
       const owner = 'mustafasacar35';
-      const repo = 'nutrition-planner';
+      const repo = 'lipodem-takip-paneli';
       const branch = 'main';
 
       try {
@@ -4350,7 +4529,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
       try {
         const token = document.getElementById('githubToken').value.trim();
         const owner = 'mustafasacar35';
-        const repo = 'nutrition-planner';
+        const repo = 'lipodem-takip-paneli';
         
         const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/tarifler/list.json`, {
           headers: { 'Authorization': `token ${token}` }
@@ -4390,7 +4569,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         
         // Kart önizlemesi
         const img = document.createElement('img');
-        img.src = `https://mustafasacar35.github.io/nutrition-planner/tarifler/${kartAdi}`;
+        img.src = `https://mustafasacar35.github.io/lipodem-takip-paneli/tarifler/${kartAdi}`;
         img.style.cssText = 'width:40px; height:40px; object-fit:cover; border-radius:4px;';
         img.onerror = () => {
           img.style.display = 'none';
@@ -4519,7 +4698,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
       
       onizlemeDiv.innerHTML = `
         <div style="display:flex; align-items:center; gap:15px;">
-          <img src="https://mustafasacar35.github.io/nutrition-planner/tarifler/${kartAdi}" 
+          <img src="https://mustafasacar35.github.io/lipodem-takip-paneli/tarifler/${kartAdi}" 
                style="width:80px; height:80px; object-fit:cover; border-radius:8px; border:1px solid #ddd;" 
                onerror="this.style.display='none'; this.nextElementSibling.querySelector('.error-msg').style.display='block'">
           <div>
@@ -4562,7 +4741,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         console.log('🔄 List.json temizliği başlatıldı...');
         
         // Önce list.json'u al
-        const response = await fetch('https://api.github.com/repos/mustafasacar35/nutrition-planner/contents/tarifler/list.json', {
+        const response = await fetch('https://api.github.com/repos/mustafasacar35/lipodem-takip-paneli/contents/tarifler/list.json', {
           headers: {
             'Authorization': `token ${token}`,
             'Accept': 'application/vnd.github.v3+json'
@@ -4584,7 +4763,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         
         for (const fileName of currentContent) {
           try {
-            const checkResponse = await fetch(`https://mustafasacar35.github.io/nutrition-planner/tarifler/${fileName}`, {
+            const checkResponse = await fetch(`https://mustafasacar35.github.io/lipodem-takip-paneli/tarifler/${fileName}`, {
               method: 'HEAD'
             });
             
@@ -4608,7 +4787,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         statusGoster(`${removedCount} dosya temizleniyor...`, 'info');
         
         // Güncellenmiş list.json'u gönder
-        const updateResponse = await fetch('https://api.github.com/repos/mustafasacar35/nutrition-planner/contents/tarifler/list.json', {
+        const updateResponse = await fetch('https://api.github.com/repos/mustafasacar35/lipodem-takip-paneli/contents/tarifler/list.json', {
           method: 'PUT',
           headers: {
             'Authorization': `token ${token}`,
@@ -4692,7 +4871,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         duzenlemeStatusGoster('Kart düzenleniyor...', 'info');
         
         const owner = 'mustafasacar35';
-        const repo = 'nutrition-planner';
+        const repo = 'lipodem-takip-paneli';
         
         // 1. Eski kartı sil
         if (normalizeEdilmisAd !== seciliDuzenleKart) {
@@ -4706,7 +4885,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
           gorselBase64 = await dosyayiBase64Cevir(yeniDosya);
         } else {
           // Dosya seçilmemişse mevcut dosyayı indir ve tekrar yükle
-          const mevcutResponse = await fetch(`https://mustafasacar35.github.io/nutrition-planner/tarifler/${seciliDuzenleKart}`);
+          const mevcutResponse = await fetch(`https://mustafasacar35.github.io/lipodem-takip-paneli/tarifler/${seciliDuzenleKart}`);
           const mevcutBlob = await mevcutResponse.blob();
           gorselBase64 = await new Promise(resolve => {
             const reader = new FileReader();
@@ -4952,7 +5131,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         });
 
         const owner = 'mustafasacar35';
-        const repo = 'nutrition-planner';
+        const repo = 'lipodem-takip-paneli';
         const branch = 'main';
 
         statusGoster('Görsel GitHub\'a yükleniyor...', 'info');
@@ -5084,7 +5263,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         // Her zaman bulunduğun dizinin köküne göre tarifler/ yolunu oluştur
         // Önce GitHub'dan tarifler yüklemeyi deneyelim
         console.log('🌐 GitHub\'dan tarifler yükleniyor...');
-        const githubTariflerUrl = 'https://mustafasacar35.github.io/nutrition-planner/tarifler/list.json';
+        const githubTariflerUrl = 'https://mustafasacar35.github.io/lipodem-takip-paneli/tarifler/list.json';
         
         try {
           const githubResp = await fetch(githubTariflerUrl);
@@ -5097,7 +5276,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
             
             tariflerKlasoruGorselleri = files.map(name => ({
               name,
-              url: 'https://mustafasacar35.github.io/nutrition-planner/tarifler/' + name
+              url: 'https://mustafasacar35.github.io/lipodem-takip-paneli/tarifler/' + name
             }));
             
             window.tarifKartlari = files;
@@ -5314,7 +5493,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
               
               for (const dosyaAdi of dosyaAdlari) {
                 try {
-                  const response = await fetch(`https://api.github.com/repos/mustafasacar35/nutrition-planner/contents/patients/${dosyaAdi}`, {
+                  const response = await fetch(`https://api.github.com/repos/mustafasacar35/lipodem-takip-paneli/contents/patients/${dosyaAdi}`, {
                     headers: { 'Authorization': `token ${token}` }
                   });
                   
@@ -5467,6 +5646,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
           
           li.onclick = () => hastaSecYeniSistem(hasta);
           li.dataset.hastaId = hasta.id;
+          li.classList.add('hasta-item'); // CSS vurgulama için
           ul.appendChild(li);
         });
         
@@ -5490,7 +5670,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         console.log('👤 Yeni sistemde hasta seçiliyor:', hastaBilgi.isim);
         
         const owner = 'mustafasacar35';
-        const repo = 'nutrition-planner';
+        const repo = 'lipodem-takip-paneli';
         
         // Dosya adı alternatifleri dene
         const dosyaAdlari = [
@@ -5589,6 +5769,9 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
           if (secilenHastaNot) secilenHastaNot.textContent = hastaDetay.not || 'Not yok';
           if (hastaBilgiButonlar) hastaBilgiButonlar.style.display = 'block'; // Butonları göster
           
+          // Seçili hastayı vurgula
+          vurgulaSeciliHasta(hastaBilgi.id);
+          
           console.log('✅ Yeni sistemde hasta bilgileri yüklendi:', hastaDetay.isim);
           
           // Hafta tablarını göster
@@ -5637,6 +5820,23 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
       });
       
       return enSonPdfHafta;
+    }
+
+    function vurgulaSeciliHasta(hastaId) {
+      // Önce tüm hasta vurgularını kaldır
+      const tumHastalar = document.querySelectorAll('.hasta-item');
+      tumHastalar.forEach(hasta => {
+        hasta.classList.remove('secili-hasta');
+      });
+      
+      // Seçilen hastayı vurgula
+      const secilenHasta = document.querySelector(`[data-hasta-id="${hastaId}"]`);
+      if (secilenHasta) {
+        secilenHasta.classList.add('secili-hasta');
+        console.log('✅ Hasta vurgulandı:', hastaId);
+      } else {
+        console.log('⚠️ Vurgulanacak hasta bulunamadı:', hastaId);
+      }
     }
 
     function filtreleHastalar() { 
@@ -5964,7 +6164,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         
         // GitHub'dan hasta dosyasını sil
         const owner = 'mustafasacar35';
-        const repo = 'nutrition-planner';
+        const repo = 'lipodem-takip-paneli';
         const token = document.getElementById('githubToken').value.trim();
         
         if (!token) {
@@ -6283,7 +6483,9 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         kayitTarihi: null, // PDF yükleme tarihi
         tarifKartlar: [],
         tarifler: [],
-        gptMesaj: ''
+        gptMesaj: '',
+        kilitli: false, // YENİ: Emniyet kilidi (false = açık)
+        kayitTarihi: null // Kaydedilme tarihi
       });
       saveToStorage();
       
@@ -6387,6 +6589,12 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         // Kayıt tarihi yoksa ekle
         if (hafta.kayitTarihi === undefined) {
           hafta.kayitTarihi = null;
+          dataUpdated = true;
+        }
+        
+        // Kilit durumu yoksa ekle (varsayılan: kilitli değil)
+        if (hafta.kilitli === undefined) {
+          hafta.kilitli = false;
           dataUpdated = true;
         }
         
@@ -6506,7 +6714,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         
         // Tab başlığı oluştur - İLK TAB AKTİF OLSUN (son tıklanan kalacak)
         const tabDiv = document.createElement('div');
-        tabDiv.className = `hafta-tab ${i === 0 ? 'active' : ''}`;
+        tabDiv.className = `hafta-tab ${i === 0 ? 'active' : ''} ${hafta.kilitli ? 'locked' : ''}`;
         tabDiv.dataset.haftaIndex = i; // Dataset ekle
         tabDiv.onclick = () => switchTab(i);
         
@@ -6514,6 +6722,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         const hasPdf = hafta.pdf ? 'status-pdf' : 'status-empty';
         const hasKartlar = (hafta.tarifKartlar && hafta.tarifKartlar.length > 0) ? 'status-kartlar' : 'status-empty';
         const hasEslesen = (hafta.tarifler && hafta.tarifler.length > 0) ? 'status-eslesen' : 'status-empty';
+        const isLocked = hafta.kilitli ? 'status-locked' : 'status-empty';
         
         // Tarih bilgilerini güvenli şekilde kontrol et
         const baslangicTarih = hafta.baslangic || '';
@@ -6544,7 +6753,9 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
             <span class="status-indicator ${hasPdf}" title="PDF durumu"></span>
             <span class="status-indicator ${hasKartlar}" title="Manuel kartlar"></span>
             <span class="status-indicator ${hasEslesen}" title="Eşleşen kartlar"></span>
+            <span class="status-indicator ${isLocked}" title="Kilit durumu"></span>
           </div>
+          ${hafta.kilitli ? '<span class="tab-lock-icon">🔒</span>' : ''}
         `;
         tabsDiv.appendChild(tabDiv);
         console.log(`🏷️ ${haftaNo}. hafta tab'ı eklendi, CSS class:`, tabDiv.className);
@@ -6568,10 +6779,16 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
               <span style="color: #666; font-size: 14px;">📅 ${hafta.baslangic} - ${hafta.bitis}</span>
             </div>
             <div style="display: flex; gap: 5px;">
+              ${!hafta.kilitli ? `
+                <button onclick="haftaKaydet(${i})" class="kayit-btn" style="padding: 5px 12px; font-size: 12px;">💾 Kaydet</button>
+              ` : `
+                <button class="kayit-btn saved" style="padding: 5px 12px; font-size: 12px;">✅ Kaydedildi</button>
+                <button onclick="haftaKilidiAc(${i})" class="kilit-ac-btn" style="padding: 5px 10px; font-size: 11px;">🔓 Kilidi Aç</button>
+              `}
               <button onclick="duzenleHafta(${i})" style="padding: 5px 10px; font-size: 12px;">Düzenle</button>
               <button onclick="silHafta(${i})" style="padding: 5px 10px; font-size: 12px; color: red;">Sil</button>
-              ${haftaNo === 5 ? `<button onclick="haftaZipIndir(${i}, 5)" style="padding: 5px 10px; font-size: 12px; background: #17a2b8; color: white; border: none; border-radius: 4px;" title="5. hafta özel ZIP">📦 ZIP</button>` : ''}
-              ${haftaNo === 9 ? `<button onclick="haftaZipIndir(${i}, 9)" style="padding: 5px 10px; font-size: 12px; background: #6f42c1; color: white; border: none; border-radius: 4px;" title="9. hafta özel ZIP">📦 ZIP</button>` : ''}
+              ${haftaNo === 5 ? `<button onclick="haftaZipIndir(${i}, 5)" style="padding: 5px 10px; font-size: 12px; background: #17a2b8; color: white; border: none; border-radius: 4px;" title="5. hafta özel ZIP (Kilitli durumda da kullanılabilir)">📦 ZIP</button>` : ''}
+              ${haftaNo === 9 ? `<button onclick="haftaZipIndir(${i}, 9)" style="padding: 5px 10px; font-size: 12px; background: #6f42c1; color: white; border: none; border-radius: 4px;" title="9. hafta özel ZIP (Kilitli durumda da kullanılabilir)">📦 ZIP</button>` : ''}
             </div>
           </div>
           
@@ -6579,10 +6796,10 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
             
             <!-- PDF Bölümü -->
-            <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;">
+            <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;" class="${hafta.kilitli ? 'locked-area' : ''}">
               <h4 style="margin: 0 0 10px 0; color: #28a745; font-size: 14px;">📄 PDF</h4>
               <input type="file" accept="application/pdf" onchange="pdfYukleHafta(${i}, this)" 
-                     style="width: 100%; margin-bottom: 10px; font-size: 12px;">
+                     style="width: 100%; margin-bottom: 10px; font-size: 12px;" ${hafta.kilitli ? 'disabled' : ''}>
               ${hafta.pdf || hafta.pdfYolu ? `
                 <div style="color: green; font-weight: bold; font-size: 12px; background: #d4edda; padding: 8px; border-radius: 4px; border-left: 3px solid #28a745;">
                   ✅ <strong style="color: #155724; font-size: 13px;">${hafta.pdfOrijinalIsim || hafta.pdfName || 'hafta.pdf'}</strong>
@@ -6627,24 +6844,25 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
             </div>
             
             <!-- Açıklama Bölümü -->
-            <div style="padding: 15px; background: #d1ecf1; border-radius: 8px; border-left: 4px solid #17a2b8;">
+            <div style="padding: 15px; background: #d1ecf1; border-radius: 8px; border-left: 4px solid #17a2b8;" class="${hafta.kilitli ? 'locked-area' : ''}">
               <h4 style="margin: 0 0 10px 0; color: #0c5460; font-size: 14px;">📝 Açıklama</h4>
               <input type="text" id="aciklama_${i}" value="${hafta.aciklama||''}" 
                      placeholder="Bu hafta hakkında not..." 
                      style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #bee5eb; font-size: 12px;"
-                     onchange="aciklamaKaydet(${i})">
+                     onchange="aciklamaKaydet(${i})" ${hafta.kilitli ? 'readonly' : ''}>>
             </div>
           </div>
           
           <!-- GPT Mesajı - Grid'in Altında -->
-          <div style="margin-bottom: 20px;">
+          <div style="margin-bottom: 20px;" class="${hafta.kilitli ? 'locked-area' : ''}">
             <h4 style="margin: 0 0 10px 0; color: #dc3545; font-size: 16px;">💬 GPT Mesajı</h4>
             <textarea id="gptMesaj_${i}" rows="3" 
                       style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ddd; resize: vertical;"
-                      placeholder="Bu hafta için GPT mesajı veya not...">${hafta.gptMesaj||''}</textarea>
+                      placeholder="Bu hafta için GPT mesajı veya not..."
+                      ${hafta.kilitli ? 'disabled' : ''}>${hafta.gptMesaj||''}</textarea>
             <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
               <div>
-                <button onclick="gptMesajKaydet(${i})" style="padding: 8px 15px; font-size: 12px;">💾 Kaydet</button>
+                <button onclick="gptMesajKaydet(${i})" style="padding: 8px 15px; font-size: 12px;" ${hafta.kilitli ? 'disabled' : ''}>💾 Kaydet</button>
                 <button onclick="kopyalaGptMesaj(${i})" style="padding: 8px 15px; margin-left: 10px; font-size: 12px;">📋 Kopyala</button>
               </div>
               <div>
@@ -6657,7 +6875,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
                   border-radius: 4px; 
                   cursor: pointer;
                   font-weight: bold;
-                " title="Haftalık PDF, eşleşen tarif kartları ve GPT mesajını tek ZIP dosyasında indirir">🗜️ ZIP İndir</button>
+                " title="Haftalık PDF, eşleşen tarif kartları ve GPT mesajını tek ZIP dosyasında indirir${hafta.kilitli ? ' (Kilitli haftada da kullanılabilir)' : ''}">🗜️ ZIP İndir</button>
               </div>
             </div>
           </div>
@@ -6780,8 +6998,18 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
 // Hafta açıklama kaydet (otomatik)
 function aciklamaKaydet(i) {
   const haftalar = getHaftaListesi();
+  const hafta = haftalar[i];
   const aciklamaInput = document.getElementById('aciklama_' + i);
-  haftalar[i].aciklama = aciklamaInput.value;
+  
+  // Kilit kontrolü
+  if (hafta.kilitli) {
+    alert('🔒 Bu hafta kilitli! Açıklama değiştirmek için önce kilidi açın.');
+    // Eski değeri geri yükle
+    aciklamaInput.value = hafta.aciklama || '';
+    return;
+  }
+  
+  hafta.aciklama = aciklamaInput.value;
   saveToStorage();
   
   // Visual feedback
@@ -7887,7 +8115,42 @@ function duzenleHafta(i) {
       }
       
       const haftalar = getHaftaListesi();
-      const haftaNo = haftalar[i].haftaNo || (i + 1);
+      const hafta = haftalar[i];
+      
+      // Kilit kontrolü
+      if (hafta.kilitli) {
+        alert('🔒 Bu hafta kilitli! PDF yüklemek için önce kilidi açın.');
+        input.value = ''; // Input'u temizle
+        return;
+      }
+      
+      // PDF dosya adından tarih ve hafta numarasını çıkar
+      const parsedPdf = parseProfessionalPdfName(file.name);
+      console.log('📋 PDF dosya adı parse sonucu:', parsedPdf);
+      
+      let haftaNo = hafta.haftaNo || (i + 1);
+      
+      // PDF'den hafta numarası varsa güncelle
+      if (parsedPdf && parsedPdf.haftaNo) {
+        console.log(`📅 PDF'den hafta numarası alındı: ${haftaNo} → ${parsedPdf.haftaNo}`);
+        haftaNo = parsedPdf.haftaNo;
+        haftalar[i].haftaNo = parsedPdf.haftaNo;
+      }
+      
+      // PDF'den tarih aralığı varsa güncelle
+      if (parsedPdf && parsedPdf.baslangicGun && parsedPdf.baslangicAy) {
+        const parsedTarihler = parseEdilmistarihleriDateOlarak(parsedPdf);
+        if (parsedTarihler) {
+          console.log(`📅 PDF'den tarih aralığı alındı:`, parsedTarihler);
+          haftalar[i].baslangic = parsedTarihler.baslangic;
+          haftalar[i].bitis = parsedTarihler.bitis;
+          
+          // Başarı mesajı göster
+          const basTarih = new Date(parsedTarihler.baslangic).toLocaleDateString('tr-TR');
+          const bitTarih = new Date(parsedTarihler.bitis).toLocaleDateString('tr-TR');
+          console.log(`✅ Tab tarihleri güncellendi: ${basTarih} - ${bitTarih}`);
+        }
+      }
       
       // GitHub'a PDF yükle
       console.log('  PDF GitHub\'a yükleniyor...');
@@ -8145,14 +8408,35 @@ function duzenleHafta(i) {
           eslestirmeSonucu: eslestirmeSonucu ? 'var' : 'yok'
         });
         
-        if (aktifTab && aktifHaftaIndex === i) {
-          console.log('🎯 PDF yüklenen hafta aktif hafta, kartları güncelleniyor...');
-          setTimeout(() => {
-            gosterEslesenKartlarSidebar(i);
-          }, 500); // Kısa bir gecikme ile güncelle
-        } else {
-          console.log('🔍 PDF yüklenen hafta aktif hafta değil, kart güncelleme yapılmıyor');
+        // Verileri kaydet
+        saveToStorage();
+        
+        // YENİ SİSTEM: GitHub'a da kaydet
+        if (seciliHasta) {
+          hastayiAyriKaydet(seciliHasta).then(basarili => {
+            if (basarili) {
+              console.log('✅ PDF güncellenen hafta verileri GitHub\'a kaydedildi');
+            }
+          }).catch(error => {
+            console.error('❌ GitHub kaydetme hatası:', error);
+          });
         }
+        
+        // Tab başlığını ve tarihlerini güncelle
+        gosterHaftalar();
+        
+        // Aktif tab'ı koru
+        setTimeout(() => {
+          switchTab(i);
+          if (aktifTab && aktifHaftaIndex === i) {
+            console.log('🎯 PDF yüklenen hafta aktif hafta, kartları güncelleniyor...');
+            setTimeout(() => {
+              gosterEslesenKartlarSidebar(i);
+            }, 500); // Kısa bir gecikme ile güncelle
+          } else {
+            console.log('🔍 PDF yüklenen hafta aktif hafta değil, kart güncelleme yapılmıyor');
+          }
+        }, 200);
       };
       reader.readAsArrayBuffer(file);
     }
@@ -9424,7 +9708,7 @@ function duzenleHafta(i) {
       (hafta.tarifKartlar||[]).forEach(kart => {
         const img = document.createElement('img');
         // Güvenli src atama - undefined hatası önleme
-        img.src = kart.data || kart.kartData || `https://mustafasacar35.github.io/nutrition-planner/tarifler/${kart.kartResmi || 'default.jpg'}`;
+        img.src = kart.data || kart.kartData || `https://mustafasacar35.github.io/lipodem-takip-paneli/tarifler/${kart.kartResmi || 'default.jpg'}`;
         img.alt = kart.name || kart.tarifAdi || 'Tarif kartı';
         img.style.width = '100px';
         img.style.margin = '4px';
@@ -9802,7 +10086,7 @@ function duzenleHafta(i) {
         grup.kartlar.forEach(kart => {
           const img = document.createElement('img');
           // Güvenli src atama - undefined hatası önleme
-          img.src = kart.data || kart.kartData || `https://mustafasacar35.github.io/nutrition-planner/tarifler/${kart.kartResmi || kart.name || 'default.jpg'}`;
+          img.src = kart.data || kart.kartData || `https://mustafasacar35.github.io/lipodem-takip-paneli/tarifler/${kart.kartResmi || kart.name || 'default.jpg'}`;
           img.alt = tarif;
           img.title = kart.name || kart.tarifAdi || 'Tarif kartı';
           img.style.width = '120px';
@@ -9917,7 +10201,7 @@ function duzenleHafta(i) {
   hafta.tarifKartlar = eslesenKartlarListesi.map(e => ({
     tarifAdi: e.tarif,
     kartResmi: e.kart.name,
-    kartData: e.kart.data || `https://mustafasacar35.github.io/nutrition-planner/tarifler/${e.kart.name}`,
+    kartData: e.kart.data || `https://mustafasacar35.github.io/lipodem-takip-paneli/tarifler/${e.kart.name}`,
     eslesmeTuru: e.tip
   }));
   
@@ -9964,6 +10248,13 @@ function duzenleHafta(i) {
 
     function gptMesajKaydet(i) {
       const hafta = getHaftaListesi()[i];
+      
+      // Kilit kontrolü
+      if (hafta.kilitli) {
+        alert('🔒 Bu hafta kilitli! GPT mesajını değiştirmek için önce kilidi açın.');
+        return;
+      }
+      
       hafta.gptMesaj = document.getElementById('gptMesaj_' + i).value;
       saveToStorage();
       
@@ -10766,7 +11057,7 @@ function duzenleHafta(i) {
         const repoElement = document.getElementById('githubRepo');
         
         const GITHUB_TOKEN = tokenElement ? tokenElement.value.trim() : '';
-        const GITHUB_REPO = repoElement ? repoElement.value.trim() || 'mustafasacar35/nutrition-planner' : 'mustafasacar35/nutrition-planner';
+        const GITHUB_REPO = repoElement ? repoElement.value.trim() || 'mustafasacar35/lipodem-takip-paneli' : 'mustafasacar35/lipodem-takip-paneli';
         
         if (!GITHUB_TOKEN) {
           console.warn('⚠️ GitHub token bulunamadı');
@@ -12003,7 +12294,7 @@ Detaylı bilgiler için tarayıcı konsolunu (F12) açın.`);
       secilenManuelKartlar.forEach(kartAdi => {
         hafta.manuelKartlar.push({
           name: kartAdi,
-          data: `https://mustafasacar35.github.io/nutrition-planner/tarifler/${kartAdi}`,
+          data: `https://mustafasacar35.github.io/lipodem-takip-paneli/tarifler/${kartAdi}`,
           eklenmeTarihi: new Date().toISOString()
         });
       });
@@ -12757,7 +13048,7 @@ ${mesajlar.join('\n')}
         const repoElement = document.getElementById('githubRepo');
         
         const GITHUB_TOKEN = tokenElement ? tokenElement.value.trim() : '';
-        const GITHUB_REPO = repoElement ? repoElement.value.trim() || 'mustafasacar35/nutrition-planner' : 'mustafasacar35/nutrition-planner';
+        const GITHUB_REPO = repoElement ? repoElement.value.trim() || 'mustafasacar35/lipodem-takip-paneli' : 'mustafasacar35/lipodem-takip-paneli';
         
         if (!GITHUB_TOKEN) {
           alert('GitHub token ayarlanmamış. Lütfen önce GitHub token\'ınızı girin.');
@@ -12890,7 +13181,7 @@ ${mesajlar.join('\n')}
                 } else {
                   // Standart raw format ile dene
                   const encodedFileName = encodeURIComponent(pdfFileName);
-                  pdfUrl = `https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/pdfs/${encodedFileName}`;
+                  pdfUrl = `https://raw.githubusercontent.com/mustafasacar35/lipodem-takip-paneli/main/pdfs/${encodedFileName}`;
                 }
                 
                 console.log(`  PDF URL: ${pdfUrl}`);
@@ -13224,6 +13515,119 @@ ${mesajlar.join('\n')}
       
       console.log('🎉 Çoklu PDF işlemi tamamlandı! Başarılı:', basarili, 'Hatalı:', hatali);
     }
+    
+    // === EMNİYET KİLİDİ FONKSİYONLARI ===
+    
+    // Hafta kaydet ve kilitle
+    async function haftaKaydet(haftaIndex) {
+      if (!seciliHasta || !seciliHasta.haftalar[haftaIndex]) {
+        alert('❌ Geçersiz hafta!');
+        return;
+      }
+      
+      const hafta = seciliHasta.haftalar[haftaIndex];
+      const haftaNo = hafta.haftaNo || (haftaIndex + 1);
+      
+      if (!confirm(`Bu haftayı kaydetmek ve kilitlemek istediğinize emin misiniz?\n\nHafta: ${haftaNo}\nTarih: ${hafta.baslangic} - ${hafta.bitis}\n\n⚠️ Kaydedildikten sonra PDF ve GPT alanları kilitlenicek!`)) {
+        return;
+      }
+      
+      try {
+        // Hafta verilerini kilitle
+        hafta.kilitli = true;
+        hafta.kayitTarihi = new Date().toISOString();
+        
+        // localStorage'a kaydet
+        saveToStorage();
+        
+        // GitHub'a kaydet
+        const kaydedildi = await hastayiAyriKaydet(seciliHasta);
+        
+        if (kaydedildi) {
+          console.log(`✅ ${haftaNo}. hafta başarıyla kaydedildi ve kilitlendi`);
+          
+          // UI'ı güncelle
+          gosterHaftalar();
+          
+          // Başarı mesajı
+          alert(`✅ ${haftaNo}. hafta başarıyla kaydedildi!\n\nHafta artık kilitli. PDF ve GPT alanları korunuyor.\nKilidi açmak için 🔓 butonunu kullanın.`);
+          
+        } else {
+          // GitHub kaydetme başarısız
+          hafta.kilitli = false; // Kilidi geri aç
+          hafta.kayitTarihi = null;
+          saveToStorage();
+          
+          alert('❌ GitHub\'a kaydetme başarısız! Hafta kilitlenemedi.');
+        }
+        
+      } catch (error) {
+        console.error('❌ Hafta kaydetme hatası:', error);
+        
+        // Hata durumunda kilidi geri aç
+        hafta.kilitli = false;
+        hafta.kayitTarihi = null;
+        saveToStorage();
+        
+        alert(`❌ Hafta kaydetme hatası: ${error.message}`);
+      }
+    }
+    
+    // Hafta kilidini aç
+    async function haftaKilidiAc(haftaIndex) {
+      if (!seciliHasta || !seciliHasta.haftalar[haftaIndex]) {
+        alert('❌ Geçersiz hafta!');
+        return;
+      }
+      
+      const hafta = seciliHasta.haftalar[haftaIndex];
+      const haftaNo = hafta.haftaNo || (haftaIndex + 1);
+      
+      if (!confirm(`${haftaNo}. hafta kilidini açmak istediğinize emin misiniz?\n\n⚠️ Kilidi açtıktan sonra PDF ve GPT alanlarını değiştirebilirsiniz.\nVerilerinizi yanlışlıkla kaybetmemek için dikkatli olun!`)) {
+        return;
+      }
+      
+      try {
+        // Hafta kilidini aç
+        hafta.kilitli = false;
+        
+        // localStorage'a kaydet
+        saveToStorage();
+        
+        // GitHub'a kaydet
+        const kaydedildi = await hastayiAyriKaydet(seciliHasta);
+        
+        if (kaydedildi) {
+          console.log(`🔓 ${haftaNo}. hafta kilidi açıldı`);
+          
+          // UI'ı güncelle
+          gosterHaftalar();
+          
+          // Başarı mesajı
+          alert(`🔓 ${haftaNo}. hafta kilidi açıldı!\n\nArtık PDF ve GPT alanlarını düzenleyebilirsiniz.\nİşlemlerinizi bitirdikten sonra tekrar kaydetmeyi unutmayın.`);
+          
+        } else {
+          // GitHub kaydetme başarısız
+          hafta.kilitli = true; // Kilidi geri koy
+          saveToStorage();
+          
+          alert('❌ GitHub\'a kaydetme başarısız! Kilit açılamadı.');
+        }
+        
+      } catch (error) {
+        console.error('❌ Kilit açma hatası:', error);
+        
+        // Hata durumunda kilidi geri koy
+        hafta.kilitli = true;
+        saveToStorage();
+        
+        alert(`❌ Kilit açma hatası: ${error.message}`);
+      }
+    }
+    
+    // Global fonksiyonlar
+    window.haftaKaydet = haftaKaydet;
+    window.haftaKilidiAc = haftaKilidiAc;
 
         sayfaBaslat();
         initResizableSidebars();
@@ -13236,8 +13640,118 @@ ${mesajlar.join('\n')}
     // Global fonksiyon yap
     window.processCokluPdf = processCokluPdf;
 
+    // ===== EMNİYET KİLİDİ SİSTEMİ FONKSIYONLARI =====
+    
+    // Hafta kaydet ve kilitle
+    async function haftaKaydet(i) {
+      if (!seciliHasta) {
+        alert('❌ Lütfen önce bir hasta seçin!');
+        return;
+      }
+      
+      const haftalar = getHaftaListesi();
+      const hafta = haftalar[i];
+      
+      if (hafta.kilitli) {
+        alert('⚠️ Bu hafta zaten kilitli!');
+        return;
+      }
+      
+      // Kullanıcıdan onay al
+      const onay = confirm(`🔒 ${hafta.haftaNo}. haftayı kaydetmek ve kilitlemek istediğinize emin misiniz?\n\nKilitlendikten sonra:\n• PDF değiştirilemez\n• GPT mesajı değiştirilemez\n• Açıklama değiştirilemez\n\n⚠️ Değişiklik yapmak için kilidi açmanız gerekecek.`);
+      
+      if (!onay) return;
+      
+      try {
+        // 1. Hafta verilerini güncelle
+        hafta.kilitli = true;
+        hafta.kilitlenmeTarihi = new Date().toISOString();
+        
+        // 2. LocalStorage'a kaydet
+        saveToStorage();
+        
+        // 3. GitHub'a kaydet
+        const githubBasarili = await hastayiAyriKaydet(seciliHasta);
+        
+        if (githubBasarili) {
+          console.log(`✅ ${hafta.haftaNo}. hafta kaydedildi ve kilitlendi`);
+          alert(`✅ ${hafta.haftaNo}. hafta başarıyla kaydedildi ve kilitlendi!\n\n🔒 Hafta artık yanlışlıkla değiştirilemez.\n💾 Veriler GitHub'a kaydedildi.`);
+        } else {
+          console.warn(`⚠️ ${hafta.haftaNo}. hafta kilitlendi ama GitHub kaydı başarısız`);
+          alert(`⚠️ ${hafta.haftaNo}. hafta kilitlendi ancak GitHub'a kaydetme başarısız!\n\n🔒 Yerel kilit aktif.\n💾 GitHub bağlantınızı kontrol edin.`);
+        }
+        
+        // 4. UI'ı güncelle
+        gosterHaftalar();
+        
+        // 5. Aktif tab'ı koru
+        setTimeout(() => switchTab(i), 100);
+        
+      } catch (error) {
+        console.error('❌ Hafta kaydetme ve kilitleme hatası:', error);
+        alert(`❌ Hafta kaydetme başarısız!\n\nHata: ${error.message}`);
+      }
+    }
+    
+    // Hafta kilidini aç
+    async function haftaKilidiAc(i) {
+      if (!seciliHasta) {
+        alert('❌ Lütfen önce bir hasta seçin!');
+        return;
+      }
+      
+      const haftalar = getHaftaListesi();
+      const hafta = haftalar[i];
+      
+      if (!hafta.kilitli) {
+        alert('⚠️ Bu hafta zaten kilitli değil!');
+        return;
+      }
+      
+      // Kullanıcıdan onay al
+      const onay = confirm(`🔓 ${hafta.haftaNo}. haftanın kilidini açmak istediğinize emin misiniz?\n\nKilit açıldıktan sonra:\n• PDF değiştirilebilir\n• GPT mesajı değiştirilebilir\n• Açıklama değiştirilebilir\n\n⚠️ Yanlışlıkla veri kaybı riski oluşur!`);
+      
+      if (!onay) return;
+      
+      try {
+        // 1. Hafta verilerini güncelle
+        hafta.kilitli = false;
+        hafta.kilitAcmaTarihi = new Date().toISOString();
+        
+        // 2. LocalStorage'a kaydet
+        saveToStorage();
+        
+        // 3. GitHub'a kaydet
+        const githubBasarili = await hastayiAyriKaydet(seciliHasta);
+        
+        if (githubBasarili) {
+          console.log(`🔓 ${hafta.haftaNo}. hafta kilidi açıldı`);
+          alert(`🔓 ${hafta.haftaNo}. hafta kilidi başarıyla açıldı!\n\n✏️ Artık düzenleyebilirsiniz.\n💾 Değişiklik GitHub'a kaydedildi.`);
+        } else {
+          console.warn(`⚠️ ${hafta.haftaNo}. hafta kilidi açıldı ama GitHub kaydı başarısız`);
+          alert(`⚠️ ${hafta.haftaNo}. hafta kilidi açıldı ancak GitHub'a kaydetme başarısız!\n\n🔓 Yerel kilit açık.\n💾 GitHub bağlantınızı kontrol edin.`);
+        }
+        
+        // 4. UI'ı güncelle
+        gosterHaftalar();
+        
+        // 5. Aktif tab'ı koru
+        setTimeout(() => switchTab(i), 100);
+        
+      } catch (error) {
+        console.error('❌ Hafta kilit açma hatası:', error);
+        alert(`❌ Kilit açma başarısız!\n\nHata: ${error.message}`);
+      }
+    }
+    
+    // Global fonksiyonlar
+    window.haftaKaydet = haftaKaydet;
+    window.haftaKilidiAc = haftaKilidiAc;
+
   </script>
 </body>
 </html>
+
+
 
 
