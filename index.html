@@ -74,6 +74,57 @@
     window.googleSignedIn = false;
     window.googleApiAvailable = false;
     
+    // 🤖 GPT API Konfigürasyonu
+    window.GPT_CONFIG = {
+      API_KEY: localStorage.getItem('gptApiKey') || '',
+      API_URL: 'https://api.openai.com/v1/chat/completions',
+      MODEL: localStorage.getItem('gptModel') || 'gpt-3.5-turbo', // Varsayılan model
+      CUSTOM_GPT_ID: localStorage.getItem('customGptId') || '', // Özel GPT ID'si
+      CUSTOM_GPT_CONVERSATION_ID: localStorage.getItem('customGptConversationId') || '', // Sohbet ID
+      PROJECT_NAME: 'özel_hasta_13-hafta', // Sabit proje adı
+      MAX_TOKENS: 1500,
+      USE_CUSTOM_GPT: localStorage.getItem('useCustomGpt') === 'true' || false // Özel GPT kullanım tercihi
+    };
+    
+    // GPT API ayarlarını localStorage'dan yükle
+    function loadGptApiSettings() {
+      const savedApiKey = localStorage.getItem('gptApiKey');
+      const savedModel = localStorage.getItem('gptModel');
+      const savedCustomGptId = localStorage.getItem('customGptId');
+      const savedCustomGptConversationId = localStorage.getItem('customGptConversationId');
+      const savedUseCustomGpt = localStorage.getItem('useCustomGpt');
+      
+      if (savedApiKey) {
+        window.GPT_CONFIG.API_KEY = savedApiKey;
+        console.log('✅ GPT API Key localStorage\'dan yüklendi');
+      } else {
+        console.log('⚠️ GPT API Key ayarlanmamış');
+      }
+      
+      if (savedModel) {
+        window.GPT_CONFIG.MODEL = savedModel;
+        console.log('✅ GPT Model localStorage\'dan yüklendi:', savedModel);
+      }
+      
+      if (savedCustomGptId) {
+        window.GPT_CONFIG.CUSTOM_GPT_ID = savedCustomGptId;
+        console.log('✅ Custom GPT ID localStorage\'dan yüklendi');
+      }
+      
+      if (savedCustomGptConversationId) {
+        window.GPT_CONFIG.CUSTOM_GPT_CONVERSATION_ID = savedCustomGptConversationId;
+        console.log('✅ Custom GPT Sohbet ID localStorage\'dan yüklendi');
+      }
+      
+      if (savedUseCustomGpt) {
+        window.GPT_CONFIG.USE_CUSTOM_GPT = savedUseCustomGpt === 'true';
+        console.log('✅ Custom GPT kullanım tercihi:', window.GPT_CONFIG.USE_CUSTOM_GPT);
+      }
+    }
+    
+    // Sayfa yüklendiğinde GPT API ayarlarını yükle
+    loadGptApiSettings();
+    
     // File protokolü kontrol
     window.isFileProtocol = window.location.protocol === 'file:';
     if (window.isFileProtocol) {
@@ -819,6 +870,121 @@
         <button onclick="eslesmemeRegeleriPaneliGoster()" style="width:100%; margin-bottom:5px; padding:6px; font-size:11px; background:#dc3545; color:white; border:none; border-radius:3px; cursor:pointer;">🚫 Eşleşme Yasakları</button>
         <button onclick="generateCustomLenfMasajTakvimi()" style="width:100%; margin-bottom:5px; padding:6px; font-size:11px; background:#28a745; color:white; border:none; border-radius:3px; cursor:pointer;">💆 Lenf Masaj Takvimi</button>
         <button onclick="generateCustomEgzersizTakvimi()" style="width:100%; margin-bottom:5px; padding:6px; font-size:11px; background:#007bff; color:white; border:none; border-radius:3px; cursor:pointer;">🏃 Egzersiz Takvimi</button>
+      </div>
+
+      <!-- GPT Analiz Bölümü -->
+      <div class="sidebar-section">
+        <h3>🤖 GPT Analiz</h3>
+        
+        <!-- GPT API Key Input -->
+        <input type="password" 
+               id="gptApiKey" 
+               placeholder="GPT API Key" 
+               style="width:100%; margin-bottom:5px; padding:6px; font-size:11px; border:1px solid #ddd; border-radius:3px;" 
+               oninput="saveGptApiKey()">
+        
+        <!-- GPT Model Seçimi -->
+        <select id="gptModel" 
+                style="width:100%; margin-bottom:5px; padding:6px; font-size:11px; border:1px solid #ddd; border-radius:3px;"
+                onchange="saveGptModel()">
+          <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Hızlı)</option>
+          <option value="gpt-4">GPT-4 (Güçlü)</option>
+          <option value="gpt-4-turbo">GPT-4 Turbo (En Güçlü)</option>
+        </select>
+        
+        <!-- Custom GPT Ayarları -->
+        <div style="background:#f8f9fa; padding:8px; border-radius:4px; margin-bottom:5px;">
+          <label style="display:flex; align-items:center; font-size:11px; margin-bottom:5px;">
+            <input type="checkbox" 
+                   id="useCustomGpt" 
+                   style="margin-right:5px;" 
+                   onchange="toggleCustomGpt()">
+            🎯 Özel GPT Projesi Kullan
+          </label>
+          
+          <input type="text" 
+                 id="customGptId" 
+                 placeholder="Proje Adı: özel_hasta_13-hafta" 
+                 style="width:100%; padding:4px; font-size:10px; border:1px solid #ddd; border-radius:3px; margin-bottom:3px;"
+                 oninput="saveCustomGptId()">
+          
+          <input type="text" 
+                 id="customGptConversationId" 
+                 placeholder="Sohbet ID (isteğe bağlı)" 
+                 style="width:100%; padding:4px; font-size:10px; border:1px solid #ddd; border-radius:3px; margin-bottom:3px;"
+                 oninput="saveCustomGptConversationId()">
+          
+          <div style="font-size:9px; color:#6c757d; line-height:1.2;">
+            💡 ChatGPT'deki "özel_hasta_13-hafta" projenizi kullanır. 
+            Hasta adına göre otomatik sohbet seçimi yapılır.
+          </div>
+        </div>
+        
+        <!-- Ek Metin Alanı -->
+        <div style="margin-bottom:5px;">
+          <label style="font-size:11px; font-weight:bold; color:#6c757d;">📝 Ek Metin/Notlar:</label>
+          <textarea id="ekMetinAlani" 
+                    placeholder="GPT'ye gönderilecek ek bilgiler, notlar veya özel talimatlar..."
+                    style="width:100%; height:60px; padding:6px; font-size:10px; border:1px solid #ddd; border-radius:3px; resize:vertical; font-family:inherit; line-height:1.3;"></textarea>
+        </div>
+               
+        <!-- GPT Analiz Butonları -->
+        <button onclick="showGPTAnalysis()" 
+                style="width:100%; margin-bottom:5px; padding:6px; font-size:11px; background:#8e44ad; color:white; border:none; border-radius:3px; cursor:pointer; font-weight:bold;">
+          🧠 Tüm Haftaları Analiz Et
+        </button>
+        
+        <button onclick="showGPTAnalysis(getCurrentHaftaIndex())" 
+                style="width:100%; margin-bottom:5px; padding:6px; font-size:11px; background:#9b59b6; color:white; border:none; border-radius:3px; cursor:pointer;">
+          📅 Aktif Haftayı Analiz Et
+        </button>
+        
+        <!-- PDF Yorumlama Butonu (YENİ) -->
+        <button onclick="analyzeCurrentPdfWithGPT()" 
+                style="width:100%; margin-bottom:5px; padding:6px; font-size:11px; background:#e74c3c; color:white; border:none; border-radius:3px; cursor:pointer; font-weight:bold;">
+          📄 Aktif PDF'i Yorumla
+        </button>
+        
+        <!-- Özel Proje Butonları -->
+        <div style="border-top:1px solid #ddd; padding-top:8px; margin-top:8px;">
+          <div style="font-size:10px; color:#6c757d; margin-bottom:5px; font-weight:bold;">🎯 Özel Proje İşlemleri:</div>
+          
+          <button onclick="sendToCustomProject()" 
+                  style="width:100%; margin-bottom:3px; padding:5px; font-size:10px; background:#2c3e50; color:white; border:none; border-radius:3px; cursor:pointer; font-weight:bold;">
+            💬 Hasta Sohbetine Gönder
+          </button>
+          
+          <button onclick="sendPdfToCustomProject()" 
+                  style="width:100%; margin-bottom:3px; padding:5px; font-size:10px; background:#34495e; color:white; border:none; border-radius:3px; cursor:pointer;">
+            📄 PDF + Ek Metin Gönder
+          </button>
+          
+          <button onclick="openCustomProjectChat()" 
+                  style="width:100%; margin-bottom:3px; padding:5px; font-size:10px; background:#7f8c8d; color:white; border:none; border-radius:3px; cursor:pointer;">
+            🔗 ChatGPT'de Aç
+          </button>
+        </div>
+        
+        <!-- GPT Mesaj Alanı -->
+        <div style="margin-top:10px;">
+          <label style="font-size:11px; font-weight:bold; color:#6c757d;">GPT Analiz Sonucu:</label>
+          <textarea id="gptMesajAlani" 
+                    placeholder="GPT analizi burada görünecek..."
+                    style="width:100%; height:200px; padding:8px; font-size:11px; border:1px solid #ddd; border-radius:4px; resize:vertical; font-family:inherit; line-height:1.4;"
+                    readonly></textarea>
+        </div>
+        
+        <!-- GPT Mesaj Araçları -->
+        <div style="margin-top:5px; display:flex; gap:5px;">
+          <button onclick="copyGptAnalysis()" 
+                  style="flex:1; padding:4px; font-size:10px; background:#28a745; color:white; border:none; border-radius:3px; cursor:pointer;">
+            📋 Kopyala
+          </button>
+          <button onclick="clearGptAnalysis()" 
+                  style="flex:1; padding:4px; font-size:10px; background:#dc3545; color:white; border:none; border-radius:3px; cursor:pointer;">
+            🗑️ Temizle
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -14650,6 +14816,566 @@ ${mesajlar.join('\n')}
       console.log('✅ Google Drive API konfigürasyonu güncellendi');
     }
     
+    // === GPT API ENTEGRASYONu ===
+    
+    // GPT API ile mesaj gönder (Custom GPT desteği ile)
+    async function sendToGPT(prompt, context = '', useCustomPrompt = false) {
+      if (!window.GPT_CONFIG.API_KEY) {
+        throw new Error('GPT API Key ayarlanmamış! Lütfen API Key\'inizi girin.');
+      }
+      
+      try {
+        // Custom GPT kullanılıyorsa farklı system prompt
+        const systemPrompt = window.GPT_CONFIG.USE_CUSTOM_GPT && !useCustomPrompt ? 
+          "Beslenme uzmanı Custom GPT'im olarak davran. Özel eğitimini kullanarak analiz yap." :
+          "Sen bir beslenme uzmanısın. Hastalar için hazırlanan yemek listelerini analiz ediyorsun. Türkçe yanıt ver ve detaillı, profesyonel öneriler sun.";
+        
+        const messages = [
+          {
+            role: "system",
+            content: systemPrompt
+          },
+          {
+            role: "user", 
+            content: context ? `${context}\n\n${prompt}` : prompt
+          }
+        ];
+        
+        // Model seçimi - Custom GPT varsa onu kullan
+        const modelToUse = window.GPT_CONFIG.USE_CUSTOM_GPT && window.GPT_CONFIG.CUSTOM_GPT_ID ? 
+          window.GPT_CONFIG.CUSTOM_GPT_ID : window.GPT_CONFIG.MODEL;
+        
+        console.log('🤖 GPT Gönderiliyor:', {
+          model: modelToUse,
+          useCustomGpt: window.GPT_CONFIG.USE_CUSTOM_GPT,
+          customGptId: window.GPT_CONFIG.CUSTOM_GPT_ID,
+          promptLength: prompt.length
+        });
+        
+        const requestBody = {
+          model: modelToUse,
+          messages: messages,
+          max_tokens: window.GPT_CONFIG.MAX_TOKENS,
+          temperature: 0.7
+        };
+        
+        // Custom GPT için ekstra parametreler varsa ekle
+        if (window.GPT_CONFIG.USE_CUSTOM_GPT && window.GPT_CONFIG.CUSTOM_GPT_ID) {
+          requestBody.gpt_id = window.GPT_CONFIG.CUSTOM_GPT_ID;
+        }
+        
+        const response = await fetch(window.GPT_CONFIG.API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${window.GPT_CONFIG.API_KEY}`
+          },
+          body: JSON.stringify(requestBody)
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(`GPT API Hatası: ${response.status} - ${errorData.error?.message || 'Bilinmeyen hata'}`);
+        }
+        
+        const data = await response.json();
+        return data.choices[0].message.content;
+        
+      } catch (error) {
+        console.error('❌ GPT API Hatası:', error);
+        throw error;
+      }
+    }
+    
+    // Hasta yemek listesini GPT'ye analiz ettir
+    async function analyzePatientMealsWithGPT(haftaIndex = null) {
+      try {
+        if (!seciliHasta) {
+          throw new Error('Önce bir hasta seçin!');
+        }
+        
+        // Analiz edilecek haftaları belirle
+        const haftalar = haftaIndex !== null ? [seciliHasta.haftalar[haftaIndex]] : seciliHasta.haftalar;
+        
+        if (!haftalar || haftalar.length === 0) {
+          throw new Error('Analiz edilecek hafta bulunamadı!');
+        }
+        
+        // Yemek listesini hazırla
+        let yemekListesi = [];
+        haftalar.forEach((hafta, index) => {
+          if (hafta && hafta.tarifKartlar && hafta.tarifKartlar.length > 0) {
+            const haftaNo = hafta.haftaNo || (index + 1);
+            hafta.tarifKartlar.forEach(kart => {
+              yemekListesi.push(`${haftaNo}. Hafta: ${kart.kartAdi || kart.tarifAdi || 'İsimsiz yemek'}`);
+            });
+          }
+        });
+        
+        if (yemekListesi.length === 0) {
+          throw new Error('Analiz edilecek yemek bulunamadı! Önce yemek kartları ekleyin.');
+        }
+        
+        // GPT prompt'unu hazırla
+        const hasta = seciliHasta;
+        const prompt = `
+Hasta Bilgileri:
+- İsim: ${hasta.hastaIsim || hasta.isim}
+- Hasta ID: ${hasta.id}
+- Toplam Hafta Sayısı: ${haftalar.length}
+
+Yemek Listesi:
+${yemekListesi.join('\n')}
+
+Lütfen bu yemek listesini analiz ederek aşağıdaki konularda değerlendirme yapın:
+
+1. 🍎 Beslenme Dengesi: Karbonhidrat, protein, yağ dengesinin uygunluğu
+2. 🥗 Besin Çeşitliliği: Sebze, meyve, tahıl çeşitliliği
+3. 🏥 Lipodem Uygunluğu: Lipodem hastası için uygun/sakıncalı yemekler
+4. 💡 Öneriler: Eksik besinler ve alternatif öneriler
+5. ⚠️ Dikkat Edilmesi Gerekenler: Olası problemli yemekler
+
+Yanıtını Türkçe, detaylı ve hasta için anlaşılır şekilde yaz.`;
+
+        return await sendToGPT(prompt);
+        
+      } catch (error) {
+        console.error('❌ GPT Analiz Hatası:', error);
+        throw error;
+      }
+    }
+    
+    // GPT analizini UI'da göster
+    async function showGPTAnalysis(haftaIndex = null) {
+      try {
+        // Loading göster
+        showToast('🤖 GPT ile analiz ediliyor...', 'info', 8000);
+        
+        // GPT analizini al
+        const analysis = await analyzePatientMealsWithGPT(haftaIndex);
+        
+        // GPT mesaj alanına yaz
+        const gptMesajAlani = document.getElementById('gptMesajAlani');
+        if (gptMesajAlani) {
+          gptMesajAlani.value = analysis;
+          gptMesajAlani.style.height = 'auto';
+          gptMesajAlani.style.height = gptMesajAlani.scrollHeight + 'px';
+        }
+        
+        // Başarı mesajı
+        showToast('✅ GPT analizi tamamlandı!', 'success', 3000);
+        
+        // GPT analiz paneliini göster/kaydet
+        saveToStorage();
+        
+      } catch (error) {
+        showToast(`❌ GPT Analiz Hatası: ${error.message}`, 'error', 5000);
+        console.error('❌ GPT Analiz gösterme hatası:', error);
+      }
+    }
+    
+    // === GPT YARDIMCI FONKSİYONLAR ===
+    
+    // GPT API Key'i kaydet
+    function saveGptApiKey() {
+      const apiKey = document.getElementById('gptApiKey').value.trim();
+      if (apiKey) {
+        localStorage.setItem('gptApiKey', apiKey);
+        window.GPT_CONFIG.API_KEY = apiKey;
+        console.log('✅ GPT API Key localStorage\'a kaydedildi');
+      }
+    }
+    
+    // Aktif hafta indeksini al
+    function getCurrentHaftaIndex() {
+      const activeTab = document.querySelector('.hafta-tab.active');
+      if (activeTab) {
+        return parseInt(activeTab.dataset.haftaIndex) || 0;
+      }
+      return 0;
+    }
+    
+    // GPT Model seçimini kaydet
+    function saveGptModel() {
+      const model = document.getElementById('gptModel').value;
+      localStorage.setItem('gptModel', model);
+      window.GPT_CONFIG.MODEL = model;
+      console.log('✅ GPT Model kaydedildi:', model);
+    }
+    
+    // Custom GPT ID'sini kaydet
+    function saveCustomGptId() {
+      const customGptId = document.getElementById('customGptId').value.trim();
+      localStorage.setItem('customGptId', customGptId);
+      window.GPT_CONFIG.CUSTOM_GPT_ID = customGptId;
+      console.log('✅ Custom GPT ID kaydedildi:', customGptId);
+    }
+    
+    // Proje adını kaydet
+    function saveProjectName() {
+      const projectName = document.getElementById('projectName').value.trim();
+      localStorage.setItem('projectName', projectName);
+      window.GPT_CONFIG.PROJECT_NAME = projectName;
+      console.log('✅ Proje adı kaydedildi:', projectName);
+    }
+    
+    // Custom GPT kullanımını aç/kapat
+    function toggleCustomGpt() {
+      const useCustomGpt = document.getElementById('useCustomGpt').checked;
+      localStorage.setItem('useCustomGpt', useCustomGpt.toString());
+      window.GPT_CONFIG.USE_CUSTOM_GPT = useCustomGpt;
+      console.log('✅ Custom GPT kullanımı:', useCustomGpt);
+      
+      // Custom GPT input'un görünürlüğünü ayarla
+      const customGptInput = document.getElementById('customGptId');
+      if (customGptInput) {
+        customGptInput.style.opacity = useCustomGpt ? '1' : '0.5';
+        customGptInput.disabled = !useCustomGpt;
+      }
+    }
+    
+    // Aktif PDF'i GPT ile yorumla
+    async function analyzeCurrentPdfWithGPT() {
+      try {
+        if (!seciliHasta) {
+          throw new Error('Önce bir hasta seçin!');
+        }
+        
+        const aktifHaftaIndex = getCurrentHaftaIndex();
+        const hafta = seciliHasta.haftalar[aktifHaftaIndex];
+        
+        if (!hafta || !hafta.pdf) {
+          throw new Error('Bu haftada analiz edilecek PDF bulunamadı!');
+        }
+        
+        // Loading göster
+        showToast('📄 PDF GPT ile yorumlanıyor...', 'info', 10000);
+        
+        // PDF'den yemek listesini çıkar (zaten varsa)
+        let yemekListesi = [];
+        if (hafta.tarifKartlar && hafta.tarifKartlar.length > 0) {
+          yemekListesi = hafta.tarifKartlar.map(kart => kart.kartAdi || kart.tarifAdi || 'İsimsiz yemek');
+        }
+        
+        // PDF bilgileri
+        const pdfBilgisi = `
+PDF Bilgileri:
+- Dosya: ${hafta.pdfOrijinalIsim || hafta.pdfName || 'Bilinmeyen'}
+- Hafta: ${hafta.haftaNo || (aktifHaftaIndex + 1)}
+- Yüklenme: ${hafta.kayitTarihi ? new Date(hafta.kayitTarihi).toLocaleDateString('tr-TR') : 'Bilinmiyor'}
+- Tespit edilen yemekler: ${yemekListesi.length} adet
+`;
+        
+        // Özel prompt hazırla
+        const prompt = `
+📄 PDF YORUMLAMA TALEBİ
+
+${pdfBilgisi}
+
+${yemekListesi.length > 0 ? `
+Tespit Edilen Yemekler:
+${yemekListesi.map((yemek, index) => `${index + 1}. ${yemek}`).join('\n')}
+` : 'Bu PDF\'den henüz yemek listesi çıkarılamamış.'}
+
+Hasta Bilgileri:
+- İsim: ${seciliHasta.hastaIsim || seciliHasta.isim}
+- Hasta ID: ${seciliHasta.id}
+
+GÖREV: Bu PDF'deki yemek planını detaylı şekilde analiz et ve yorumla. Lütfen şunları değerlendir:
+
+1. 🍎 BESİN ANALİZİ: Karbonhidrat, protein, yağ, vitamin, mineral dengesi
+2. 🏥 LİPODEM UYGUNLUĞU: Lipodem hastası için faydalı/zararlı yemekler
+3. 💡 ÖNERİLER: Eksik besinler, alternatif yemekler, porsiyon önerileri
+4. ⚠️ DİKKAT EDİLECEKLER: Kaçınılması gereken yemekler, olası riskler
+5. 📅 GENEL DEĞERLENDİRME: Bu haftanın genel beslenme kalitesi
+
+Yanıtını Türkçe, detaylı ve hasta için anlaşılır şekilde yaz. Mümkünse numerik değerlendirmeler de ekle (1-10 arası puanlama).
+`;
+
+        // GPT'ye gönder
+        const analysis = await sendToGPT(prompt, '', true);
+        
+        // GPT mesaj alanına yaz
+        const gptMesajAlani = document.getElementById('gptMesajAlani');
+        if (gptMesajAlani) {
+          gptMesajAlani.value = analysis;
+          gptMesajAlani.style.height = 'auto';
+          gptMesajAlani.style.height = gptMesajAlani.scrollHeight + 'px';
+        }
+        
+        // Başarı mesajı
+        showToast('✅ PDF yorumu tamamlandı!', 'success', 3000);
+        
+        // Kaydet
+        saveToStorage();
+        
+      } catch (error) {
+        showToast(`❌ PDF Yorumlama Hatası: ${error.message}`, 'error', 5000);
+        console.error('❌ PDF yorumlama hatası:', error);
+      }
+    }
+    
+    // === ÖZEL PROJE FONKSİYONLARI ===
+    
+    // Custom GPT Sohbet ID'sini kaydet
+    function saveCustomGptConversationId() {
+      const conversationId = document.getElementById('customGptConversationId').value.trim();
+      localStorage.setItem('customGptConversationId', conversationId);
+      window.GPT_CONFIG.CUSTOM_GPT_CONVERSATION_ID = conversationId;
+      console.log('✅ Custom GPT Sohbet ID kaydedildi:', conversationId);
+    }
+    
+    // Özel projeye mesaj gönder (sadece ek metin)
+    async function sendToCustomProject() {
+      try {
+        if (!seciliHasta) {
+          throw new Error('Önce bir hasta seçin!');
+        }
+        
+        const ekMetin = document.getElementById('ekMetinAlani').value.trim();
+        if (!ekMetin) {
+          throw new Error('Lütfen ek metin alanına bir şeyler yazın!');
+        }
+        
+        // Hasta adına uygun sohbet URL'ini oluştur
+        const hastaAdi = seciliHasta.hastaIsim || seciliHasta.isim;
+        const chatUrl = generateCustomProjectChatUrl(hastaAdi);
+        
+        // Loading göster
+        showToast('💬 Özel projeye mesaj gönderiliyor...', 'info', 5000);
+        
+        // Mesaj içeriğini hazırla
+        const mesajIcerigi = `
+🏥 HASTA: ${hastaAdi}
+📅 TARİH: ${new Date().toLocaleDateString('tr-TR')}
+📋 UYGULAMA: Nutrition Planner
+
+📝 MESAJ:
+${ekMetin}
+
+---
+Bu mesaj otomatik olarak uygulamadan gönderilmiştir.
+`;
+
+        // GPT mesaj alanına da koyalım
+        const gptMesajAlani = document.getElementById('gptMesajAlani');
+        if (gptMesajAlani) {
+          gptMesajAlani.value = `📤 Gönderildi (${new Date().toLocaleTimeString('tr-TR')}):\n\n${mesajIcerigi}`;
+        }
+        
+        // ChatGPT'yi yeni sekmede aç
+        window.open(chatUrl, '_blank');
+        
+        showToast('✅ ChatGPT yeni sekmede açıldı!', 'success', 3000);
+        
+      } catch (error) {
+        showToast(`❌ Mesaj Gönderme Hatası: ${error.message}`, 'error', 5000);
+        console.error('❌ Özel proje mesaj hatası:', error);
+      }
+    }
+    
+    // PDF + Ek metni özel projeye gönder
+    async function sendPdfToCustomProject() {
+      try {
+        if (!seciliHasta) {
+          throw new Error('Önce bir hasta seçin!');
+        }
+        
+        const aktifHaftaIndex = getCurrentHaftaIndex();
+        const hafta = seciliHasta.haftalar[aktifHaftaIndex];
+        
+        if (!hafta || !hafta.pdf) {
+          throw new Error('Bu haftada gönderilecek PDF bulunamadı!');
+        }
+        
+        // Loading göster
+        showToast('📄 PDF + Ek metin projeye gönderiliyor...', 'info', 8000);
+        
+        // Hasta adına uygun sohbet URL'ini oluştur
+        const hastaAdi = seciliHasta.hastaIsim || seciliHasta.isim;
+        const chatUrl = generateCustomProjectChatUrl(hastaAdi);
+        
+        // Yemek listesini hazırla
+        let yemekListesi = [];
+        if (hafta.tarifKartlar && hafta.tarifKartlar.length > 0) {
+          yemekListesi = hafta.tarifKartlar.map(kart => kart.kartAdi || kart.tarifAdi || 'İsimsiz yemek');
+        }
+        
+        // Ek metin al
+        const ekMetin = document.getElementById('ekMetinAlani').value.trim();
+        
+        // Mesaj içeriğini hazırla
+        const mesajIcerigi = `
+🏥 HASTA: ${hastaAdi}
+📅 TARİH: ${new Date().toLocaleDateString('tr-TR')}
+📋 HAFTA: ${hafta.haftaNo || (aktifHaftaIndex + 1)}
+📄 PDF: ${hafta.pdfOrijinalIsim || hafta.pdfName || 'Bilinmeyen'}
+
+📝 TESPİT EDİLEN YEMEKLER (${yemekListesi.length} adet):
+${yemekListesi.length > 0 ? 
+  yemekListesi.map((yemek, index) => `${index + 1}. ${yemek}`).join('\n') : 
+  'Bu PDF\'den henüz yemek listesi çıkarılamamış.'}
+
+${ekMetin ? `\n💬 EK NOTLAR:\n${ekMetin}` : ''}
+
+🔗 PDF İNDİRME LİNKİ:
+${hafta.indirmeUrl || hafta.githubRawLink || 'PDF linki bulunamadı'}
+
+---
+❓ SORULARIM:
+1. Bu hafta için beslenme değerlendirmesi yapar mısın?
+2. Lipodem hastası için uygun/uygunsuz yemekler var mı?
+3. Eksik besin grupları ve öneriler neler?
+4. Genel puanın kaç (1-10 arası)?
+
+Bu mesaj otomatik olarak uygulamadan gönderilmiştir.
+`;
+
+        // GPT mesaj alanına da koyalım
+        const gptMesajAlani = document.getElementById('gptMesajAlani');
+        if (gptMesajAlani) {
+          gptMesajAlani.value = `📤 PDF Gönderildi (${new Date().toLocaleTimeString('tr-TR')}):\n\n${mesajIcerigi}`;
+        }
+        
+        // ChatGPT'yi yeni sekmede aç
+        window.open(chatUrl, '_blank');
+        
+        showToast('✅ PDF + Ek metin ChatGPT\'de açıldı!', 'success', 3000);
+        
+      } catch (error) {
+        showToast(`❌ PDF Gönderme Hatası: ${error.message}`, 'error', 5000);
+        console.error('❌ PDF gönderme hatası:', error);
+      }
+    }
+    
+    // Özel proje sohbet URL'ini oluştur
+    function generateCustomProjectChatUrl(hastaAdi) {
+      const projectName = window.GPT_CONFIG.PROJECT_NAME || 'özel_hasta_13-hafta';
+      const customGptId = window.GPT_CONFIG.CUSTOM_GPT_ID || projectName;
+      
+      // Hasta adını URL-safe yap
+      const safeName = hastaAdi.toLowerCase()
+        .replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ş/g, 's')
+        .replace(/ü/g, 'u').replace(/ö/g, 'o').replace(/ı/g, 'i')
+        .replace(/[^a-z0-9]/g, '-')
+        .replace(/-+/g, '-')
+        .trim('-');
+      
+      // ChatGPT URL'ini oluştur
+      let chatUrl = 'https://chat.openai.com/';
+      
+      // Özel GPT varsa
+      if (customGptId && customGptId.startsWith('g-')) {
+        chatUrl += `g/${customGptId}`;
+      } else {
+        // Genel ChatGPT
+        chatUrl += 'chat';
+      }
+      
+      // Sohbet ID'si varsa
+      if (window.GPT_CONFIG.CUSTOM_GPT_CONVERSATION_ID) {
+        chatUrl += `/${window.GPT_CONFIG.CUSTOM_GPT_CONVERSATION_ID}`;
+      }
+      
+      console.log('🔗 ChatGPT URL oluşturuldu:', chatUrl);
+      return chatUrl;
+    }
+    
+    // ChatGPT'yi özel proje ile aç
+    function openCustomProjectChat() {
+      try {
+        if (!seciliHasta) {
+          showToast('⚠️ Önce bir hasta seçin!', 'error', 3000);
+          return;
+        }
+        
+        const hastaAdi = seciliHasta.hastaIsim || seciliHasta.isim;
+        const chatUrl = generateCustomProjectChatUrl(hastaAdi);
+        
+        // ChatGPT'yi yeni sekmede aç
+        window.open(chatUrl, '_blank');
+        
+        showToast(`🔗 "${hastaAdi}" sohbeti ChatGPT'de açıldı!`, 'success', 3000);
+        
+      } catch (error) {
+        showToast(`❌ ChatGPT Açma Hatası: ${error.message}`, 'error', 5000);
+        console.error('❌ ChatGPT açma hatası:', error);
+      }
+    }
+    
+    // GPT analizini kopyala
+    function copyGptAnalysis() {
+      const gptMesajAlani = document.getElementById('gptMesajAlani');
+      if (gptMesajAlani && gptMesajAlani.value.trim()) {
+        navigator.clipboard.writeText(gptMesajAlani.value).then(() => {
+          showToast('📋 GPT analizi panoya kopyalandı!', 'success', 2000);
+        }).catch(() => {
+          // Fallback for older browsers
+          gptMesajAlani.select();
+          document.execCommand('copy');
+          showToast('📋 GPT analizi panoya kopyalandı!', 'success', 2000);
+        });
+      } else {
+        showToast('⚠️ Kopyalanacak analiz bulunamadı!', 'error', 2000);
+      }
+    }
+    
+    // GPT analizini temizle
+    function clearGptAnalysis() {
+      const gptMesajAlani = document.getElementById('gptMesajAlani');
+      if (gptMesajAlani) {
+        gptMesajAlani.value = '';
+        showToast('🗑️ GPT analizi temizlendi!', 'success', 2000);
+      }
+    }
+    
+    // Sayfa yüklendiğinde GPT ayarlarını input'lara yükle
+    function loadGptApiKeyToInput() {
+      // API Key
+      const savedApiKey = localStorage.getItem('gptApiKey');
+      const gptApiKeyInput = document.getElementById('gptApiKey');
+      if (savedApiKey && gptApiKeyInput) {
+        gptApiKeyInput.value = savedApiKey;
+      }
+      
+      // Model seçimi
+      const savedModel = localStorage.getItem('gptModel');
+      const gptModelSelect = document.getElementById('gptModel');
+      if (savedModel && gptModelSelect) {
+        gptModelSelect.value = savedModel;
+      }
+      
+      // Custom GPT ayarları
+      const savedCustomGptId = localStorage.getItem('customGptId');
+      const customGptIdInput = document.getElementById('customGptId');
+      if (savedCustomGptId && customGptIdInput) {
+        customGptIdInput.value = savedCustomGptId;
+      }
+      
+      const savedUseCustomGpt = localStorage.getItem('useCustomGpt');
+      const useCustomGptCheckbox = document.getElementById('useCustomGpt');
+      if (savedUseCustomGpt && useCustomGptCheckbox) {
+        useCustomGptCheckbox.checked = savedUseCustomGpt === 'true';
+        // Checkbox durumuna göre input'u ayarla
+        toggleCustomGpt();
+      }
+      
+      // Özel proje ayarları
+      const savedProjectName = localStorage.getItem('projectName');
+      const projectNameInput = document.getElementById('projectName');
+      if (savedProjectName && projectNameInput) {
+        projectNameInput.value = savedProjectName;
+      }
+      
+      const savedConversationId = localStorage.getItem('customGptConversationId');
+      const conversationIdInput = document.getElementById('customGptConversationId');
+      if (savedConversationId && conversationIdInput) {
+        conversationIdInput.value = savedConversationId;
+      }
+      
+      console.log('✅ GPT konfigürasyonu input\'lara yüklendi');
+    }
+    
     // Toast bildirimi göster
     function showToast(message, type = 'success', duration = 3000) {
       // Varsa eski toast'ı kaldır
@@ -14706,6 +15432,24 @@ ${mesajlar.join('\n')}
     window.hideGoogleApiConfig = hideGoogleApiConfig;
     window.saveGoogleApiConfig = saveGoogleApiConfig;
     
+    // GPT fonksiyonları
+    window.saveGptApiKey = saveGptApiKey;
+    window.saveGptModel = saveGptModel;
+    window.saveCustomGptId = saveCustomGptId;
+    window.toggleCustomGpt = toggleCustomGpt;
+    window.saveProjectName = saveProjectName;
+    window.saveCustomGptConversationId = saveCustomGptConversationId;
+    window.sendToCustomProject = sendToCustomProject;
+    window.sendPdfToCustomProject = sendPdfToCustomProject;
+    window.openCustomProjectChat = openCustomProjectChat;
+    window.analyzeCurrentPdfWithGPT = analyzeCurrentPdfWithGPT;
+    window.showGPTAnalysis = showGPTAnalysis;
+    window.getCurrentHaftaIndex = getCurrentHaftaIndex;
+    window.copyGptAnalysis = copyGptAnalysis;
+    window.clearGptAnalysis = clearGptAnalysis;
+    window.sendToGPT = sendToGPT;
+    window.analyzePatientMealsWithGPT = analyzePatientMealsWithGPT;
+    
     // Sayfa yüklendiğinde Google API'yi hazırla
     window.addEventListener('load', function() {
       // Google API'yi arka planda hazırla (kullanıcı işlemi gerektirmez)
@@ -14717,6 +15461,11 @@ ${mesajlar.join('\n')}
       
       // Drive durumunu başlat
       updateGoogleDriveStatus();
+      
+      // GPT API Key'i input'a yükle
+      setTimeout(() => {
+        loadGptApiKeyToInput();
+      }, 1000);
     });
 
   </script>
