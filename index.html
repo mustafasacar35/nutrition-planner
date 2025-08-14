@@ -13921,11 +13921,18 @@ ${mesajlar.join('\n')}
         console.error('❌ Google Drive giriş hatası:', error);
         updateGoogleDriveStatus('error');
         
+        let errorMessage = 'Google Drive\'a giriş yapılamadı: ' + error.message;
+        
         if (error.toString().includes('cookiePolicy')) {
-          alert('❌ Google Drive giriş hatası!\n\nFile protokolünde çalışıyorsunuz. Lütfen dosyayı bir web sunucusunda (HTTP/HTTPS) çalıştırın.');
-        } else {
-          alert('Google Drive\'a giriş yapılamadı: ' + error.message);
+          errorMessage = '❌ Google Drive giriş hatası!\n\nFile protokolünde çalışıyorsunuz. Lütfen dosyayı bir web sunucusunda (HTTP/HTTPS) çalıştırın.';
+        } else if (error.details && error.details.includes('Not a valid origin')) {
+          const currentOrigin = window.location.origin;
+          errorMessage = `❌ OAuth Client ID Hatası!\n\n🔧 Çözüm:\n1. Google Cloud Console > Credentials > OAuth 2.0 Client ID'nizi düzenleyin\n2. "Authorized JavaScript origins" kısmına ekleyin:\n   ${currentOrigin}\n3. "Authorized redirect URIs" kısmına da ekleyin:\n   ${currentOrigin}\n4. Kaydedin ve 5-10 dakika bekleyin\n\n💡 Mevcut origin: ${currentOrigin}`;
+        } else if (error.error === 'idpiframe_initialization_failed') {
+          errorMessage = '❌ OAuth Konfigürasyon Hatası!\n\n🔧 Muhtemel sebep: Authorized domains eksik\n\n1. Google Cloud Console > Credentials\n2. OAuth 2.0 Client ID düzenleyin\n3. Authorized JavaScript origins ekleyin\n4. Ayarları kaydedin ve bekleyin';
         }
+        
+        alert(errorMessage);
         return false;
       }
     }
@@ -14235,6 +14242,13 @@ ${mesajlar.join('\n')}
       apiKeyInput.value = window.GOOGLE_DRIVE_CONFIG.API_KEY === 'YOUR_API_KEY_HERE' ? '' : window.GOOGLE_DRIVE_CONFIG.API_KEY;
       clientIdInput.value = window.GOOGLE_DRIVE_CONFIG.CLIENT_ID === 'YOUR_CLIENT_ID_HERE' ? '' : window.GOOGLE_DRIVE_CONFIG.CLIENT_ID;
       
+      // Mevcut origin'i örneklerde göster
+      const currentOrigin = window.location.origin;
+      const example1 = document.getElementById('currentOriginExample');
+      const example2 = document.getElementById('currentOriginExample2');
+      if (example1) example1.textContent = currentOrigin;
+      if (example2) example2.textContent = currentOrigin;
+      
       modal.style.display = 'flex';
     }
     
@@ -14277,7 +14291,14 @@ ${mesajlar.join('\n')}
       hideGoogleApiConfig();
       updateGoogleDriveStatus();
       
-      alert('✅ Google Drive API ayarları kaydedildi!\n\nŞimdi "Google Drive\'a Bağlan" butonunu deneyebilirsiniz.\n\n⚠️ Unutmayın: HTTP/HTTPS sunucuda çalıştırmanız gerekir!');
+      // Debug bilgilerini göster
+      const currentUrl = window.location.href;
+      console.log('🔧 Google API Konfigürasyonu:');
+      console.log('📍 Current URL:', currentUrl);
+      console.log('🔑 API Key (ilk 10 karakter):', apiKey.substring(0, 10) + '...');
+      console.log('🆔 Client ID (ilk 20 karakter):', clientId.substring(0, 20) + '...');
+      
+      alert(`✅ Google Drive API ayarları kaydedildi!\n\n🌐 Mevcut URL: ${currentUrl}\n\n⚠️ OAuth Ayarları Kontrol Listesi:\n✓ Google Cloud Console > Credentials > OAuth 2.0 Client ID\n✓ Authorized JavaScript origins: ${currentUrl.replace(/\/[^\/]*$/, '')}\n✓ Authorized redirect URIs: aynı URL\n\n💡 Ayarların etkili olması 5-10 dakika sürebilir!`);
       
       console.log('✅ Google Drive API konfigürasyonu güncellendi');
     }
@@ -14398,8 +14419,8 @@ ${mesajlar.join('\n')}
           </li>
           <li><strong>OAuth Client ID</strong> ayarlarında:
             <ul style="margin: 5px 0;">
-              <li>Authorized JavaScript origins: <code>http://localhost:5500</code></li>
-              <li>Authorized redirect URIs: <code>http://localhost:5500</code></li>
+              <li>Authorized JavaScript origins: <code id="currentOriginExample">http://localhost:5500</code></li>
+              <li>Authorized redirect URIs: <code id="currentOriginExample2">http://localhost:5500</code></li>
             </ul>
           </li>
         </ol>
