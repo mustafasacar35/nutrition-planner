@@ -8549,13 +8549,13 @@ function duzenleHafta(i) {
 
     // PDF'den otomatik tara ve eşleştir
     async function pdfOkuVeEsleHafta(i) {
+      const hafta = getHaftaListesi()[i];
+      if (!hafta.pdf) {
+        console.log(`⚠️ ${i}. hafta için PDF bulunamadı`);
+        return;
+      }
+      
       try {
-        const hafta = getHaftaListesi()[i];
-        if (!hafta.pdf) {
-          console.log(`⚠️ ${i}. hafta için PDF bulunamadı`);
-          return;
-        }
-        
         // Base64 verisini kontrol et ve temizle
         let base64Data = hafta.pdf;
         if (base64Data.includes(',')) {
@@ -14379,6 +14379,9 @@ ${mesajlar.join('\n')}
           
           // Kayıt tarihini güncelle
           hasta.haftalar[haftaIndeks].kayitTarihi = new Date().toISOString();
+          
+          // Hasta verisini GitHub'a kaydet
+          await hastayiAyriKaydet(hasta);
           
           // UI'ı güncelle
           if (typeof renderSecilenHasta === 'function') {
