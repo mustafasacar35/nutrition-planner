@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "sonGuncelleme": "2025-08-14T21:54:05.082Z",
+  "sonGuncelleme": "2025-08-14T21:54:10.462Z",
   "eslestirmeler": {
     "avokadolu omlet": {
       "orijinalMetin": "avokadolu omlet",
@@ -8,6 +8,13 @@
         "avokado_omleti.jpg"
       ],
       "eklemeTarihi": "2025-08-14T21:51:27.737Z"
+    },
+    "kofte": {
+      "orijinalMetin": "köfte",
+      "kartlar": [
+        "keto_kofte.jpg"
+      ],
+      "eklemeTarihi": "2025-08-14T21:54:08.570Z"
     }
   }
 }
