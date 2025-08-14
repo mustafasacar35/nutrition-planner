@@ -8621,6 +8621,16 @@ function duzenleHafta(i) {
       } catch (error) {
         console.error(`❌ ${i}. hafta PDF analizi hatası:`, error);
         console.error('PDF veri uzunluğu:', hafta.pdf ? hafta.pdf.length : 'N/A');
+        
+        // PDF analizi başarısız olsa da, eğer PDF yüklendi ise otomatik eşleştirmeyi dene
+        if (hafta.pdf) {
+          console.log(`🔄 ${i}. hafta için PDF analizi başarısız ama otomatik eşleştirme deneniyor...`);
+          try {
+            otomatikEsleHafta(i);
+          } catch (eslemeHatasi) {
+            console.error(`❌ ${i}. hafta otomatik eşleştirme hatası:`, eslemeHatasi);
+          }
+        }
       }
     }
 
