@@ -14825,10 +14825,14 @@ ${mesajlar.join('\n')}
       }
       
       try {
-        // Custom GPT kullanılıyorsa farklı system prompt
-        const systemPrompt = window.GPT_CONFIG.USE_CUSTOM_GPT && !useCustomPrompt ? 
-          "Beslenme uzmanı Custom GPT'im olarak davran. Özel eğitimini kullanarak analiz yap." :
-          "Sen bir beslenme uzmanısın. Hastalar için hazırlanan yemek listelerini analiz ediyorsun. Türkçe yanıt ver ve detaillı, profesyonel öneriler sun.";
+        // Custom GPT seçiliyse API çağrısını engelle
+        if (window.GPT_CONFIG.USE_CUSTOM_GPT) {
+          showToast('⚠️ Custom GPT seçili! Özel proje butonlarını kullanın.', 'warning', 5000);
+          throw new Error('Custom GPT kullanılıyor. API çağrısı yapılamaz. Özel proje butonlarını kullanın.');
+        }
+        
+        // Sadece standard GPT modelleri için API çağrısı
+        const systemPrompt = "Sen bir beslenme uzmanısın. Hastalar için hazırlanan yemek listelerini analiz ediyorsun. Türkçe yanıt ver ve detaillı, profesyonel öneriler sun.";
         
         const messages = [
           {
@@ -14841,28 +14845,17 @@ ${mesajlar.join('\n')}
           }
         ];
         
-        // Model seçimi - Custom GPT varsa onu kullan
-        const modelToUse = window.GPT_CONFIG.USE_CUSTOM_GPT && window.GPT_CONFIG.CUSTOM_GPT_ID ? 
-          window.GPT_CONFIG.CUSTOM_GPT_ID : window.GPT_CONFIG.MODEL;
-        
-        console.log('🤖 GPT Gönderiliyor:', {
-          model: modelToUse,
-          useCustomGpt: window.GPT_CONFIG.USE_CUSTOM_GPT,
-          customGptId: window.GPT_CONFIG.CUSTOM_GPT_ID,
+        console.log('🤖 GPT API Gönderiliyor:', {
+          model: window.GPT_CONFIG.MODEL,
           promptLength: prompt.length
         });
         
         const requestBody = {
-          model: modelToUse,
+          model: window.GPT_CONFIG.MODEL, // Sadece standard modeller
           messages: messages,
           max_tokens: window.GPT_CONFIG.MAX_TOKENS,
           temperature: 0.7
         };
-        
-        // Custom GPT için ekstra parametreler varsa ekle
-        if (window.GPT_CONFIG.USE_CUSTOM_GPT && window.GPT_CONFIG.CUSTOM_GPT_ID) {
-          requestBody.gpt_id = window.GPT_CONFIG.CUSTOM_GPT_ID;
-        }
         
         const response = await fetch(window.GPT_CONFIG.API_URL, {
           method: 'POST',
@@ -15032,6 +15025,46 @@ Yanıtını Türkçe, detaylı ve hasta için anlaşılır şekilde yaz.`;
         customGptInput.style.opacity = useCustomGpt ? '1' : '0.5';
         customGptInput.disabled = !useCustomGpt;
       }
+      
+      // Proje ayarları görünürlüğü
+      const projectNameInput = document.getElementById('projectName');
+      const conversationIdInput = document.getElementById('customGptConversationId');
+      if (projectNameInput) {
+        projectNameInput.style.opacity = useCustomGpt ? '1' : '0.5';
+        projectNameInput.disabled = !useCustomGpt;
+      }
+      if (conversationIdInput) {
+        conversationIdInput.style.opacity = useCustomGpt ? '1' : '0.5';
+        conversationIdInput.disabled = !useCustomGpt;
+      }
+      
+      // GPT butonlarının görünürlüğünü ayarla
+      toggleGptButtons(useCustomGpt);
+    }
+    
+    // GPT buton görünürlüğünü ayarla
+    function toggleGptButtons(useCustomGpt) {
+      // API butonları (Custom GPT kapalıyken göster)
+      const apiButtons = document.querySelectorAll('[onclick*="showGPTAnalysis"], [onclick*="analyzeCurrentPdfWithGPT"]');
+      apiButtons.forEach(button => {
+        if (button) {
+          button.style.opacity = useCustomGpt ? '0.3' : '1';
+          button.style.pointerEvents = useCustomGpt ? 'none' : 'auto';
+          button.title = useCustomGpt ? 'Custom GPT seçili - API butonları devre dışı' : '';
+        }
+      });
+      
+      // Custom GPT butonları (Custom GPT açıkken göster)
+      const customButtons = document.querySelectorAll('[onclick*="sendToCustomProject"], [onclick*="sendPdfToCustomProject"], [onclick*="openCustomProjectChat"]');
+      customButtons.forEach(button => {
+        if (button) {
+          button.style.opacity = useCustomGpt ? '1' : '0.3';
+          button.style.pointerEvents = useCustomGpt ? 'auto' : 'none';
+          button.title = useCustomGpt ? '' : 'Custom GPT kapalı - Bu butonlar devre dışı';
+        }
+      });
+      
+      console.log(`🔄 GPT butonları güncellendi: API=${!useCustomGpt ? 'Aktif' : 'Pasif'}, Custom=${useCustomGpt ? 'Aktif' : 'Pasif'}`);
     }
     
     // Aktif PDF'i GPT ile yorumla
@@ -15373,6 +15406,12 @@ Bu mesaj otomatik olarak uygulamadan gönderilmiştir.
         conversationIdInput.value = savedConversationId;
       }
       
+      // Buton görünürlüğünü ayarla
+      setTimeout(() => {
+        const useCustomGpt = localStorage.getItem('useCustomGpt') === 'true';
+        toggleGptButtons(useCustomGpt);
+      }, 500);
+      
       console.log('✅ GPT konfigürasyonu input\'lara yüklendi');
     }
     
@@ -15437,6 +15476,7 @@ Bu mesaj otomatik olarak uygulamadan gönderilmiştir.
     window.saveGptModel = saveGptModel;
     window.saveCustomGptId = saveCustomGptId;
     window.toggleCustomGpt = toggleCustomGpt;
+    window.toggleGptButtons = toggleGptButtons;
     window.saveProjectName = saveProjectName;
     window.saveCustomGptConversationId = saveCustomGptConversationId;
     window.sendToCustomProject = sendToCustomProject;
