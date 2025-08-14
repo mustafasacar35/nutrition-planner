@@ -14156,15 +14156,18 @@ ${mesajlar.join('\n')}
         // PDF export URL'ini oluştur
         const exportUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=pdf&gid=${sheetGid}&portrait=true&fitw=true&source=web`;
         
-        // Access token'ı al
-        const authInstance = gapi.auth2.getAuthInstance();
-        const user = authInstance.currentUser.get();
-        const accessToken = user.getAuthResponse().access_token;
+        // GIS access token'ını kontrol et
+        if (!window.accessToken) {
+          throw new Error('OAuth token bulunamadı. Lütfen tekrar Google Drive\'a giriş yapın.');
+        }
+        
+        console.log('📋 PDF export URL:', exportUrl);
+        console.log('🔑 Access token (ilk 20 karakter):', window.accessToken.substring(0, 20) + '...');
         
         // PDF'i indir
         const response = await fetch(exportUrl, {
           headers: {
-            'Authorization': `Bearer ${accessToken}`
+            'Authorization': `Bearer ${window.accessToken}`
           }
         });
         
