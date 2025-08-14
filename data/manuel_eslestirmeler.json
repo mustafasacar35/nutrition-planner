@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "sonGuncelleme": "2025-08-14T21:55:02.573Z",
+  "sonGuncelleme": "2025-08-14T21:55:09.614Z",
   "eslestirmeler": {
     "avokadolu omlet": {
       "orijinalMetin": "avokadolu omlet",
@@ -15,6 +15,13 @@
         "keto_kofte.jpg"
       ],
       "eklemeTarihi": "2025-08-14T21:54:08.570Z"
+    },
+    "borani yogurtlu ispanak": {
+      "orijinalMetin": "borani (yoğurtlu ıspanak)",
+      "kartlar": [
+        "borani_yogurtlu_ispanak.jpg"
+      ],
+      "eklemeTarihi": "2025-08-14T21:55:04.362Z"
     }
   }
 }
