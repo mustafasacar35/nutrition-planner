@@ -13893,6 +13893,29 @@ ${mesajlar.join('\n')}
         
       } catch (error) {
         console.error('❌ Google API yükleme hatası:', error);
+        
+        // OAuth origin hatası için özel mesaj
+        if (error.error === 'idpiframe_initialization_failed' && error.details && error.details.includes('Not a valid origin')) {
+          console.log('🔧 OAuth Origin Hatası Tespit Edildi!');
+          console.log('📍 Mevcut Origin:', window.location.origin);
+          console.log('📍 Tam URL:', window.location.href);
+          console.log('⚠️ Google Cloud Console\'da Authorized JavaScript origins kısmına şunu ekleyin:', window.location.origin);
+          console.log('💡 Eğer zaten ekliyse, 5-10 dakika bekleyin (propagasyon süresi)');
+          
+          // Kullanıcıya daha açık mesaj göster
+          const statusDiv = document.getElementById('googleDriveStatus');
+          if (statusDiv) {
+            statusDiv.innerHTML = `❌ OAuth Origin Hatası<br>
+            📍 Google Cloud Console'da bu origin'i ekleyin: <strong>${window.location.origin}</strong><br>
+            💡 Ekleme yaptıysanız 5-10 dakika bekleyin`;
+          }
+        } else {
+          const statusDiv = document.getElementById('googleDriveStatus');
+          if (statusDiv) {
+            statusDiv.innerHTML = '❌ Google API yüklenemedi: ' + (error.details || error.error || 'Bilinmeyen hata');
+          }
+        }
+        
         window.googleApiAvailable = false;
         return false;
       }
@@ -14111,12 +14134,14 @@ ${mesajlar.join('\n')}
         }
         
         // Seçili hasta kontrolü
-        if (!window.seciliHasta && !window.secilenHasta) {
+        if (!seciliHasta) {
           alert('Önce bir hasta seçmelisiniz!');
+          console.log('❌ seciliHasta değişkeni:', seciliHasta);
           return;
         }
         
-        const hasta = window.seciliHasta || window.secilenHasta;
+        const hasta = seciliHasta;
+        console.log('✅ Seçili hasta bulundu:', hasta.isim || hasta.hastaIsim);
         
         // Hafta kilit kontrolü
         const hafta = hasta.haftalar[haftaIndeks];
@@ -14175,7 +14200,7 @@ ${mesajlar.join('\n')}
       try {
         console.log('🔍 Manuel PDF yükleniyor:', pdfFile.name);
         
-        const hasta = window.seciliHasta || window.secilenHasta;
+        const hasta = seciliHasta;
         if (!hasta) {
           throw new Error('Hasta seçilmemiş');
         }
