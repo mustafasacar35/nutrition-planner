@@ -2726,7 +2726,10 @@
       const token = document.getElementById('githubToken').value.trim();
       if (!token) {
         alert('GitHub token gerekli!');
-        return null;
+        return {
+          success: false,
+          error: 'GitHub token gerekli!'
+        };
       }
       
       try {
