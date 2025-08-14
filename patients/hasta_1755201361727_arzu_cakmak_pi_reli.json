@@ -41,10 +41,29 @@
       "kilitli": false,
       "githubLink": "https://github.com/mustafasacar35/nutrition-planner/blob/main/patients/hasta_1755201361727_arzu_cakmak_pi_reli.json",
       "githubRawLink": "https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/patients/hasta_1755201361727_arzu_cakmak_pi_reli.json"
+    },
+    {
+      "haftaNo": 3,
+      "baslangic": "2025-08-25",
+      "bitis": "2025-08-31",
+      "aciklama": "",
+      "pdf": "dbdc9621d1875562c0d78cb450a08b6dbe92df94",
+      "pdfName": "ARZU ÇAKMAK PİRELİ_3_hafta.pdf",
+      "pdfOrijinalIsim": "ARZU ÇAKMAK PİRELİ_3_hafta.pdf",
+      "pdfYolu": "pdfs/ARZU ÇAKMAK PİRELİ_3_hafta.pdf",
+      "githubUrl": "https://github.com/mustafasacar35/nutrition-planner/blob/main/pdfs/ARZU ÇAKMAK PİRELİ_3_hafta.pdf",
+      "indirmeUrl": "https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/pdfs/ARZU ÇAKMAK PİRELİ_3_hafta.pdf",
+      "kayitTarihi": "2025-08-14T21:27:14.411Z",
+      "tarifKartlar": [],
+      "tarifler": [],
+      "gptMesaj": "",
+      "kilitli": false,
+      "githubLink": "https://github.com/mustafasacar35/nutrition-planner/blob/main/patients/hasta_1755201361727_arzu_cakmak_pi_reli.json",
+      "githubRawLink": "https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/patients/hasta_1755201361727_arzu_cakmak_pi_reli.json"
     }
   ],
   "olusturmaTarihi": "2025-08-14T19:56:01.727Z",
   "yeniSistem": true,
-  "sonGuncelleme": "2025-08-14T21:26:48.957Z",
+  "sonGuncelleme": "2025-08-14T21:27:14.411Z",
   "githubKaydedildi": true
 }
