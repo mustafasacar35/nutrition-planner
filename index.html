@@ -14070,7 +14070,15 @@ ${mesajlar.join('\n')}
     // Google Sheets'te hasta adına göre dosya ara
     async function findPatientSheet(hastaAdi) {
       try {
+        // OAuth token kontrolü
+        if (!window.accessToken) {
+          console.error('❌ OAuth token bulunamadı');
+          throw new Error('Önce Google Drive\'a giriş yapmalısınız');
+        }
+        
         const query = `name contains '${hastaAdi}' and mimeType='application/vnd.google-apps.spreadsheet'`;
+        
+        console.log('🔍 Google Drive arama yapılıyor, token:', window.accessToken.substring(0, 20) + '...');
         
         const response = await gapi.client.drive.files.list({
           q: query,
@@ -14222,7 +14230,17 @@ ${mesajlar.join('\n')}
         
       } catch (error) {
         console.error('❌ Drive PDF yükleme hatası:', error);
-        alert(`❌ Drive'dan PDF yüklenemedi!\n\nHata: ${error.message}`);
+        
+        // Farklı hata tiplerini yakala
+        if (error.message && error.message.includes('Google Drive\'a giriş yapmalısınız')) {
+          alert('⚠️ Önce Google Drive\'a giriş yapmalısınız!\n\n"Google Drive\'a Bağlan" butonunu kullanın.');
+        } else if (error.status === 403) {
+          alert(`❌ Google Drive Erişim Hatası!\n\n🔍 Sebep: İzin sorunu\n💡 Çözüm:\n1. Google Drive\'da "${hasta.isim || hasta.hastaIsim}" adında bir Google Sheets dosyası oluşturun\n2. Bu dosyayı herkese açık yapın veya email adresinizle paylaşın\n3. Tekrar deneyin\n\n📝 Not: API Key yerine OAuth kullanılıyor.`);
+        } else if (error.result && error.result.files && error.result.files.length === 0) {
+          alert(`❌ Google Sheets Bulunamadı!\n\n🔍 Aranan: "${hasta.isim || hasta.hastaIsim}"\n💡 Çözüm:\n1. Google Drive\'da bu isimde bir Google Sheets dosyası oluşturun\n2. İçinde "${haftaIndeks + 1}. hafta" adında bir tab olduğundan emin olun\n3. Tekrar deneyin`);
+        } else {
+          alert(`❌ Drive PDF yükleme hatası!\n\n${error.message || 'Bilinmeyen hata'}\n\nKonsola detaylar yazdırıldı.`);
+        }
       }
     }
     
