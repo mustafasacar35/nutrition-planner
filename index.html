@@ -6939,6 +6939,12 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
                   ` : ''}
                 </div>
               ` : '<div style="color: #666; font-size: 12px; background: #f8f9fa; padding: 8px; border-radius: 4px;">📄 PDF henüz yüklenmedi</div>'}
+              
+              ${hafta.pdf && (hafta.pdfMetinYok || hafta.googleSheetsPdf) ? `
+                <div style="margin-top: 8px; padding: 8px; background: #fff3cd; border-radius: 4px; border-left: 3px solid #ffc107; font-size: 11px; color: #856404;">
+                  ⚠️ PDF yüklendi ama analiz edilemedi (Google Sheets formatı). Manuel eşleştirme gerekebilir.
+                </div>
+              ` : ''}
             </div>
             
             <!-- Tarif Kartları Bölümü - GİZLENDİ -->
@@ -8572,13 +8578,90 @@ function duzenleHafta(i) {
         base64Data = base64Data.replace(/[^A-Za-z0-9+/=]/g, '');
         
         console.log(`🔍 ${i}. hafta PDF analizi başlıyor...`);
+        console.log(`📊 PDF veri kontrolü: ${base64Data.length} karakter`);
         
-        const binary = atob(base64Data);
-        const len = binary.length;
-        const bytes = new Uint8Array(len);
-        for (let j = 0; j < len; j++) bytes[j] = binary.charCodeAt(j);
+        // PDF validasyonu için farklı yöntemler dene
+        let pdf = null;
+        let pdfAnalysisSuccess = false;
         
-        const pdf = await pdfjsLib.getDocument({ data: bytes }).promise;
+        try {
+          // Yöntem 1: Normal Uint8Array yaklaşımı
+          const binary = atob(base64Data);
+          const len = binary.length;
+          const bytes = new Uint8Array(len);
+          for (let j = 0; j < len; j++) bytes[j] = binary.charCodeAt(j);
+          
+          console.log(`📋 PDF bytes oluşturuldu: ${bytes.length} byte`);
+          
+          pdf = await pdfjsLib.getDocument({ 
+            data: bytes,
+            useSystemFonts: true,
+            disableFontFace: false,
+            verbosity: 0 // Hata detaylarını azalt
+          }).promise;
+          
+          pdfAnalysisSuccess = true;
+          console.log(`✅ PDF başarıyla yüklendi (${pdf.numPages} sayfa)`);
+          
+        } catch (error1) {
+          console.log(`⚠️ İlk yöntem başarısız: ${error1.name} - ${error1.message}`);
+          
+          try {
+            // Yöntem 2: Base64 URL yaklaşımı
+            const dataUrl = `data:application/pdf;base64,${base64Data}`;
+            pdf = await pdfjsLib.getDocument({ 
+              url: dataUrl,
+              useSystemFonts: true,
+              disableFontFace: true,
+              verbosity: 0
+            }).promise;
+            
+            pdfAnalysisSuccess = true;
+            console.log(`✅ PDF data URL ile yüklendi (${pdf.numPages} sayfa)`);
+            
+          } catch (error2) {
+            console.log(`⚠️ İkinci yöntem başarısız: ${error2.name} - ${error2.message}`);
+            
+            try {
+              // Yöntem 3: Blob yaklaşımı
+              const binary = atob(base64Data);
+              const bytes = new Array(binary.length);
+              for (let j = 0; j < binary.length; j++) {
+                bytes[j] = binary.charCodeAt(j);
+              }
+              
+              const blob = new Blob([new Uint8Array(bytes)], { type: 'application/pdf' });
+              const blobUrl = URL.createObjectURL(blob);
+              
+              pdf = await pdfjsLib.getDocument({ 
+                url: blobUrl,
+                useSystemFonts: true,
+                verbosity: 0
+              }).promise;
+              
+              pdfAnalysisSuccess = true;
+              console.log(`✅ PDF blob URL ile yüklendi (${pdf.numPages} sayfa)`);
+              
+              // Blob URL'yi temizle
+              setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+              
+            } catch (error3) {
+              console.error(`❌ Tüm PDF yükleme yöntemleri başarısız:`);
+              console.error(`  1. Uint8Array: ${error1.name} - ${error1.message}`);
+              console.error(`  2. Data URL: ${error2.name} - ${error2.message}`);
+              console.error(`  3. Blob URL: ${error3.name} - ${error3.message}`);
+              throw error3;
+            }
+          }
+        }
+        
+        if (!pdfAnalysisSuccess || !pdf) {
+          throw new Error('PDF analizi başarısız');
+        }
+        if (!pdfAnalysisSuccess || !pdf) {
+          throw new Error('PDF analizi başarısız');
+        }
+        
         let fullText = '';
         for (let p = 1; p <= pdf.numPages; p++) {
           const page = await pdf.getPage(p);
@@ -8589,31 +8672,59 @@ function duzenleHafta(i) {
         
         console.log(`✅ ${i}. hafta PDF metni çıkarıldı: ${fullText.length} karakter`);
         
+        // Eğer PDF'den metin çıkarılamadıysa, manuel eşleştirme yap
+        if (fullText.trim().length === 0) {
+          console.log(`⚠️ ${i}. hafta PDF'den metin çıkarılamadı, manuel eşleştirme deneniyor...`);
+          hafta.tarifler = []; // Boş tarif listesi
+          hafta.pdfMetinYok = true; // PDF'den metin çıkarılamadığını işaretle
+        } else {
+          hafta.pdfMetinYok = false;
+        }
+        
+        // Eğer PDF'den metin çıkarılamadıysa, manuel eşleştirme yap
+        if (fullText.trim().length === 0) {
+          console.log(`⚠️ ${i}. hafta PDF'den metin çıkarılamadı, manuel eşleştirme deneniyor...`);
+          hafta.tarifler = []; // Boş tarif listesi
+          hafta.pdfMetinYok = true; // PDF'den metin çıkarılamadığını işaretle
+        } else {
+          hafta.pdfMetinYok = false;
+        }
+        
         // PDF içeriğinden de hafta numarasını kontrol et (dosya adından tespit edilmediyse)
       const haftalar = getHaftaListesi();
-      const iceriktenHaftaNo = pdfIcerigindenhaftaNoAl(fullText);
-      if (iceriktenHaftaNo && !pdfDosyaAdindenHaftaNoAl(hafta.pdfName)) {
-        const eskiHaftaNo = haftalar[i].haftaNo || (i + 1);
-        haftalar[i].haftaNo = iceriktenHaftaNo;
-        
-        console.log(`📄 PDF içeriğinden hafta numarası güncellendi: ${eskiHaftaNo}. hafta → ${iceriktenHaftaNo}. hafta`);
-        
-        // UI'da görsel feedback göster
-        setTimeout(() => {
-          const haftaNoInput = document.getElementById('haftaNo_' + i);
-          if (haftaNoInput) {
-            haftaNoInput.value = iceriktenHaftaNo;
-            haftaNoInput.style.backgroundColor = '#d1ecf1';
-            haftaNoInput.style.borderColor = '#17a2b8';
-            setTimeout(() => {
-              haftaNoInput.style.backgroundColor = '';
-              haftaNoInput.style.borderColor = '';
-            }, 2000);
-          }
-        }, 100);
+      
+      // Sadece metin varsa içerikten hafta no almaya çalış
+      if (fullText.trim().length > 0) {
+        const iceriktenHaftaNo = pdfIcerigindenhaftaNoAl(fullText);
+        if (iceriktenHaftaNo && !pdfDosyaAdindenHaftaNoAl(hafta.pdfName)) {
+          const eskiHaftaNo = haftalar[i].haftaNo || (i + 1);
+          haftalar[i].haftaNo = iceriktenHaftaNo;
+          
+          console.log(`📄 PDF içeriğinden hafta numarası güncellendi: ${eskiHaftaNo}. hafta → ${iceriktenHaftaNo}. hafta`);
+          
+          // UI'da görsel feedback göster
+          setTimeout(() => {
+            const haftaNoInput = document.getElementById('haftaNo_' + i);
+            if (haftaNoInput) {
+              haftaNoInput.value = iceriktenHaftaNo;
+              haftaNoInput.style.backgroundColor = '#d1ecf1';
+              haftaNoInput.style.borderColor = '#17a2b8';
+              setTimeout(() => {
+                haftaNoInput.style.backgroundColor = '';
+                haftaNoInput.style.borderColor = '';
+              }, 2000);
+            }
+          }, 100);
+        }
       }
       
-      hafta.tarifler = extractTariflerDetay(fullText);
+      // Tarif çıkarma
+      if (fullText.trim().length > 0) {
+        hafta.tarifler = extractTariflerDetay(fullText);
+      } else {
+        hafta.tarifler = [];
+        console.log(`⚠️ ${i}. hafta: PDF'den metin çıkarılamadığı için tarif listesi boş`);
+      }
       saveToStorage();
       // Otomatik eşleştir
       otomatikEsleHafta(i);
@@ -8621,6 +8732,21 @@ function duzenleHafta(i) {
       } catch (error) {
         console.error(`❌ ${i}. hafta PDF analizi hatası:`, error);
         console.error('PDF veri uzunluğu:', hafta.pdf ? hafta.pdf.length : 'N/A');
+        console.error('Error type:', error.name);
+        console.error('Error message:', error.message);
+        
+        // Google Sheets PDF formatı için özel mesaj
+        if (error.name === 'InvalidPDFException' || error.message.includes('Invalid PDF')) {
+          console.log(`⚠️ ${i}. hafta: Google Sheets PDF formatı PDF.js ile uyumsuz olabilir`);
+          
+          // PDF yüklü ama analiz edilemiyor, boş tarif listesi ver
+          if (hafta.pdf) {
+            hafta.tarifler = [];
+            hafta.pdfMetinYok = true;
+            hafta.googleSheetsPdf = true; // Google Sheets PDF işareti
+            console.log(`📋 ${i}. hafta: PDF kaydedildi ama tarif analizi atlandı (Google Sheets uyumsuzluğu)`);
+          }
+        }
         
         // PDF analizi başarısız olsa da, eğer PDF yüklendi ise otomatik eşleştirmeyi dene
         if (hafta.pdf) {
@@ -14300,7 +14426,7 @@ ${mesajlar.join('\n')}
         // Mevcut PDF yükleme fonksiyonunu kullan
         await pdfYukleHaftaManuel(haftaIndeks, pdfFile);
         
-        alert(`✅ PDF başarıyla Drive'dan yüklendi!\n\nDosya: ${pdfFile.name}\nKaynak: ${patientSheet.name} / ${foundTabName}`);
+        alert(`✅ PDF başarıyla Drive'dan yüklendi!\n\nDosya: ${pdfFile.name}\nKaynak: ${patientSheet.name} / ${foundTabName}\n\n⚠️ Not: Google Sheets formatındaki PDF'ler analiz edilemeyebilir. Manuel eşleştirme gerekebilir.`);
         
       } catch (error) {
         console.error('❌ Drive PDF yükleme hatası:', error);
