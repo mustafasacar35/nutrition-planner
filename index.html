@@ -31,6 +31,7 @@
   
   <!-- Google Drive API -->
   <script src="https://apis.google.com/js/api.js"></script>
+  <script src="https://accounts.google.com/gsi/client"></script>
   <script>
     // Google Drive API Konfigürasyonu
     window.GOOGLE_DRIVE_CONFIG = {
@@ -13865,30 +13866,43 @@ ${mesajlar.join('\n')}
           return false;
         }
         
-        console.log('🔄 Google Drive API yükleniyor...');
+        console.log('🔄 Google Drive API yükleniyor (Yeni GIS)...');
         
-        // API'yi yükle
+        // GAPI Client'ı başlat
         await new Promise((resolve, reject) => {
-          gapi.load('auth2:client', {
+          gapi.load('client', {
             callback: resolve,
-            onerror: (error) => {
-              console.error('❌ GAPI yükleme hatası:', error);
-              reject(error);
-            }
+            onerror: reject
           });
         });
         
         // Client'ı başlat
         await gapi.client.init({
           apiKey: window.GOOGLE_DRIVE_CONFIG.API_KEY,
-          clientId: window.GOOGLE_DRIVE_CONFIG.CLIENT_ID,
-          discoveryDocs: [window.GOOGLE_DRIVE_CONFIG.DISCOVERY_DOC],
-          scope: window.GOOGLE_DRIVE_CONFIG.SCOPES
+          discoveryDocs: [
+            'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest',
+            'https://sheets.googleapis.com/$discovery/rest?version=v4'
+          ]
+        });
+        
+        // Google Identity Services Token Client'ı başlat
+        window.tokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: window.GOOGLE_DRIVE_CONFIG.CLIENT_ID,
+          scope: 'https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/spreadsheets.readonly',
+          callback: (response) => {
+            if (response.error !== undefined) {
+              console.error('❌ GIS Token Hatası:', response);
+              throw response;
+            }
+            console.log('✅ GIS Token alındı:', response);
+            window.accessToken = response.access_token;
+            gapi.client.setToken({access_token: response.access_token});
+          },
         });
         
         window.googleApiLoaded = true;
         window.googleApiAvailable = true;
-        console.log('✅ Google Drive API yüklendi');
+        console.log('✅ Google Drive API yüklendi (GIS)');
         return true;
         
       } catch (error) {
@@ -13949,21 +13963,38 @@ ${mesajlar.join('\n')}
           return true;
         }
         
-        console.log('🔄 Google Drive\'a giriş yapılıyor...');
+        console.log('🔄 Google Drive\'a giriş yapılıyor (GIS)...');
         updateGoogleDriveStatus('connecting');
         
-        const authInstance = gapi.auth2.getAuthInstance();
-        const user = await authInstance.signIn();
-        
-        if (user.isSignedIn()) {
-          window.googleSignedIn = true;
-          console.log('✅ Google Drive\'a başarıyla giriş yapıldı');
-          updateGoogleDriveStatus('connected');
-          return true;
-        }
-        
-        updateGoogleDriveStatus('disconnected');
-        return false;
+        // Yeni Google Identity Services ile token al
+        return new Promise((resolve) => {
+          if (!window.tokenClient) {
+            console.error('❌ Token client başlatılmamış');
+            resolve(false);
+            return;
+          }
+          
+          // Token client callback'ini güncelle
+          window.tokenClient.callback = (response) => {
+            if (response.error !== undefined) {
+              console.error('❌ GIS Token Hatası:', response);
+              updateGoogleDriveStatus('error');
+              resolve(false);
+              return;
+            }
+            
+            console.log('✅ GIS Token alındı:', response);
+            window.accessToken = response.access_token;
+            gapi.client.setToken({access_token: response.access_token});
+            window.googleSignedIn = true;
+            console.log('✅ Google Drive\'a başarıyla giriş yapıldı (GIS)');
+            updateGoogleDriveStatus('connected');
+            resolve(true);
+          };
+          
+          // Token isteği başlat
+          window.tokenClient.requestAccessToken({prompt: 'consent'});
+        });
         
       } catch (error) {
         console.error('❌ Google Drive giriş hatası:', error);
