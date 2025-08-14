@@ -34,8 +34,11 @@
   <script>
     // Google Drive API Konfigürasyonu
     window.GOOGLE_DRIVE_CONFIG = {
-      API_KEY: 'YOUR_API_KEY_HERE', // Buraya API Key'inizi ekleyin
-      CLIENT_ID: 'YOUR_CLIENT_ID_HERE', // Buraya Client ID'nizi ekleyin
+      // 🔑 BU ALANLARI DOLDURUN:
+      API_KEY: 'YOUR_API_KEY_HERE', // ← Google Cloud Console'dan aldığınız API Key'i buraya yazın
+      CLIENT_ID: 'YOUR_CLIENT_ID_HERE', // ← Google Cloud Console'dan aldığınız Client ID'yi buraya yazın
+      
+      // Bu alanları değiştirmeyin:
       DISCOVERY_DOC: 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest',
       SCOPES: 'https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/spreadsheets.readonly'
     };
@@ -551,6 +554,15 @@
         <h2>Lipedem Hasta Takip Sistemi</h2>
         <div style="display: flex; gap: 10px; align-items: center;">
           <div id="googleDriveStatus" style="font-size: 12px; color: #666;">Drive: Bağlantı Yok</div>
+          <button onclick="showGoogleApiConfig()" style="
+            padding: 6px 10px; 
+            background: #6c757d; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 11px;
+          ">⚙️ API Ayarları</button>
           <button id="googleDriveBtn" onclick="signInToGoogle()" style="
             padding: 8px 15px; 
             background: #4285f4; 
@@ -14213,6 +14225,68 @@ ${mesajlar.join('\n')}
     window.signInToGoogle = signInToGoogle;
     window.updateGoogleDriveStatus = updateGoogleDriveStatus;
     
+    // Google API Konfigürasyon fonksiyonları
+    function showGoogleApiConfig() {
+      const modal = document.getElementById('googleApiConfigModal');
+      const apiKeyInput = document.getElementById('googleApiKeyInput');
+      const clientIdInput = document.getElementById('googleClientIdInput');
+      
+      // Mevcut değerleri yükle
+      apiKeyInput.value = window.GOOGLE_DRIVE_CONFIG.API_KEY === 'YOUR_API_KEY_HERE' ? '' : window.GOOGLE_DRIVE_CONFIG.API_KEY;
+      clientIdInput.value = window.GOOGLE_DRIVE_CONFIG.CLIENT_ID === 'YOUR_CLIENT_ID_HERE' ? '' : window.GOOGLE_DRIVE_CONFIG.CLIENT_ID;
+      
+      modal.style.display = 'flex';
+    }
+    
+    function hideGoogleApiConfig() {
+      const modal = document.getElementById('googleApiConfigModal');
+      modal.style.display = 'none';
+    }
+    
+    function saveGoogleApiConfig() {
+      const apiKeyInput = document.getElementById('googleApiKeyInput');
+      const clientIdInput = document.getElementById('googleClientIdInput');
+      
+      const apiKey = apiKeyInput.value.trim();
+      const clientId = clientIdInput.value.trim();
+      
+      if (!apiKey || !clientId) {
+        alert('⚠️ Lütfen hem API Key hem de Client ID alanlarını doldurun!');
+        return;
+      }
+      
+      if (!apiKey.startsWith('AIza')) {
+        alert('⚠️ API Key formatı hatalı! "AIza" ile başlamalıdır.');
+        return;
+      }
+      
+      if (!clientId.includes('-') || clientId.length < 20) {
+        alert('⚠️ Client ID formatı hatalı! Daha uzun olmalı ve "-" içermelidir.');
+        return;
+      }
+      
+      // Konfigürasyonu güncelle
+      window.GOOGLE_DRIVE_CONFIG.API_KEY = apiKey;
+      window.GOOGLE_DRIVE_CONFIG.CLIENT_ID = clientId;
+      
+      // Google API durumunu sıfırla
+      window.googleApiLoaded = false;
+      window.googleSignedIn = false;
+      window.googleApiAvailable = false;
+      
+      hideGoogleApiConfig();
+      updateGoogleDriveStatus();
+      
+      alert('✅ Google Drive API ayarları kaydedildi!\n\nŞimdi "Google Drive\'a Bağlan" butonunu deneyebilirsiniz.\n\n⚠️ Unutmayın: HTTP/HTTPS sunucuda çalıştırmanız gerekir!');
+      
+      console.log('✅ Google Drive API konfigürasyonu güncellendi');
+    }
+    
+    // Global fonksiyonları ekle
+    window.showGoogleApiConfig = showGoogleApiConfig;
+    window.hideGoogleApiConfig = hideGoogleApiConfig;
+    window.saveGoogleApiConfig = saveGoogleApiConfig;
+    
     // Sayfa yüklendiğinde Google API'yi hazırla
     window.addEventListener('load', function() {
       // Google API'yi arka planda hazırla (kullanıcı işlemi gerektirmez)
@@ -14227,6 +14301,134 @@ ${mesajlar.join('\n')}
     });
 
   </script>
+
+  <!-- 🔧 Google API Konfigürasyon Modalı -->
+  <div id="googleApiConfigModal" style="
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+  ">
+    <div style="
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      width: 600px;
+      max-width: 90vw;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    ">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="margin: 0; color: #4285f4;">🔧 Google Drive API Ayarları</h2>
+        <button onclick="hideGoogleApiConfig()" style="
+          background: none;
+          border: none;
+          font-size: 24px;
+          cursor: pointer;
+          color: #666;
+          width: 30px;
+          height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        ">×</button>
+      </div>
+      
+      <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ffc107;">
+        <h4 style="margin: 0 0 10px 0; color: #856404;">⚠️ Önemli Bilgilendirme</h4>
+        <p style="margin: 0; color: #856404; font-size: 14px;">
+          Google Drive entegrasyonu için Google Cloud Console'dan API Key ve Client ID almalısınız. 
+          Ayrıca dosyayı HTTP/HTTPS sunucuda çalıştırmanız gerekir (file:// protokolü çalışmaz).
+        </p>
+      </div>
+      
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+          🔑 API Key:
+        </label>
+        <input type="text" id="googleApiKeyInput" placeholder="AIzaSyD..." style="
+          width: 100%;
+          padding: 12px;
+          border: 2px solid #ddd;
+          border-radius: 6px;
+          font-size: 14px;
+          font-family: monospace;
+        ">
+        <small style="color: #666; font-size: 12px;">Google Cloud Console > Credentials > API Keys</small>
+      </div>
+      
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">
+          🆔 Client ID:
+        </label>
+        <input type="text" id="googleClientIdInput" placeholder="123456789012-..." style="
+          width: 100%;
+          padding: 12px;
+          border: 2px solid #ddd;
+          border-radius: 6px;
+          font-size: 14px;
+          font-family: monospace;
+        ">
+        <small style="color: #666; font-size: 12px;">Google Cloud Console > Credentials > OAuth 2.0 Client IDs</small>
+      </div>
+      
+      <div style="margin-bottom: 20px;">
+        <h4 style="margin: 0 0 10px 0; color: #28a745;">📋 Hızlı Kurulum Rehberi:</h4>
+        <ol style="padding-left: 20px; color: #666; font-size: 14px; line-height: 1.6;">
+          <li><strong>Google Cloud Console'a gidin:</strong> <a href="https://console.cloud.google.com/" target="_blank" style="color: #4285f4;">console.cloud.google.com</a></li>
+          <li><strong>Proje oluşturun</strong> veya mevcut projeyi seçin</li>
+          <li><strong>API & Services > Library</strong> bölümünden şu API'leri aktifleştirin:
+            <ul style="margin: 5px 0;">
+              <li>Google Drive API</li>
+              <li>Google Sheets API</li>
+            </ul>
+          </li>
+          <li><strong>API & Services > Credentials</strong> bölümünden:
+            <ul style="margin: 5px 0;">
+              <li>API Key oluşturun</li>
+              <li>OAuth 2.0 Client ID oluşturun (Web application)</li>
+            </ul>
+          </li>
+          <li><strong>OAuth Client ID</strong> ayarlarında:
+            <ul style="margin: 5px 0;">
+              <li>Authorized JavaScript origins: <code>http://localhost:5500</code></li>
+              <li>Authorized redirect URIs: <code>http://localhost:5500</code></li>
+            </ul>
+          </li>
+        </ol>
+      </div>
+      
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button onclick="hideGoogleApiConfig()" style="
+          padding: 10px 20px;
+          background: #6c757d;
+          color: white;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 14px;
+        ">İptal</button>
+        <button onclick="saveGoogleApiConfig()" style="
+          padding: 10px 20px;
+          background: #28a745;
+          color: white;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 14px;
+          font-weight: bold;
+        ">💾 Kaydet ve Uygula</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
 
