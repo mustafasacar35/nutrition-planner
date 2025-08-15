@@ -14990,19 +14990,26 @@ ${mesajlar.join('\n')}
           return;
         }
         
-        // Haftalık açıklama alanındaki metni otomatik olarak "Ek Bilgiler" alanına çek
+        // Haftalık açıklama alanındaki metni otomatik olarak "Ek Bilgiler" alanına çek (tekrar önleme ile)
         const aciklamaInput = document.getElementById(`aciklama_${haftaIndex}`);
         const ekNotlarInput = document.getElementById(`ekNotlar_${haftaIndex}`);
         
         if (aciklamaInput && ekNotlarInput && aciklamaInput.value.trim()) {
+          const aciklamaMetni = aciklamaInput.value.trim();
+          const mevcutEkNotlar = ekNotlarInput.value.trim();
+          
           // Eğer ek notlar alanı boşsa açıklamayı otomatik çek
-          if (!ekNotlarInput.value.trim()) {
-            ekNotlarInput.value = aciklamaInput.value.trim();
-            console.log('✅ Açıklama alanındaki metin "Ek Bilgiler" alanına otomatik çekildi:', aciklamaInput.value);
+          if (!mevcutEkNotlar) {
+            ekNotlarInput.value = aciklamaMetni;
+            console.log('✅ Açıklama alanındaki metin "Ek Bilgiler" alanına otomatik çekildi:', aciklamaMetni);
           } else {
-            // Eğer ek notlar alanında zaten metin varsa, açıklamayı da ekle
-            ekNotlarInput.value = `${ekNotlarInput.value.trim()}\n\nAçıklama: ${aciklamaInput.value.trim()}`;
-            console.log('✅ Açıklama mevcut ek notlara eklendi');
+            // Tekrar eklenmesini önle - aynı açıklama zaten var mı kontrol et
+            if (!mevcutEkNotlar.includes(aciklamaMetni)) {
+              ekNotlarInput.value = `${mevcutEkNotlar}\n\nAçıklama: ${aciklamaMetni}`;
+              console.log('✅ Açıklama mevcut ek notlara eklendi (tekrar önlendi)');
+            } else {
+              console.log('ℹ️ Açıklama zaten ek notlarda mevcut, tekrar eklenmedi');
+            }
           }
         }
         
@@ -15199,8 +15206,8 @@ ${mesajlar.join('\n')}
       
       // 3. Gereksiz bullet point'leri ve boş satırları temizle
       temizIcerik = temizIcerik
-        .replace(/^\\s*•\\s*öğle.*?$/gim, '') // Öğle başlıkları
-        .replace(/^\\s*•\\s*akşam.*?$/gim, '') // Akşam başlıkları
+        .replace(/^\s*•\s*öğle.*?$/gim, '') // Öğle başlıkları (düzeltildi)
+        .replace(/^\s*•\s*akşam.*?$/gim, '') // Akşam başlıkları (düzeltildi)
         .replace(/•\s*\n/g, '') // Boş bullet'ler
         .replace(/^\s*•\s*$/gm, '') // Sadece bullet olan satırlar
         .replace(/\n\s*\n\s*\n/g, '\n\n') // Fazla boş satırlar
@@ -15296,16 +15303,47 @@ ${mesajlar.join('\n')}
       };
     }
     
-    // Nihai prompt gösterme ve düzenleme modal'ı
+    // Nihai prompt gösterme ve düzenleme modal'ı (önceki analizler checkbox'ı ile)
     function showFinalPromptModal(finalPrompt, haftaIndex, settings, gptMesajTextarea) {
       // Token ve maliyet hesapla
       const tokenSayisi = hesaplaToken(finalPrompt);
       const maliyet = hesaplaMaliyet(tokenSayisi, settings.model || 'gpt-4');
       
+      // Önceki analizleri al (checkbox için)
+      const oncekiAnalizler = getOncekiGptAnalizleri(haftaIndex);
+      
       // Prompt'u daha okunabilir hale getir (başlıkları bold ve altı çizili yap)
       const formattedPromptForDisplay = finalPrompt
         .replace(/=== (.*?) ===/g, '<div style="font-weight: bold; text-decoration: underline; color: #007bff; margin: 15px 0 10px 0; font-size: 14px;">📋 $1</div>')
         .replace(/\n/g, '<br>');
+      
+      // Önceki analizler checkbox HTML'i oluştur
+      let oncekiAnalizlerHtml = '';
+      if (oncekiAnalizler.length > 0) {
+        oncekiAnalizlerHtml = `
+          <div style="margin-bottom: 15px; padding: 10px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 6px;">
+            <div style="font-weight: bold; margin-bottom: 8px; color: #856404;">
+              📚 Önceki Hafta Analizleri (${oncekiAnalizler.length} hafta mevcut)
+            </div>
+            <div style="font-size: 12px; color: #856404; margin-bottom: 8px;">
+              Hangi hafta analizlerinin prompt'a dahil edilmesini istiyorsunuz?
+            </div>
+            <div style="max-height: 120px; overflow-y: auto;">
+              ${oncekiAnalizler.map((analiz, index) => `
+                <label style="display: block; margin-bottom: 5px; cursor: pointer; font-size: 12px;">
+                  <input type="checkbox" 
+                         id="oncekiAnaliz_${analiz.haftaNo}" 
+                         checked 
+                         onchange="updatePromptWithSelectedAnalyses(${haftaIndex})"
+                         style="margin-right: 5px;"> 
+                  <span style="font-weight: bold;">${analiz.haftaNo}. Hafta</span> 
+                  <span style="color: #6c757d;">(${analiz.icerik.substring(0, 50)}...)</span>
+                </label>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
       
       // Modal HTML'i oluştur
       const modalHtml = `
@@ -15345,6 +15383,8 @@ ${mesajlar.join('\n')}
                 <div><strong>🔢 Toplam Token:</strong> ~${maliyet.toplamToken.toLocaleString()}</div>
               </div>
             </div>
+            
+            ${oncekiAnalizlerHtml}
             
             <div style="margin-bottom: 15px; color: #666; font-size: 14px;">
               <strong>📋 İçerik Özeti:</strong> Seçili prompt bölümleri, hasta bilgileri ve beslenme listesi birleştirilerek hazırlandı.
@@ -15510,6 +15550,94 @@ ${mesajlar.join('\n')}
         alert(`❌ Hata: ${error.message}`);
         closeFinalPromptModal();
       }
+    }
+    
+    // Seçili analizlerle prompt'u güncelle
+    function updatePromptWithSelectedAnalyses(haftaIndex) {
+      // Seçili analizleri topla
+      const selectedAnalyses = [];
+      const checkboxes = document.querySelectorAll('[id^="oncekiAnaliz_"]:checked');
+      
+      checkboxes.forEach(checkbox => {
+        const haftaNo = parseInt(checkbox.id.split('_')[1]);
+        const analiz = getOncekiGptAnalizleri(haftaIndex).find(a => a.haftaNo === haftaNo);
+        if (analiz) {
+          selectedAnalyses.push(analiz);
+        }
+      });
+      
+      // Yeni prompt oluştur
+      const prompts = [];
+      
+      // 1. Genel prompt ekle
+      if (document.getElementById(`genelPrompt_${haftaIndex}`)?.checked) {
+        const genelPromptlar = JSON.parse(localStorage.getItem(GENEL_PROMPTLAR_KEY) || '[]');
+        if (genelPromptlar.length > 0) {
+          prompts.push('=== GENEL TALİMAT ===');
+          prompts.push(genelPromptlar[0].icerik);
+        }
+      }
+      
+      // 2. Hasta bilgilerini ekle
+      if (seciliHasta) {
+        prompts.push('=== HASTA BİLGİLERİ ===');
+        prompts.push(`Hasta Adı: ${seciliHasta.hastaIsim || seciliHasta.isim || 'Bilinmiyor'}`);
+        if (seciliHasta.not) {
+          prompts.push(`Hasta Notu: ${seciliHasta.not}`);
+        }
+      }
+      
+      // 3. Seçili önceki analizleri ekle
+      if (selectedAnalyses.length > 0) {
+        prompts.push('=== ÖNCEKİ HAFTALARIN GPT ANALİZLERİ (TUTARLILIK İÇİN) ===');
+        prompts.push('ÖNEMLİ: Bu içerikleri aynen tekrar etmeyin! Sadece tutarlılık sağlamak ve tekrardan kaçınmak için kullanın.');
+        prompts.push('');
+        selectedAnalyses.forEach(analiz => {
+          prompts.push(`--- ${analiz.haftaNo}. Hafta (Özet) ---`);
+          prompts.push(analiz.icerik.substring(0, 800) + '...');
+          prompts.push('');
+        });
+      }
+      
+      // 4. Bu hafta verilerini ekle (ek notlar, beslenme listesi vs.)
+      const ekNotlar = document.getElementById(`ekNotlar_${haftaIndex}`)?.value?.trim();
+      if (ekNotlar) {
+        prompts.push('=== BU HAFTA İÇİN EK BİLGİLER ===');
+        prompts.push(ekNotlar);
+      }
+      
+      // Final prompt
+      const updatedPrompt = prompts.join('\n\n');
+      
+      // Prompt alanlarını güncelle
+      document.getElementById('finalPromptText').value = updatedPrompt;
+      
+      // Önizleme alanını güncelle
+      const formattedPrompt = updatedPrompt
+        .replace(/=== (.*?) ===/g, '<div style="font-weight: bold; text-decoration: underline; color: #007bff; margin: 15px 0 10px 0; font-size: 14px;">📋 $1</div>')
+        .replace(/\n/g, '<br>');
+      
+      document.getElementById('promptPreview').innerHTML = formattedPrompt;
+      
+      // Token ve maliyet güncelle
+      const tokenSayisi = hesaplaToken(updatedPrompt);
+      const settings = window.tempSettings || JSON.parse(localStorage.getItem('gptSettings') || '{}');
+      const maliyet = hesaplaMaliyet(tokenSayisi, settings.model || 'gpt-4');
+      
+      // Maliyet panelini güncelle
+      const maliyetPanel = document.querySelector('[style*="background: #f8f9fa"]');
+      if (maliyetPanel) {
+        maliyetPanel.innerHTML = `
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; font-size: 12px;">
+            <div><strong>📊 Token:</strong> ~${tokenSayisi.toLocaleString()}</div>
+            <div><strong>🤖 Model:</strong> ${maliyet.model}</div>
+            <div><strong>💰 Tahmini Maliyet:</strong> ~$${maliyet.toplamMaliyet.toFixed(4)}</div>
+            <div><strong>🔢 Toplam Token:</strong> ~${maliyet.toplamToken.toLocaleString()}</div>
+          </div>
+        `;
+      }
+      
+      console.log(`📊 Prompt güncellendi: ${selectedAnalyses.length} hafta seçili, ${tokenSayisi} token`);
     }
     
     // GPT'ye prompt gönder
@@ -15721,6 +15849,7 @@ ${mesajlar.join('\n')}
     window.closeFinalPromptModal = closeFinalPromptModal;
     window.sendFinalPromptToGpt = sendFinalPromptToGpt;
     window.toggleEditMode = toggleEditMode;
+    window.updatePromptWithSelectedAnalyses = updatePromptWithSelectedAnalyses;
     
     // Global fonksiyonları ekle
     window.showToast = showToast;
