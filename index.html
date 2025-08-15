@@ -6224,6 +6224,13 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
             // Hasta verilerini kaydet
             localStorage.setItem(HASTALAR_KEY, JSON.stringify(hastalar));
           }
+          
+          // Tüm haftalarda dinamik ek bilgileri güncelle
+          seciliHasta.haftalar.forEach((hafta, index) => {
+            guncelleEkBilgilerDinamik(index);
+          });
+          
+          console.log(`🔄 Tüm haftalar için dinamik ek bilgiler güncellendi`);
         }
       }, 500); // Hafta tabları yüklendikten sonra çalışsın
       
@@ -7299,6 +7306,10 @@ function aciklamaKaydet(i) {
   }
   
   hafta.aciklama = aciklamaInput.value;
+  
+  // Açıklama değiştiğinde "Ek Bilgiler" alanını dinamik güncelle
+  guncelleEkBilgilerDinamik(i);
+  
   saveToStorage();
   
   // Visual feedback
@@ -15067,58 +15078,8 @@ ${mesajlar.join('\n')}
           return;
         }
         
-        // Haftalık açıklama alanındaki metni otomatik olarak "Ek Bilgiler" alanına çek (tekrar önleme ile)
-        const aciklamaInput = document.getElementById(`aciklama_${haftaIndex}`);
-        const ekNotlarInput = document.getElementById(`ekNotlar_${haftaIndex}`);
-        
-        if (aciklamaInput && ekNotlarInput && aciklamaInput.value.trim()) {
-          const aciklamaMetni = aciklamaInput.value.trim();
-          const mevcutEkNotlar = ekNotlarInput.value.trim();
-          
-          // Eğer ek notlar alanı boşsa açıklamayı otomatik çek
-          if (!mevcutEkNotlar) {
-            ekNotlarInput.value = aciklamaMetni;
-            console.log('✅ Açıklama alanındaki metin "Ek Bilgiler" alanına otomatik çekildi:', aciklamaMetni);
-          } else {
-            // KAPSAMLI TEMİZLEME: Önce mevcut ek notlardaki tüm tekrarları temizle
-            let temizlenmisEkNotlar = mevcutEkNotlar;
-            
-            // "Açıklama: mide ülseri var" gibi tekrarları temizle
-            const aciklamaPattern = /Açıklama:\s*mide\s+ülseri\s+var/gi;
-            const tekrarlar = temizlenmisEkNotlar.match(aciklamaPattern);
-            if (tekrarlar && tekrarlar.length > 1) {
-              // İlk hariç hepsini kaldır
-              console.log(`🧹 ${tekrarlar.length} adet tekrar bulundu, temizleniyor...`);
-              temizlenmisEkNotlar = temizlenmisEkNotlar.replace(aciklamaPattern, '');
-              temizlenmisEkNotlar = temizlenmisEkNotlar.replace(/\n\s*\n\s*\n+/g, '\n\n'); // Fazla boş satırları temizle
-              temizlenmisEkNotlar = temizlenmisEkNotlar.trim();
-            }
-            
-            // Yeni açıklamayı temizle ve kontrol et
-            const cleanAciklamaMetni = aciklamaMetni.replace(/^Açıklama:\s*/i, '').trim();
-            const temizEkNotlar = temizlenmisEkNotlar.toLowerCase().trim();
-            const temizAciklama = cleanAciklamaMetni.toLowerCase().trim();
-            
-            // Açıklama zaten var mı kontrol et (hem temiz hem prefix'li versiyonları)
-            const zatenVar = temizEkNotlar.includes(temizAciklama) || 
-                            temizEkNotlar.includes(`açıklama: ${temizAciklama}`) ||
-                            temizEkNotlar.includes(aciklamaMetni.toLowerCase().trim());
-            
-            if (!zatenVar && temizAciklama.length > 5) {
-              // Yeni açıklamayı ekle (sadece bir kez)
-              if (temizlenmisEkNotlar.trim()) {
-                ekNotlarInput.value = `${temizlenmisEkNotlar.trim()}\n\n${cleanAciklamaMetni}`;
-              } else {
-                ekNotlarInput.value = cleanAciklamaMetni;
-              }
-              console.log('✅ Açıklama temizlendikten sonra eklendi (tekrar önlendi)');
-            } else {
-              // Sadece temizlenmiş halini güncelle (yeni açıklama ekleme)
-              ekNotlarInput.value = temizlenmisEkNotlar.trim();
-              console.log('ℹ️ Açıklama zaten mevcut, sadece tekrarlar temizlendi');
-            }
-          }
-        }
+        // Dinamik ek bilgileri güncelle (açıklama varsa)
+        guncelleEkBilgilerDinamik(haftaIndex);
         
         // Loading göster
         const gptMesajTextarea = document.getElementById(`gptMesaj_${haftaIndex}`);
@@ -15410,6 +15371,67 @@ ${mesajlar.join('\n')}
       // Hasta verisine kaydet
       seciliHasta.haftalar[haftaIndex].ekNotlar = temizlenmisEkNotlar;
       saveToStorage();
+      
+      // Dinamik güncellemeyi tetikle (açıklama kısmını tekrar ekle)
+      setTimeout(() => {
+        guncelleEkBilgilerDinamik(haftaIndex);
+      }, 100);
+    }
+    
+    // Ek Bilgileri dinamik güncelle (açıklama değiştiğinde çağrılır)
+    function guncelleEkBilgilerDinamik(haftaIndex) {
+      const ekNotlarInput = document.getElementById(`ekNotlar_${haftaIndex}`);
+      const aciklamaInput = document.getElementById(`aciklama_${haftaIndex}`);
+      
+      if (!ekNotlarInput || !aciklamaInput) return;
+      
+      const aciklamaMetni = aciklamaInput.value.trim();
+      const mevcutEkNotlar = ekNotlarInput.value.trim();
+      
+      // Mevcut ek bilgileri manuel ve dinamik kısım olarak ayır
+      let manuelEkBilgiler = '';
+      let dinamikBolum = '';
+      
+      // Eğer mevcut ek bilgilerde "=== AÇIKLAMA ===" var ise, manuel kısmı ayır
+      const dinamikBaslangic = mevcutEkNotlar.indexOf('=== AÇIKLAMA ===');
+      if (dinamikBaslangic !== -1) {
+        manuelEkBilgiler = mevcutEkNotlar.substring(0, dinamikBaslangic).trim();
+      } else {
+        // İlk kez dinamik güncelleme yapılıyor
+        // Mevcut içerik manuel girilen bilgi olarak kabul edilir
+        manuelEkBilgiler = mevcutEkNotlar;
+      }
+      
+      // Yeni içeriği oluştur
+      let yeniIcerik = '';
+      
+      // Manuel ek bilgileri ekle (varsa)
+      if (manuelEkBilgiler.trim()) {
+        yeniIcerik = manuelEkBilgiler.trim();
+      }
+      
+      // Açıklama metnini dinamik kısım olarak ekle (varsa)
+      if (aciklamaMetni && aciklamaMetni.length > 0) {
+        const temizAciklamaMetni = aciklamaMetni.replace(/^Açıklama:\s*/i, '').trim();
+        if (temizAciklamaMetni) {
+          if (yeniIcerik) {
+            yeniIcerik += '\n\n=== AÇIKLAMA ===\n' + temizAciklamaMetni;
+          } else {
+            yeniIcerik = '=== AÇIKLAMA ===\n' + temizAciklamaMetni;
+          }
+        }
+      }
+      
+      // Ek Bilgiler alanını güncelle
+      ekNotlarInput.value = yeniIcerik;
+      
+      // Hasta verisine kaydet (eğer seçili hasta varsa)
+      if (seciliHasta && seciliHasta.haftalar && seciliHasta.haftalar[haftaIndex]) {
+        seciliHasta.haftalar[haftaIndex].ekNotlar = yeniIcerik;
+        saveToStorage();
+      }
+      
+      console.log(`🔄 Hafta ${haftaIndex + 1} ek bilgileri dinamik güncellendi`);
     }
     
     // PDF içeriğini temizle ve optimize et (agresif token tasarrufu)
