@@ -440,31 +440,28 @@
       margin-bottom: 20px;
     }
 
-    /* New Layout Grid - 1/3 Sol, 2/3 Sağ */
-    .hafta-layout-grid {
+    /* Compact Layout - Split 1/3 - 2/3 */
+    .compact-split-layout {
       display: grid;
       grid-template-columns: 1fr 2fr;
       gap: 20px;
       margin-bottom: 20px;
     }
 
-    .sol-panel {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    .sag-panel {
-      display: flex;
-      flex-direction: column;
+    @media (max-width: 1200px) {
+      .compact-split-layout {
+        grid-template-columns: 1fr 1.5fr;
+        gap: 15px;
+      }
     }
 
     @media (max-width: 768px) {
-      .responsive-grid {
+      .compact-split-layout {
         grid-template-columns: 1fr;
+        gap: 15px;
       }
-
-      .hafta-layout-grid {
+      
+      .responsive-grid {
         grid-template-columns: 1fr;
       }
       
@@ -7273,323 +7270,180 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
             </div>
           </div>
 
-          <!-- New Layout: Sol 1/3, Sağ 2/3 -->
-          <div class="hafta-layout-grid">
+          <!-- Modern Card Layout - 1/3 - 2/3 Split -->
+          <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 20px;">
             
-            <!-- Sol Panel: PDF ve Açıklama (Alt Alta) -->
-            <div class="sol-panel">
+            <!-- Sol Kolon - PDF ve Açıklama (1/3 genişlik) -->
+            <div style="display: flex; flex-direction: column; gap: 15px;">
               
-              <!-- PDF Kartı -->
-              <div class="hafta-card pdf-card" ${hafta.kilitli ? 'data-locked="true"' : ''}>
-                <div class="card-header">
-                  <div class="card-icon green">📄</div>
-                  <h4 style="margin: 0; color: #28a745; font-size: 16px;">PDF Yükle</h4>
+              <!-- PDF Card - Kompakt -->
+              <div style="background: white; border-radius: 8px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-top: 3px solid #28a745;" class="${hafta.kilitli ? 'locked-area' : ''}">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                  <div style="background: #28a745; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px;">📄</div>
+                  <h4 style="margin: 0; color: #28a745; font-size: 14px;">PDF Yükle</h4>
                 </div>
                 
                 <div style="margin-bottom: 12px;">
                   <input type="file" accept="application/pdf" onchange="pdfYukleHafta(${i}, this)" 
-                         class="modern-input" style="padding: 8px; font-size: 12px;" ${hafta.kilitli ? 'disabled' : ''}>
+                         style="width: 100%; padding: 8px; border: 2px dashed #28a745; border-radius: 6px; background: #f8fff8; font-size: 11px;" ${hafta.kilitli ? 'disabled' : ''}>
                 </div>
                 
                 <button onclick="drivedenPdfYukle(${i})" 
-                        class="modern-button btn-primary" style="width: 100%; justify-content: center; margin-bottom: 12px;" 
+                        style="width: 100%; padding: 10px; background: #4285f4; color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 12px;" 
                         ${hafta.kilitli ? 'disabled' : ''}>
-                  <span>💾</span> Drive'dan Yükle
+                  <span style="font-size: 14px;">💾</span>
+                  Drive'dan Yükle
                 </button>
                 
                 ${hafta.pdf || hafta.pdfYolu ? `
                   <div style="background: #d4edda; padding: 12px; border-radius: 6px; border-left: 3px solid #28a745;">
-                    <div style="color: #155724; font-weight: bold; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; font-size: 13px;">
+                    <div style="color: #155724; font-weight: bold; margin-bottom: 6px; display: flex; align-items: center; gap: 4px; font-size: 12px;">
                       <span>✅</span> ${hafta.pdfOrijinalIsim || hafta.pdfName || 'hafta.pdf'}
                     </div>
-                    <div style="color: #6c757d; font-size: 11px; margin-bottom: 3px;">
-                      📊 ${hafta.tarifler ? hafta.tarifler.length : 0} tarif tespit edildi
-                    </div>
-                    <div style="color: #6c757d; font-size: 10px; margin-bottom: 8px;">
-                      📅 ${hafta.kayitTarihi ? new Date(hafta.kayitTarihi).toLocaleString('tr-TR') : 'Bilinmiyor'}
+                    <div style="color: #6c757d; font-size: 11px; margin-bottom: 4px;">
+                      📊 ${hafta.tarifler ? hafta.tarifler.length : 0} tarif • 📅 ${hafta.kayitTarihi ? new Date(hafta.kayitTarihi).toLocaleDateString('tr-TR') : 'Bilinmiyor'}
                     </div>
                     ${hafta.githubUrl || hafta.githubLink ? `
-                      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <button onclick="pdfGoruntule('${hafta.indirmeUrl || hafta.githubRawLink || hafta.githubUrl}')" class="modern-button btn-primary" style="font-size: 10px; padding: 4px 8px;">👁️ Görüntüle</button>
-                        <button onclick="pdfIndir('${hafta.indirmeUrl || hafta.githubRawLink}', '${hafta.pdfOrijinalIsim || hafta.pdfName}')" class="modern-button btn-success" style="font-size: 10px; padding: 4px 8px;">💾 İndir</button>
+                      <div style="display: flex; gap: 6px; margin-top: 8px;">
+                        <button onclick="pdfGoruntule('${hafta.indirmeUrl || hafta.githubRawLink || hafta.githubUrl}')" style="background: #007bff; color: white; border: none; padding: 4px 8px; border-radius: 3px; font-size: 10px; cursor: pointer;">�️</button>
+                        <button onclick="pdfIndir('${hafta.indirmeUrl || hafta.githubRawLink}', '${hafta.pdfOrijinalIsim || hafta.pdfName}')" style="background: #28a745; color: white; border: none; padding: 4px 8px; border-radius: 3px; font-size: 10px; cursor: pointer;">💾</button>
                       </div>
                     ` : ''}
                   </div>
                 ` : `
-                  <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; text-align: center; color: #6c757d; font-size: 12px;">
+                  <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; text-align: center; color: #6c757d; font-size: 11px;">
                     📄 PDF henüz yüklenmedi
                   </div>
                 `}
               </div>
-
-              <!-- Açıklama Kartı -->
-              <div class="hafta-card aciklama-card" ${hafta.kilitli ? 'data-locked="true"' : ''}>
-                <div class="card-header">
-                  <div class="card-icon blue">📝</div>
-                  <h4 style="margin: 0; color: #17a2b8; font-size: 16px;">Açıklama</h4>
+              
+              <!-- Açıklama Card - Kompakt -->
+              <div style="background: white; border-radius: 8px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-top: 3px solid #17a2b8;" class="${hafta.kilitli ? 'locked-area' : ''}">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                  <div style="background: #17a2b8; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px;">📝</div>
+                  <h4 style="margin: 0; color: #17a2b8; font-size: 14px;">Açıklama</h4>
                 </div>
                 
                 <textarea id="aciklama_${i}" 
-                          class="modern-textarea" 
-                          style="height: 80px; background: #f8fdff;" 
-                          placeholder="Bu hafta hakkında not..."
+                          style="width: 100%; height: 60px; padding: 8px; border: 1px solid #bee5eb; border-radius: 6px; font-size: 12px; resize: vertical; background: #f8fdff;" 
+                          placeholder="Bu hafta hakkında kısa not..."
                           onchange="aciklamaKaydet(${i})" ${hafta.kilitli ? 'readonly' : ''}>${hafta.aciklama||''}</textarea>
               </div>
-
             </div>
-
-            <!-- Sağ Panel: GPT Analizi (2/3 Genişlik) -->
-            <div class="sag-panel">
-              
-              <!-- GPT Analiz Kartı -->
-              <div class="hafta-card gpt-card" ${hafta.kilitli ? 'data-locked="true"' : ''}>
-                <div class="card-header">
-                  <div class="card-icon primary">🤖</div>
-                  <h4 style="margin: 0; color: #007bff; font-size: 18px;">GPT Beslenme Analizi</h4>
-                </div>
-                
-                <!-- Prompt Seçenekleri -->
-                <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 15px;">
-                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin-bottom: 12px;">
-                    <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; padding: 6px; border-radius: 4px; background: white; border: 1px solid #dee2e6;">
-                      <input type="checkbox" id="genelPrompt_${i}" checked>
-                      <span>🎨 Genel Prompt</span>
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; padding: 6px; border-radius: 4px; background: white; border: 1px solid #dee2e6;">
-                      <input type="checkbox" id="haftalikPrompt_${i}" checked>
-                      <span>📅 ${i+1}. Hafta Teması</span>
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; padding: 6px; border-radius: 4px; background: white; border: 1px solid #dee2e6;">
-                      <input type="checkbox" id="hastaPrompt_${i}" checked>
-                      <span>👤 Hasta Bilgileri</span>
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; padding: 6px; border-radius: 4px; background: white; border: 1px solid #dee2e6;">
-                      <input type="checkbox" id="oncekiAnalizler_${i}" ${i > 0 ? 'checked' : ''}>
-                      <span>📚 Önceki Analizler</span>
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; padding: 6px; border-radius: 4px; background: white; border: 1px solid #dee2e6;">
-                      <input type="checkbox" id="ekPrompt_${i}" checked>
-                      <span>📝 Ek Notlar</span>
-                    </label>
-                  </div>
-                  <button onclick="gptAnalizeEt(${i})" class="modern-button btn-primary" style="
-                    background: linear-gradient(135deg, #007bff, #0056b3); 
-                    font-weight: bold;
-                    justify-content: center;
-                  " ${hafta.kilitli ? 'disabled' : ''}>
-                    <span>🚀</span> GPT ile Analiz Et
-                  </button>
-                </div>
-
-                <!-- Ek Bilgiler -->
-                <div style="margin-bottom: 15px;">
-                  <label style="display: block; margin-bottom: 6px; font-weight: bold; color: #007bff; font-size: 13px;">📝 Bu Hafta İçin Ek Bilgiler:</label>
-                  <textarea id="ekNotlar_${i}" 
-                            class="modern-textarea"
-                            style="height: 60px; background: #f8fbff;"
-                            placeholder="Bu haftaya özel ek bilgiler, hastanın durumu, değişiklikler..."
-                            onchange="ekNotlarKaydetVeTemizle(${i})"
-                            ${hafta.kilitli ? 'disabled' : ''}>${hafta.ekNotlar||''}</textarea>
-                </div>
-
-                <!-- GPT Mesajı (Tek Alan - Analiz Sonucu Buraya Yazılacak) -->
-                <div>
-                  <label style="display: block; margin-bottom: 6px; font-weight: bold; color: #dc3545; font-size: 13px;">💬 GPT Mesajı</label>
-                  <textarea id="gptMesajSync_${i}" 
-                            class="modern-textarea"
-                            style="height: 200px; background: #fef5f5; border-color: #f5c6cb;"
-                            placeholder="GPT analiz sonucu ve mesajı burada görünecek..."
-                            onchange="gptMesajSyncKaydet(${i})"
-                            ${hafta.kilitli ? 'disabled' : ''}>${hafta.gptMesaj||''}</textarea>
-                  
-                  <div style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                    <div style="display: flex; gap: 8px;">
-                      <button onclick="gptMesajKaydet(${i})" class="modern-button btn-success" ${hafta.kilitli ? 'disabled' : ''}>💾 Kaydet</button>
-                      <button onclick="kopyalaGptMesaj(${i})" class="modern-button btn-secondary">📋 Kopyala</button>
-                    </div>
-                    <button onclick="zipEslesenGorseller(${i})" class="modern-button btn-info" style="font-weight: bold;" title="Haftalık PDF, eşleşen tarif kartları ve GPT mesajını tek ZIP dosyasında indirir">🗜️ ZIP İndir</button>
-                  </div>
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
             
-            <!-- PDF Bölümü -->
-            <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;" class="${hafta.kilitli ? 'locked-area' : ''}">
-              <h4 style="margin: 0 0 10px 0; color: #28a745; font-size: 14px;">📄 PDF</h4>
-              
-              <!-- PDF Yükleme Seçenekleri -->
-              <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                <div style="flex: 1;">
-                  <input type="file" accept="application/pdf" onchange="pdfYukleHafta(${i}, this)" 
-                         style="width: 100%; font-size: 12px;" ${hafta.kilitli ? 'disabled' : ''}>
-                </div>
-                <button onclick="drivedenPdfYukle(${i})" 
-                        style="padding: 8px 12px; font-size: 11px; background: #4285f4; color: white; border: none; border-radius: 4px; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 5px;" 
-                        ${hafta.kilitli ? 'disabled' : ''} 
-                        title="Google Drive'dan ${seciliHasta?.hastaIsim || 'hasta'} için ${i}. hafta PDF'ini yükle">
-                  <span style="font-size: 12px;">💾</span>
-                  Drive'dan Yükle
-                </button>
+            <!-- Sağ Kolon - GPT Analiz (2/3 genişlik) -->
+            <div style="background: white; border-radius: 8px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-top: 3px solid #007bff;" class="${hafta.kilitli ? 'locked-area' : ''}">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
+                <div style="background: #007bff; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px;">🤖</div>
+                <h4 style="margin: 0; color: #007bff; font-size: 16px;">GPT Beslenme Analizi</h4>
               </div>
               
-              ${hafta.pdf || hafta.pdfYolu ? `
-                <div style="color: green; font-weight: bold; font-size: 12px; background: #d4edda; padding: 8px; border-radius: 4px; border-left: 3px solid #28a745;">
-                  ✅ <strong style="color: #155724; font-size: 13px;">${hafta.pdfOrijinalIsim || hafta.pdfName || 'hafta.pdf'}</strong>
-                  ${hafta.pdfOrijinalIsim && hafta.pdfName && hafta.pdfOrijinalIsim !== hafta.pdfName ? `
-                    <div style="color: #6c757d; font-size: 11px; margin-top: 2px;">
-                      📁 Güvenli ad: ${hafta.pdfName}
-                    </div>
-                  ` : ''}
-                  <div style="color: #666; font-weight: normal; margin-top: 5px; font-size: 11px;">
-                    📊 ${hafta.tarifler ? hafta.tarifler.length : 0} tarif tespit edildi
-                  </div>
-                  <div style="color: #495057; font-weight: normal; margin-top: 3px; font-size: 10px;">
-                    📅 Yüklenme: ${hafta.kayitTarihi ? new Date(hafta.kayitTarihi).toLocaleString('tr-TR') : 'Bilinmiyor'}
-                  </div>
-                  ${hafta.githubUrl || hafta.githubLink ? `
-                    <div style="margin-top: 8px; padding-top: 5px; border-top: 1px solid #c3e6cb;">
-                      <a href="javascript:void(0)" onclick="pdfGoruntule('${hafta.indirmeUrl || hafta.githubRawLink || hafta.githubUrl}')" style="color: #0066cc; text-decoration: none; font-size: 11px; display: inline-flex; align-items: center; gap: 3px;">
-                        <span style="font-size: 12px;">👁️</span> PDF Görüntüle
-                      </a>
-                      <span style="margin: 0 5px; color: #dee2e6;">|</span>
-                      <a href="${hafta.githubUrl || hafta.githubLink}" target="_blank" style="color: #666; text-decoration: none; font-size: 11px; display: inline-flex; align-items: center; gap: 3px;">
-                        <span style="font-size: 12px;">🔗</span> GitHub'da Görüntüle
-                      </a>
-                      ${hafta.indirmeUrl || hafta.githubRawLink ? `
-                        <span style="margin: 0 5px; color: #dee2e6;">|</span>
-                        <a href="javascript:void(0)" onclick="pdfIndir('${hafta.indirmeUrl || hafta.githubRawLink}', '${hafta.pdfOrijinalIsim || hafta.pdfName}')" style="color: #28a745; text-decoration: none; font-size: 11px; display: inline-flex; align-items: center; gap: 3px;">
-                          <span style="font-size: 12px;">💾</span> İndir
-                        </a>
-                      ` : ''}
-                    </div>
-                  ` : ''}
-                </div>
-              ` : '<div style="color: #666; font-size: 12px; background: #f8f9fa; padding: 8px; border-radius: 4px;">📄 PDF henüz yüklenmedi</div>'}
-              
-              ${hafta.pdf && (hafta.pdfMetinYok || hafta.googleSheetsPdf || hafta.pdfBoyutHatasi) ? `
-                <div style="margin-top: 8px; padding: 8px; background: #fff3cd; border-radius: 4px; border-left: 3px solid #ffc107; font-size: 11px; color: #856404;">
-                  ${hafta.pdfBoyutHatasi ? 
-                    '⚠️ PDF dosyası çok küçük (hatalı yüklenmiş olabilir). Manuel eşleştirme gerekebilir.' :
-                    '⚠️ PDF yüklendi ama analiz edilemedi (Google Sheets formatı). Manuel eşleştirme gerekebilir.'
-                  }
-                </div>
-              ` : ''}
-            </div>
-            
-            <!-- Tarif Kartları Bölümü - GİZLENDİ -->
-            <div style="display: none; padding: 15px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
-              <h4 style="margin: 0 0 10px 0; color: #856404; font-size: 14px;">🖼️ Tarif Kartları</h4>
-              <input type="file" accept="image/jpeg,image/jpg,image/png" multiple 
-                     onchange="tarifKartYukleHafta(${i}, this)" style="width: 100%; font-size: 12px;">
-              <div id="haftaKartGorsel_${i}" style="margin-top: 10px;"></div>
-            </div>
-            
-            <!-- Açıklama Bölümü -->
-            <div style="padding: 15px; background: #d1ecf1; border-radius: 8px; border-left: 4px solid #17a2b8;" class="${hafta.kilitli ? 'locked-area' : ''}">
-              <h4 style="margin: 0 0 10px 0; color: #0c5460; font-size: 14px;">📝 Açıklama</h4>
-              <input type="text" id="aciklama_${i}" value="${hafta.aciklama||''}" 
-                     placeholder="Bu hafta hakkında not..." 
-                     style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #bee5eb; font-size: 12px;"
-                     onchange="aciklamaKaydet(${i})" ${hafta.kilitli ? 'readonly' : ''}>>
-            </div>
-
-            <!-- GPT Analiz Bölümü -->
-            <div style="padding: 15px; background: #e7f3ff; border-radius: 8px; border-left: 4px solid #007bff; margin-top: 15px;" class="${hafta.kilitli ? 'locked-area' : ''}">
-              <h4 style="margin: 0 0 15px 0; color: #004085; font-size: 14px; display: flex; align-items: center; gap: 8px;">
-                <span>🤖</span> GPT Beslenme Analizi
-              </h4>
-              
-              <!-- Prompt Seçim Alanı -->
-              <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 6px;">
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 10px;">
-                  <label style="display: flex; align-items: center; gap: 5px; font-size: 12px;">
-                    <input type="checkbox" id="genelPrompt_${i}" checked style="margin: 0;">
-                    <span>🎨 Genel Prompt</span>
+              <!-- Prompt Seçenekleri - Kompakt -->
+              <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 15px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-bottom: 12px;">
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 11px; cursor: pointer; padding: 6px; border-radius: 4px; background: white; border: 1px solid #dee2e6;">
+                    <input type="checkbox" id="genelPrompt_${i}" checked>
+                    <span>🎨 Genel</span>
                   </label>
-                  <label style="display: flex; align-items: center; gap: 5px; font-size: 12px;">
-                    <input type="checkbox" id="haftalikPrompt_${i}" checked style="margin: 0;">
-                    <span>📅 ${i+1}. Hafta Teması</span>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 11px; cursor: pointer; padding: 6px; border-radius: 4px; background: white; border: 1px solid #dee2e6;">
+                    <input type="checkbox" id="haftalikPrompt_${i}" checked>
+                    <span>📅 ${i+1}. Hafta</span>
                   </label>
-                  <label style="display: flex; align-items: center; gap: 5px; font-size: 12px;">
-                    <input type="checkbox" id="hastaPrompt_${i}" checked style="margin: 0;">
-                    <span>👤 Hasta Bilgileri</span>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 11px; cursor: pointer; padding: 6px; border-radius: 4px; background: white; border: 1px solid #dee2e6;">
+                    <input type="checkbox" id="hastaPrompt_${i}" checked>
+                    <span>👤 Hasta</span>
                   </label>
-                  <label style="display: flex; align-items: center; gap: 5px; font-size: 12px;">
-                    <input type="checkbox" id="oncekiAnalizler_${i}" ${i > 0 ? 'checked' : ''} style="margin: 0;">
-                    <span>📚 Önceki Analizler</span>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 11px; cursor: pointer; padding: 6px; border-radius: 4px; background: white; border: 1px solid #dee2e6;">
+                    <input type="checkbox" id="oncekiAnalizler_${i}" ${i > 0 ? 'checked' : ''}>
+                    <span>📚 Önceki</span>
                   </label>
-                  <label style="display: flex; align-items: center; gap: 5px; font-size: 12px;">
-                    <input type="checkbox" id="ekPrompt_${i}" checked style="margin: 0;">
-                    <span>📝 Ek Notlar</span>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 11px; cursor: pointer; padding: 6px; border-radius: 4px; background: white; border: 1px solid #dee2e6;">
+                    <input type="checkbox" id="ekPrompt_${i}" checked>
+                    <span>📝 Ek Not</span>
                   </label>
                 </div>
                 <button onclick="gptAnalizeEt(${i})" style="
-                  padding: 8px 15px; 
                   background: linear-gradient(135deg, #007bff, #0056b3); 
                   color: white; 
                   border: none; 
-                  border-radius: 4px; 
-                  cursor: pointer; 
+                  padding: 10px 15px; 
+                  border-radius: 6px; 
                   font-size: 12px;
+                  font-weight: bold;
+                  cursor: pointer;
                   display: flex;
                   align-items: center;
-                  gap: 5px;
+                  gap: 6px;
+                  transition: transform 0.2s ease;
                 " ${hafta.kilitli ? 'disabled' : ''}>
                   <span>🚀</span> GPT ile Analiz Et
                 </button>
               </div>
 
-              <!-- Ek Notlar Alanı -->
+              <!-- Ek Bilgiler - Kompakt -->
               <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #004085; font-size: 12px;">📝 Bu Hafta İçin Ek Bilgiler:</label>
-                <textarea id="ekNotlar_${i}" rows="2" 
-                          style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #b8daff; font-size: 12px; resize: vertical;"
-                          placeholder="Bu haftaya özel ek bilgiler, hastanın durumu, değişiklikler..."
+                <label style="display: block; margin-bottom: 6px; font-weight: bold; color: #007bff; font-size: 12px;">📝 Ek Bilgiler:</label>
+                <textarea id="ekNotlar_${i}" 
+                          style="width: 100%; height: 50px; padding: 8px; border: 1px solid #b8daff; border-radius: 6px; font-size: 12px; resize: vertical; background: #f8fbff;"
+                          placeholder="Ek bilgiler, hastanın durumu..."
                           onchange="ekNotlarKaydetVeTemizle(${i})"
                           ${hafta.kilitli ? 'disabled' : ''}>${hafta.ekNotlar||''}</textarea>
               </div>
 
-              <!-- GPT Yanıt Alanı -->
-              <div>
-                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #004085; font-size: 12px;">🎯 GPT Analiz Sonucu:</label>
-                <textarea id="gptMesaj_${i}" rows="6" 
-                          style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #b8daff; font-size: 12px; resize: vertical; background: #ffffff;"
+              <!-- GPT Sonuç - Kompakt -->
+              <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 6px; font-weight: bold; color: #007bff; font-size: 12px;">🎯 GPT Analiz Sonucu:</label>
+                <textarea id="gptMesaj_${i}" 
+                          style="width: 100%; height: 100px; padding: 10px; border: 1px solid #b8daff; border-radius: 6px; font-size: 12px; resize: vertical; background: #ffffff; line-height: 1.4;"
                           placeholder="GPT analiz sonucu burada görünecek..."
                           onchange="gptMesajKaydet(${i})"
                           ${hafta.kilitli ? 'disabled' : ''}>${hafta.gptMesaj||''}</textarea>
               </div>
+
+              <!-- GPT Mesajı - Kompakt -->
+              <div>
+                <label style="display: block; margin-bottom: 6px; font-weight: bold; color: #dc3545; font-size: 12px;">💬 GPT Mesajı</label>
+                <textarea id="gptMesajSync_${i}" 
+                          style="width: 100%; height: 80px; padding: 10px; border: 1px solid #f5c6cb; border-radius: 6px; font-size: 12px; resize: vertical; background: #fef5f5; line-height: 1.4;"
+                          placeholder="GPT mesajı veya not..."
+                          onchange="gptMesajSyncKaydet(${i})"
+                          ${hafta.kilitli ? 'disabled' : ''}>${hafta.gptMesaj||''}</textarea>
+                
+                <div style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                  <div style="display: flex; gap: 8px;">
+                    <button onclick="gptMesajKaydet(${i})" style="background: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 4px; font-size: 11px; cursor: pointer;" ${hafta.kilitli ? 'disabled' : ''}>💾 Kaydet</button>
+                    <button onclick="kopyalaGptMesaj(${i})" style="background: #6c757d; color: white; border: none; padding: 8px 12px; border-radius: 4px; font-size: 11px; cursor: pointer;">📋 Kopyala</button>
+                  </div>
+                  <button onclick="zipEslesenGorseller(${i})" style="
+                    background: #17a2b8; 
+                    color: white; 
+                    border: none; 
+                    padding: 8px 12px; 
+                    border-radius: 4px; 
+                    font-size: 11px; 
+                    cursor: pointer;
+                    font-weight: bold;
+                  " title="ZIP İndir">🗜️ ZIP</button>
+                </div>
+              </div>
             </div>
           </div>
           
-          <!-- GPT Mesajı - Grid'in Altında -->
-          <div style="margin-bottom: 20px;" class="${hafta.kilitli ? 'locked-area' : ''}">
+          <!-- Eşleşen Kartlar - Full Width (Eski, Gizli) -->
+          <div style="margin-bottom: 20px; display: none;">
+            <h4 style="margin: 0 0 10px 0; color: #6f42c1; font-size: 16px;">🔗 Eşleşen Kartlar</h4>
+            <div id="eslesenKartlar_${i}" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: #f9f9f9; min-height: 80px;"></div>
+          </div>
+          
+          <!-- GPT Mesajı - Full Width (Eski, Gizli) -->
+          <div style="margin-bottom: 20px; display: none;">
             <h4 style="margin: 0 0 10px 0; color: #dc3545; font-size: 16px;">💬 GPT Mesajı</h4>
-            <textarea id="gptMesajSync_${i}" rows="3" 
+            <textarea id="gptMesaj_${i}" rows="3" 
                       style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ddd; resize: vertical;"
-                      placeholder="Bu hafta için GPT mesajı veya not..."
-                      onchange="gptMesajSyncKaydet(${i})"
-                      ${hafta.kilitli ? 'disabled' : ''}>${hafta.gptMesaj||''}</textarea>
-            <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <button onclick="gptMesajKaydet(${i})" style="padding: 8px 15px; font-size: 12px;" ${hafta.kilitli ? 'disabled' : ''}>💾 Kaydet</button>
-                <button onclick="kopyalaGptMesaj(${i})" style="padding: 8px 15px; margin-left: 10px; font-size: 12px;">📋 Kopyala</button>
-              </div>
-              <div>
-                <button onclick="zipEslesenGorseller(${i})" style="
-                  padding: 8px 12px; 
-                  font-size: 12px; 
-                  background: #17a2b8; 
-                  color: white; 
-                  border: none; 
-                  border-radius: 4px; 
-                  cursor: pointer;
-                  font-weight: bold;
-                " title="Haftalık PDF, eşleşen tarif kartları ve GPT mesajını tek ZIP dosyasında indirir${hafta.kilitli ? ' (Kilitli haftada da kullanılabilir)' : ''}">🗜️ ZIP İndir</button>
-              </div>
+                      placeholder="Bu hafta için GPT mesajı veya not...">${hafta.gptMesaj||''}</textarea>
+            <div style="margin-top: 10px;">
+              <button onclick="gptMesajKaydet(${i})" style="padding: 8px 15px; font-size: 12px;">💾 Kaydet</button>
+              <button onclick="kopyalaGptMesaj(${i})" style="padding: 8px 15px; margin-left: 10px; font-size: 12px;">📋 Kopyala</button>
             </div>
           </div>
         `;
@@ -11108,12 +10962,18 @@ function duzenleHafta(i) {
         return;
       }
       
-      const yeniMesaj = document.getElementById('gptMesajSync_' + i).value;
+      const yeniMesaj = document.getElementById('gptMesaj_' + i).value;
       hafta.gptMesaj = yeniMesaj;
+      
+      // Senkronize GPT alanını güncelle
+      const syncGptArea = document.getElementById('gptMesajSync_' + i);
+      if (syncGptArea) {
+        syncGptArea.value = yeniMesaj;
+      }
       
       saveToStorage();
       
-      console.log('✅ GPT mesajı kaydedildi, hafta:', i + 1);
+      console.log('✅ GPT mesajı kaydedildi ve senkronize edildi, hafta:', i + 1);
       
       // YENİ SİSTEM: GitHub'a da kaydet
       if (seciliHasta) {
@@ -11131,7 +10991,7 @@ function duzenleHafta(i) {
       alert('GPT mesajı kaydedildi.');
     }
     
-    // GPT Mesajı kaydet (💬 GPT Mesajı alanından değişiklik yapıldığında)
+    // Senkronize GPT Mesajı kaydet (💬 GPT Mesajı alanından değişiklik yapıldığında)
     function gptMesajSyncKaydet(i) {
       const hafta = getHaftaListesi()[i];
       
@@ -11144,18 +11004,29 @@ function duzenleHafta(i) {
       const yeniMesaj = document.getElementById('gptMesajSync_' + i).value;
       hafta.gptMesaj = yeniMesaj;
       
+      // Ana GPT alanını güncelle
+      const mainGptArea = document.getElementById('gptMesaj_' + i);
+      if (mainGptArea) {
+        mainGptArea.value = yeniMesaj;
+      }
+      
       saveToStorage();
       
-      console.log('✅ GPT mesajı otomatik kaydedildi, hafta:', i + 1);
+      console.log('✅ Senkronize GPT mesajı kaydedildi, hafta:', i + 1);
       
-      // GitHub'a da kaydet (sessiz, hata gösterme)
+      // YENİ SİSTEM: GitHub'a da kaydet
       if (seciliHasta) {
-        hastayiAyriKaydet(seciliHasta).catch(error => {
-          console.warn('⚠️ GitHub kaydetme hatası (normal):', error.message);
+        hastayiAyriKaydet(seciliHasta).then(basarili => {
+          if (basarili) {
+            console.log('✅ Senkronize GPT mesajı GitHub\'a da kaydedildi');
+          } else {
+            console.warn('⚠️ Senkronize GPT mesajı localStorage\'a kaydedildi ama GitHub kaydı başarısız');
+          }
+        }).catch(error => {
+          console.error('❌ GitHub kaydetme hatası:', error);
         });
       }
     }
-    
     // --- JSON dışa aktar/yükle fonksiyonları ---
     function exportData() {
       // Kullanıcıya seçenek sun
@@ -11223,7 +11094,7 @@ function duzenleHafta(i) {
     }
 
     function kopyalaGptMesaj(i) {
-      const textarea = document.getElementById('gptMesajSync_' + i);
+      const textarea = document.getElementById('gptMesaj_' + i);
       textarea.select();
       textarea.setSelectionRange(0, 99999); // mobile uyumlu
       document.execCommand('copy');
@@ -15674,7 +15545,7 @@ ${mesajlar.join('\n')}
         guncelleEkBilgilerDinamik(haftaIndex);
         
         // Loading göster
-        const gptMesajTextarea = document.getElementById(`gptMesajSync_${haftaIndex}`);
+        const gptMesajTextarea = document.getElementById(`gptMesaj_${haftaIndex}`);
         gptMesajTextarea.value = '🤖 GPT analiz ediyor, lütfen bekleyin...';
         gptMesajTextarea.disabled = true;
         
@@ -15820,8 +15691,8 @@ ${mesajlar.join('\n')}
         
       } catch (error) {
         console.error('GPT analiz hatası:', error);
-        document.getElementById(`gptMesajSync_${haftaIndex}`).value = `❌ GPT analiz hatası: ${error.message}`;
-        document.getElementById(`gptMesajSync_${haftaIndex}`).disabled = false;
+        document.getElementById(`gptMesaj_${haftaIndex}`).value = `❌ GPT analiz hatası: ${error.message}`;
+        document.getElementById(`gptMesaj_${haftaIndex}`).disabled = false;
         showToast('❌ GPT analizi başarısız', 'error', 4000);
       }
     }
@@ -16312,7 +16183,7 @@ ${mesajlar.join('\n')}
       }
       
       // Loading durumunu sıfırla
-      const allTextareas = document.querySelectorAll('[id^="gptMesajSync_"]');
+      const allTextareas = document.querySelectorAll('[id^="gptMesaj_"]');
       allTextareas.forEach(textarea => {
         if (textarea.value === '🤖 GPT analiz ediyor, lütfen bekleyin...') {
           textarea.value = '';
