@@ -7126,6 +7126,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
                 <textarea id="ekNotlar_${i}" rows="2" 
                           style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #b8daff; font-size: 12px; resize: vertical;"
                           placeholder="Bu haftaya özel ek bilgiler, hastanın durumu, değişiklikler..."
+                          onchange="ekNotlarKaydetVeTemizle(${i})"
                           ${hafta.kilitli ? 'disabled' : ''}>${hafta.ekNotlar||''}</textarea>
               </div>
 
@@ -15184,10 +15185,14 @@ ${mesajlar.join('\n')}
         
         // 4. Ek Notlar
         if (document.getElementById(`ekPrompt_${haftaIndex}`)?.checked) {
-          const ekNotlar = document.getElementById(`ekNotlar_${haftaIndex}`)?.value?.trim();
-          if (ekNotlar) {
-            prompts.push('=== BU HAFTA İÇİN EK BİLGİLER ===');
-            prompts.push(ekNotlar);
+          const ekNotlarHam = document.getElementById(`ekNotlar_${haftaIndex}`)?.value?.trim();
+          if (ekNotlarHam) {
+            // Ek notları da temizle
+            const temizEkNotlar = temizleEkBilgilerTekrarlari(ekNotlarHam);
+            if (temizEkNotlar) {
+              prompts.push('=== BU HAFTA İÇİN EK BİLGİLER ===');
+              prompts.push(temizEkNotlar);
+            }
           }
         }
         
@@ -15302,10 +15307,15 @@ ${mesajlar.join('\n')}
       // 1. Yaygın tekrarları tespit et ve temizle
       const tekrarPatterns = [
         /Açıklama:\s*mide\s+ülseri\s+var/gi,
+        /Açıklama:\s*mide\s+bulantısı\s*sorunu\s*olmuş/gi,
+        /Açıklama:\s*iki\s+kez\s+kusmuş/gi,
         /Açıklama:\s*hipertansiyon\s+var/gi,
         /Açıklama:\s*böbrek\s+taşı\s+vardı/gi,
         /Açıklama:\s*mide\s+bulantısı/gi,
-        /Açıklama:\s*kusmuş/gi
+        /Açıklama:\s*kusmuş/gi,
+        /mide\s+ülseri\s+var/gi,
+        /mide\s+bulantısı\s*sorunu\s*olmuş/gi,
+        /iki\s+kez\s+kusmuş/gi
       ];
       
       tekrarPatterns.forEach(pattern => {
@@ -15376,6 +15386,30 @@ ${mesajlar.join('\n')}
       } else {
         showToast('ℹ️ Temizlenecek tekrar bulunamadı', 'info', 3000);
       }
+    }
+    
+    // Ek Notları kaydet ve temizle (kullanıcı manuel değişiklik yaptığında çağrılır)
+    function ekNotlarKaydetVeTemizle(haftaIndex) {
+      if (!seciliHasta || !seciliHasta.haftalar || !seciliHasta.haftalar[haftaIndex]) {
+        return;
+      }
+      
+      const ekNotlarInput = document.getElementById(`ekNotlar_${haftaIndex}`);
+      if (!ekNotlarInput) return;
+      
+      // Mevcut değeri al ve temizle
+      const mevcutDeger = ekNotlarInput.value || '';
+      const temizlenmisEkNotlar = temizleEkBilgilerTekrarlari(mevcutDeger);
+      
+      // Temizleme yapıldıysa UI'yi güncelle
+      if (temizlenmisEkNotlar !== mevcutDeger) {
+        ekNotlarInput.value = temizlenmisEkNotlar;
+        console.log(`🧹 Hafta ${haftaIndex + 1} ek bilgileri otomatik temizlendi`);
+      }
+      
+      // Hasta verisine kaydet
+      seciliHasta.haftalar[haftaIndex].ekNotlar = temizlenmisEkNotlar;
+      saveToStorage();
     }
     
     // PDF içeriğini temizle ve optimize et (agresif token tasarrufu)
@@ -15846,10 +15880,14 @@ ${mesajlar.join('\n')}
       
       // 5. Bu hafta ek bilgileri
       if (document.getElementById(`ekPrompt_${haftaIndex}`)?.checked) {
-        const ekNotlar = document.getElementById(`ekNotlar_${haftaIndex}`)?.value?.trim();
-        if (ekNotlar) {
-          prompts.push('=== BU HAFTA İÇİN EK BİLGİLER ===');
-          prompts.push(ekNotlar);
+        const ekNotlarHam = document.getElementById(`ekNotlar_${haftaIndex}`)?.value?.trim();
+        if (ekNotlarHam) {
+          // Ek notları da temizle
+          const temizEkNotlar = temizleEkBilgilerTekrarlari(ekNotlarHam);
+          if (temizEkNotlar) {
+            prompts.push('=== BU HAFTA İÇİN EK BİLGİLER ===');
+            prompts.push(temizEkNotlar);
+          }
         }
       }
       
@@ -15984,7 +16022,22 @@ ${mesajlar.join('\n')}
         // Hafta verisine kaydet
         if (seciliHasta?.haftalar?.[haftaIndex]) {
           seciliHasta.haftalar[haftaIndex].gptMesaj = gptYanit;
-          seciliHasta.haftalar[haftaIndex].ekNotlar = document.getElementById(`ekNotlar_${haftaIndex}`)?.value || '';
+          
+          // Ek Notları kaydetmeden önce tekrarları temizle
+          const ekNotlarDegeri = document.getElementById(`ekNotlar_${haftaIndex}`)?.value || '';
+          const temizlenmisEkNotlar = temizleEkBilgilerTekrarlari(ekNotlarDegeri);
+          
+          seciliHasta.haftalar[haftaIndex].ekNotlar = temizlenmisEkNotlar;
+          
+          // Eğer temizleme yapıldıysa UI'yi güncelle
+          if (temizlenmisEkNotlar !== ekNotlarDegeri) {
+            const ekNotlarInput = document.getElementById(`ekNotlar_${haftaIndex}`);
+            if (ekNotlarInput) {
+              ekNotlarInput.value = temizlenmisEkNotlar;
+              console.log('🧹 Ek Bilgiler kaydetme sırasında temizlendi');
+            }
+          }
+          
           saveToStorage();
           
           // GitHub'a da kaydet (hata kontrolü ile)
