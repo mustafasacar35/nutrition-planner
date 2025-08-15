@@ -1,31 +1,3 @@
 [
-  {
-    "id": 1755300856582,
-    "isim": "deneme2",
-    "not": "",
-    "arsiv": false,
-    "olusturma": "2025-08-15T23:34:17.824Z",
-    "sonGuncelleme": "2025-08-15T23:34:17.824Z"
-  },
-  {
-    "id": 1755290231749,
-    "isim": "GİZEM NUR BİRDAL",
-    "not": "BÖBREK İLTİHABI",
-    "arsiv": false,
-    "sonGuncelleme": "2025-08-15T23:22:37.739Z"
-  },
-  {
-    "id": 1755192664955,
-    "isim": "MUSTAFA DENEME2",
-    "not": "",
-    "arsiv": false,
-    "sonGuncelleme": "2025-08-14T17:55:45.761Z"
-  },
-  {
-    "id": 1755290555225,
-    "isim": "ŞEVVAL DOĞAN",
-    "not": "",
-    "arsiv": false,
-    "sonGuncelleme": "2025-08-15T22:03:36.651Z"
-  }
+
 ]
