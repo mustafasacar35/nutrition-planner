@@ -6822,9 +6822,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
       // 5. hafta kontrolü - Lenf Drenaj Takvimi otomatik oluştur
       if (sonrakiHaftaNo === 5) {
         setTimeout(() => {
-          if (confirm(`🏥 5. hafta eklendi!\n\nLenf Drenaj Masajı Takvimi otomatik olarak oluşturulsun mu?`)) {
-            generateLenfDrenajTakvimi();
-          }
+          generateLenfDrenajTakvimi();
         }, 500);
       }
       
@@ -15366,6 +15364,36 @@ ${mesajlar.join('\n')}
     // GPT ile analiz et
     async function gptAnalizeEt(haftaIndex) {
       try {
+        // PDF kontrolü - O hafta için yemek listesi PDF'i yüklü mü?
+        if (!seciliHasta || !seciliHasta.haftalar || !seciliHasta.haftalar[haftaIndex]) {
+          alert('❌ Hasta veya hafta verisi bulunamadı!');
+          return;
+        }
+        
+        const hafta = seciliHasta.haftalar[haftaIndex];
+        const haftaNo = haftaIndex + 1;
+        
+        // PDF yüklü mü kontrol et
+        if (!hafta.pdf && !hafta.pdfYolu) {
+          const pdfYukleOnay = confirm(`📄 ${haftaNo}. Hafta için yemek listesi PDF'i yüklü değil!\n\nGPT analizi yapmak için o haftaya uygun yemek listesi PDF'ini yüklemeniz gerekiyor.\n\nPDF yüklemek ister misiniz?`);
+          
+          if (pdfYukleOnay) {
+            // PDF yükleme inputunu tetikle
+            const pdfInput = document.getElementById('pdfInput');
+            if (pdfInput) {
+              // Hafta sekmesini aktifseyken aktif yap
+              switchTab(haftaIndex);
+              
+              // Bir miktar bekle ki sekme değişimi tamamlansın
+              setTimeout(() => {
+                pdfInput.click();
+              }, 300);
+            }
+          }
+          
+          return; // Analizi durdur
+        }
+        
         // GPT ayarlarını kontrol et
         const settings = JSON.parse(localStorage.getItem(GPT_SETTINGS_KEY) || '{}');
         if (!settings.apiKey) {
