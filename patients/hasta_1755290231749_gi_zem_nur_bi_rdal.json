@@ -292,7 +292,7 @@
         "günlük ortalama 5000 adım önerilir",
         "günlük su tüketimi 2 litrenin üzerinde olması önerilir"
       ],
-      "gptMesaj": "",
+      "gptMesaj": "Merhaba Gizem Nur Hanım,\n\nProgramımızın ikinci haftasına hoş geldiniz! Geçen hafta beslenme düzeninizde yapmış olduğumuz değişikliklerin temelini oluşturduk ve şimdi bu yeni alışkanlıkların üzerine daha da inşa etmeye devam edeceğiz. Özellikle böbrek iltihabınızı göz önünde bulundurarak seçtiğimiz yiyeceklerle inflamasyonu azaltmayı ve sindirim sisteminizi desteklemeyi amaçlıyoruz.\n\nBu hafta menünüzü incelediğimde, özellikle anti-inflamatuar özellikleri olan ve sindirimi kolaylaştıran gıdaların ağırlıkta olduğunu görebiliyorum. Örneğin, haşlanmış yumurta ve tahin ekmeği gibi protein kaynakları, günlük enerji seviyenizi dengeli bir şekilde korumanıza yardımcı olurken, yeşillikler ve zeytinyağı içeren salatalar vücudunuzdaki inflamasyonu azaltmaya destek olacaktır.\n\nBeslenme listenizdeki çiğ badem ve ceviz gibi sağlıklı yağ kaynakları, özellikle lipödem tedavisinde önerilen düşük karbonhidrat ve yüksek sağlıklı yağ tüketimine uygun alternatifler sunuyor. Bu tür yağlar, vücudun insülin seviyesini düşük tutarak yağ yakımını kolaylaştırır ve lipödem semptomlarının hafifletilmesine yardımcı olur.\n\nHaftanın diğer öğünlerinde yer alan kuzu güveç ve ızgara tavuk göğsü gibi seçenekler ise hem yüksek kaliteli protein kaynakları sağlamakta hem de uzun süreli tokluk hissi vermektedir. Bu tür yiyecekler, özellikle proteinin vücuttaki inflamatuvar süreçler üzerindeki olumlu etkisinden dolayı önemlidir.\n\nBu haftanın teması olan eliminasyon sürecinde, vücudunuzun toksinlerden arınmasına yardımcı olacak ve böbrek sağlığınızı destekleyecek yiyecekleri özellikle seçtik. Örneğin, kabak çorbası ve zeytinyağlı deniz börülcesi gibi yiyecekler, hem hafif hem de detoks etkileriyle bilinir. \n\nUnutmayın, her yeni hafta, sağlık yolculuğunuzda yeni bir başlangıçtır ve her bir adım sizi hedeflerinize biraz daha yaklaştırır. İlerleme sürecinizle ilgili gözlemlerinizi ve yorumlarınızı duymak benim için çok değerli. Bu yolculukta her zaman yanınızdayım ve herhangi bir sorunuz olursa çekinmeden bana ulaşabilirsiniz.\n\nSevgilerle,\n\n[İsim]",
       "kilitli": false,
       "githubLink": "https://github.com/mustafasacar35/nutrition-planner/blob/main/patients/hasta_1755290231749_gi_zem_nur_bi_rdal.json",
       "githubRawLink": "https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/patients/hasta_1755290231749_gi_zem_nur_bi_rdal.json",
@@ -383,7 +383,8 @@
         "mantarlı tavuk sote (150 gr tavuk ile)",
         "tahin ekmeği (1 dilim)",
         "kıymalı - yumurtalı ıspanak / semizotu/ pazı kavurma (2 yumurta, 50 gr. kıyma, 100 gr. ispanak, 1 yk zeytinyağı, soğan"
-      ]
+      ],
+      "ekNotlar": ""
     },
     {
       "haftaNo": 3,
@@ -853,6 +854,6 @@
   ],
   "olusturmaTarihi": "2025-08-15T20:37:11.749Z",
   "yeniSistem": true,
-  "sonGuncelleme": "2025-08-15T22:09:40.026Z",
+  "sonGuncelleme": "2025-08-15T22:10:57.362Z",
   "githubKaydedildi": true
 }
