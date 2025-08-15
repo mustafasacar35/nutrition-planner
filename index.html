@@ -14636,6 +14636,121 @@ ${mesajlar.join('\n')}
       }
     }
     
+    // Sheet'ten tarih bilgisini çıkar (sağ üstteki tarih formatı için)
+    async function extractDateFromSheet(sheetId, tabName) {
+      try {
+        console.log(`📅 Tarih bilgisi çıkarılıyor: ${tabName}`);
+        
+        // Sheet'in belirli hücrelerini oku (sağ üst bölge)
+        const response = await gapi.client.sheets.spreadsheets.values.get({
+          spreadsheetId: sheetId,
+          range: `'${tabName}'!A1:Z5`, // İlk 5 satır ve A-Z sütunları
+        });
+        
+        const values = response.result.values;
+        if (!values || values.length === 0) {
+          throw new Error('Sheet içeriği okunamadı');
+        }
+        
+        // Tarih formatlarını ara (çeşitli satır/sütunlarda olabilir)
+        let foundDateText = null;
+        
+        for (let row = 0; row < Math.min(values.length, 5); row++) {
+          const rowData = values[row];
+          if (!rowData) continue;
+          
+          for (let col = Math.max(0, rowData.length - 3); col < rowData.length; col++) {
+            const cellValue = rowData[col];
+            if (!cellValue || typeof cellValue !== 'string') continue;
+            
+            // Tarih formatlarını kontrol et
+            // Örnek: "12-18 MAYIS 2025", "28 NİSAN -4 MAYIS", "ARZU ÇAKMAK PİRELİ / 12-18 MAYIS 2025"
+            const datePatterns = [
+              /(\d{1,2}[-\s]\d{1,2}\s+\w+(\s+\d{4})?)/i, // "12-18 MAYIS 2025"
+              /(\d{1,2}\s+\w+\s*[-]\s*\d{1,2}\s+\w+(\s+\d{4})?)/i, // "28 NİSAN -4 MAYIS 2025"
+              /(\/\s*\d{1,2}[-\s]\d{1,2}\s+\w+(\s+\d{4})?)/i, // "/ 12-18 MAYIS 2025"
+              /(\d{1,2}[-\s]\d{1,2}\s+\w+)/i, // "16-22 HAZİRAN"
+              /(\d{1,2}\s+\w+\s*[-]\s*\d{1,2}\s+\w+)/i // "28 NİSAN - 4 MAYIS"
+            ];
+            
+            for (const pattern of datePatterns) {
+              if (pattern.test(cellValue)) {
+                foundDateText = cellValue.trim();
+                console.log(`✅ Tarih bulundu: "${foundDateText}" (Satır: ${row + 1}, Sütun: ${col + 1})`);
+                break;
+              }
+            }
+            
+            if (foundDateText) break;
+          }
+          
+          if (foundDateText) break;
+        }
+        
+        if (!foundDateText) {
+          throw new Error('Tarih bilgisi sheet içeriğinde bulunamadı');
+        }
+        
+        return foundDateText;
+        
+      } catch (error) {
+        console.error('❌ Tarih çıkarma hatası:', error);
+        throw error;
+      }
+    }
+    
+    // Formatlanmış PDF adı oluştur
+    function createFormattedPdfName(hastaAdi, tarihBilgisi, haftaNo) {
+      try {
+        console.log(`📝 PDF adı formatlanıyor: ${hastaAdi} | ${tarihBilgisi} | ${haftaNo}. hafta`);
+        
+        // Hasta adını temizle
+        const temizHastaAdi = hastaAdi
+          .replace(/[\/\\*?"<>|:]/g, '') // Dosya adı için geçersiz karakterleri kaldır
+          .trim()
+          .toUpperCase();
+        
+        // Tarih bilgisinden sadece tarih kısmını çıkar ve temizle
+        let temizTarih = tarihBilgisi;
+        
+        // Hasta adı başında varsa kaldır (örn: "ARZU ÇAKMAK PİRELİ / 12-18 MAYIS 2025")
+        if (temizTarih.includes('/')) {
+          const parts = temizTarih.split('/');
+          if (parts.length >= 2) {
+            temizTarih = parts[parts.length - 1].trim(); // Son kısmı al
+          }
+        }
+        
+        // Gereksiz başlangıç karakterlerini temizle
+        temizTarih = temizTarih.replace(/^[\/\s-]+/, '').trim();
+        
+        // Tarih formatını düzenle
+        temizTarih = temizTarih
+          .replace(/[-]\s+/g, '-') // "- " -> "-"
+          .replace(/\s+[-]/g, ' -') // " -" -> " -"
+          .replace(/\s+/g, ' ') // Çoklu boşlukları tek boşluk yap
+          .trim()
+          .toUpperCase();
+        
+        // Yıl yoksa ekleme (isteğe bağlı)
+        if (!/\d{4}/.test(temizTarih)) {
+          const yil = new Date().getFullYear();
+          temizTarih += ` ${yil}`;
+        }
+        
+        // PDF adını oluştur
+        const formatlanmisPdfAdi = `${temizHastaAdi} ${temizTarih} ${haftaNo}. HAFTA.pdf`;
+        
+        console.log(`✅ Formatlanmış PDF adı: ${formatlanmisPdfAdi}`);
+        return formatlanmisPdfAdi;
+        
+      } catch (error) {
+        console.error('❌ PDF adı formatla hatası:', error);
+        // Hata durumunda varsayılan format
+        return `${hastaAdi}_${haftaNo}_hafta.pdf`;
+      }
+    }
+    
     // Drive'dan PDF yükle (ana fonksiyon)
     async function drivedenPdfYukle(haftaIndeks) {
       try {
@@ -14719,8 +14834,21 @@ ${mesajlar.join('\n')}
           return;
         }
         
-        // PDF dosyasını File objesine çevir
-        const pdfFile = new File([pdfBlob], `${hastaAdi}_${haftaNo}_hafta.pdf`, {
+        // Sheet içeriğini okuyarak tarih bilgisini çıkar
+        let formattedPdfName = `${hastaAdi}_${haftaNo}_hafta.pdf`; // varsayılan isim
+        try {
+          const tarihBilgisi = await extractDateFromSheet(patientSheet.id, foundTabName);
+          if (tarihBilgisi) {
+            console.log('✅ Tarih bilgisi sheet\'ten çıkarıldı:', tarihBilgisi);
+            formattedPdfName = createFormattedPdfName(hastaAdi, tarihBilgisi, haftaNo);
+            console.log('✅ Formatlanmış PDF adı oluşturuldu:', formattedPdfName);
+          }
+        } catch (error) {
+          console.log('⚠️ Tarih çıkarma hatası (varsayılan ad kullanılacak):', error.message);
+        }
+        
+        // PDF dosyasını File objesine çevir (formatlanmış adla)
+        const pdfFile = new File([pdfBlob], formattedPdfName, {
           type: 'application/pdf'
         });
         
