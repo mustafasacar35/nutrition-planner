@@ -926,7 +926,7 @@
         "günlük ortalama 5000 adım önerilir",
         "günlük su tüketimi 2 litrenin üzerinde olması önerilir"
       ],
-      "gptMesaj": "",
+      "gptMesaj": "Merhaba Arzu Hanım, bu hafta beslenme listemizde kabızlık açısından önemli olan gıdaları da ekledik. Kabızlık sorununuz olduğunu biliyoruz ve bu sebeple listenizde lifli gıdalara ve probiyotik içeren besinlere yer verdik. Ayrıca, haftalık konumuz kabızlık üzerine olduğundan dolayı bu konuya da odaklanacağız.\n\nListemizde avokadolu omlet, mantarlı tavuk sote, kıymalı bamya gibi lifli ve sindirimi kolay gıdalar bulunmakta. Ayrıca, tulum peynir, yoğurt gibi probiyotik içeren besinler de sindirim sisteminizi destekleyebilir. Bedeninizdeki değişimleri takip etmek için iki haftada bir benden ölçülerinizi göndermenizi rica ediyorum.\n\nEğer herhangi bir sorunuz veya takıldığınız bir nokta olursa bana her zaman mesaj atabilirsiniz. Sağlıklı ve keyifli bir hafta dilerim. \n\nSevgiler, \n[Adınız]",
       "kilitli": false,
       "githubLink": "https://github.com/mustafasacar35/nutrition-planner/blob/main/patients/hasta_1755201361727_arzu_cakmak_pi_reli.json",
       "githubRawLink": "https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/patients/hasta_1755201361727_arzu_cakmak_pi_reli.json",
@@ -1024,7 +1024,8 @@
         "borani (yoğurtlu ıspanak)",
         "yumurtalı ıspanak / pazı kavurma (1 yumurta, 100 gr. ispanak, 1 yemek kaşığı zeytinyağı, tercihen soğan",
         "ketojeni̇k pi̇zza"
-      ]
+      ],
+      "ekNotlar": "kabuzlık"
     },
     {
       "haftaNo": 5,
@@ -2262,6 +2263,6 @@
   ],
   "olusturmaTarihi": "2025-08-14T19:56:01.727Z",
   "yeniSistem": true,
-  "sonGuncelleme": "2025-08-15T19:29:27.177Z",
+  "sonGuncelleme": "2025-08-15T19:30:14.929Z",
   "githubKaydedildi": true
 }
