@@ -15168,72 +15168,99 @@ ${mesajlar.join('\n')}
       return analizler;
     }
     
-    // PDF içeriğini temizle ve optimize et (token tasarrufu için)
+    // PDF içeriğini temizle ve optimize et (agresif token tasarrufu)
     function temizlePdfIcerik(pdfText) {
       if (!pdfText || typeof pdfText !== 'string') return '';
       
       let temizIcerik = pdfText;
       
-      // 1. Gereksiz header bilgilerini kaldır
+      // 1. Gereksiz header ve sabit ifadeleri tamamen kaldır
       temizIcerik = temizIcerik
         .replace(/.*?\/.*?\d{1,2}-\d{1,2}\s+\w+\s+\d{4}/gi, '') // Tarih ve isim formatları
-        .replace(/her\s+sabah\s+güne\s+başlarken:/gi, '') // Sabit başlangıç metni
-        .replace(/kurşun\s+geçirmez\s+kahve.*?sade\s+yağ\)/gi, '') // Kahve tarifi
-        .replace(/ılık\s+su\s+\+.*?elma\s+sirkesi/gi, '') // Sabah içeceği
-        .replace(/hafta/gi, '') // Gereksiz "hafta" kelimesi
-        .replace(/tercihen\s+saat\s+\d{1,2}:\d{2}\s+civarında/gi, '') // Saat bilgileri
-        .replace(/tercihen\s+hava\s+kararınca/gi, ''); // Akşam saat bilgisi
+        .replace(/her\s+sabah\s+güne\s+başlarken:?/gi, '') // Sabah başlangıcı
+        .replace(/•\s*ılık\s+su.*?elma\s+sirkesi/gi, '') // Sabah içeceği tamamen çıkar
+        .replace(/•\s*kurşun\s+geçirmez\s+kahve.*?yağ\)/gi, '') // Kahve tarifi tamamen çıkar
+        .replace(/\bhafta\b/gi, '') // "hafta" kelimesi
+        .replace(/tercihen\s+saat.*?civarında/gi, '') // Saat önerileri
+        .replace(/tercihen\s+hava\s+kararınca/gi, '') // Akşam saati
+        .replace(/ara\s+öğün.*?şekilde\)/gi, '') // Ara öğün önerileri
+        .replace(/günlük\s+(ortalama\s+)?\d+\.?\d*\s+adım.*?önerilir/gi, '') // Adım önerileri
+        .replace(/günlük\s+su\s+tüketimi.*?önerilir/gi, '') // Su önerileri
+        .replace(/diğer\s+günler.*?vs\.?/gi, ''); // "diğer günler" açıklaması
       
-      // 2. Günleri kaldır (pazartesi, salı vs.)
-      const gunler = ['pazartesi̇?', 'sali', 'çarşamba', 'perşembe', 'cuma', 'cumartesi̇?', 'pazar'];
+      // 2. Gün isimlerini kaldır (pazartesi, salı, çarşamba, perşembe, cuma, cumartesi, pazar)
+      const gunler = ['pazartesi̇?', 'sali', 'salı', 'çarşamba', 'perşembe', 'cuma', 'cumartesi̇?', 'pazar'];
       gunler.forEach(gun => {
-        const regex = new RegExp(`^\\s*•\\s*${gun}\\s*$`, 'gim');
-        temizIcerik = temizIcerik.replace(regex, '');
+        // Satır başında veya bullet ile gelen günleri kaldır
+        const regex1 = new RegExp(`^\\s*•?\\s*${gun}\\s*$`, 'gim');
+        const regex2 = new RegExp(`^\\s*${gun}\\s*$`, 'gim');
+        temizIcerik = temizIcerik.replace(regex1, '').replace(regex2, '');
       });
       
-      // 3. Öğün başlıklarını kaldır
+      // 3. Gereksiz bullet point'leri ve boş satırları temizle
       temizIcerik = temizIcerik
-        .replace(/^\\s*•\\s*öğle.*?$/gim, '')
-        .replace(/^\\s*•\\s*akşam.*?$/gim, '');
-      
-      // 4. Gereksiz genel önerileri kaldır (sonda tekrar eden)
-      temizIcerik = temizIcerik
-        .replace(/ara\s+öğün.*?limon\s+sıkılmış\s+şekilde\)/gi, '')
-        .replace(/günlük\s+ortalama\s+\d+\s+adım\s+önerilir/gi, '')
-        .replace(/günlük\s+su\s+tüketimi.*?önerilir/gi, '');
-      
-      // 5. Çoklu boşlukları temizle
-      temizIcerik = temizIcerik
-        .replace(/\n\s*\n\s*\n/g, '\n\n') // Fazla boş satırları kaldır
-        .replace(/•\s*\n/g, '') // Boş bullet pointleri kaldır
-        .replace(/^\s*•\s*$/gm, '') // Sadece bullet olan satırları kaldır
+        .replace(/^\\s*•\\s*öğle.*?$/gim, '') // Öğle başlıkları
+        .replace(/^\\s*•\\s*akşam.*?$/gim, '') // Akşam başlıkları
+        .replace(/•\s*\n/g, '') // Boş bullet'ler
+        .replace(/^\s*•\s*$/gm, '') // Sadece bullet olan satırlar
+        .replace(/\n\s*\n\s*\n/g, '\n\n') // Fazla boş satırlar
         .trim();
       
-      // 6. Benzersiz yemekleri topla (tekrarları kaldır)
-      const satirlar = temizIcerik.split('\n');
-      const benzersizYemekler = new Set();
+      // 4. Yemekleri analiz et ve tekrarları sayıya dönüştür
+      const satirlar = temizIcerik.split('\n').filter(s => s.trim());
+      const yemekSayac = new Map(); // yemek -> sayı
       const temizSatirlar = [];
       
       satirlar.forEach(satir => {
         const temizSatir = satir.trim();
-        if (temizSatir.length > 5 && temizSatir.startsWith('•')) {
-          const yemek = temizSatir.replace(/^•\s*/, '').toLowerCase();
-          // Sadece yemek ismi al, porsiyon bilgilerini göz ardı et
-          const yemekAdi = yemek.split('(')[0].trim();
+        
+        // Bullet ile başlayan yemek satırları
+        if (temizSatir.startsWith('•')) {
+          let yemekMetni = temizSatir.replace(/^•\s*/, '').trim();
           
-          if (!benzersizYemekler.has(yemekAdi) && yemekAdi.length > 3) {
-            benzersizYemekler.add(yemekAdi);
-            temizSatirlar.push(temizSatir);
+          // Parantez içindeki porsiyon bilgilerini kaldır (geçici)
+          const yemekAdi = yemekMetni.replace(/\s*\([^)]*\)/g, '').toLowerCase().trim();
+          
+          if (yemekAdi.length > 2) {
+            // Bu yemek daha önce var mı?
+            const mevcutAnahtar = Array.from(yemekSayac.keys()).find(anahtar => 
+              anahtar.toLowerCase().includes(yemekAdi) || yemekAdi.includes(anahtar.toLowerCase())
+            );
+            
+            if (mevcutAnahtar) {
+              yemekSayac.set(mevcutAnahtar, yemekSayac.get(mevcutAnahtar) + 1);
+            } else {
+              yemekSayac.set(yemekMetni, 1);
+            }
           }
-        } else if (temizSatir.length > 0 && !temizSatir.startsWith('•')) {
-          // Bullet olmayan ama anlamlı satırları ekle
+        } else if (temizSatir.length > 5) {
+          // Bullet olmayan anlamlı satırları ekle
           temizSatirlar.push(temizSatir);
         }
       });
       
-      const sonuc = temizSatirlar.join('\n');
+      // 5. Tekrarlayan yemekleri sayı ile birlikte listele
+      yemekSayac.forEach((sayi, yemek) => {
+        if (sayi > 1) {
+          temizSatirlar.push(`• ${yemek} (${sayi}x)`);
+        } else {
+          temizSatirlar.push(`• ${yemek}`);
+        }
+      });
       
-      console.log(`🧹 PDF temizleme: ${pdfText.length} → ${sonuc.length} karakter (${Math.round((1 - sonuc.length/pdfText.length) * 100)}% tasarruf)`);
+      // 6. Çok kısa veya anlamsız satırları filtrele
+      const finalSatirlar = temizSatirlar.filter(satir => {
+        const temiz = satir.trim();
+        return temiz.length > 3 && 
+               !temiz.match(/^[•\-\s]*$/) && // Sadece işaret olan satırlar
+               !temiz.match(/^\d+\s*$/) && // Sadece sayı olan satırlar
+               !temiz.match(/^[^\w]*$/); // Hiç harf olmayan satırlar
+      });
+      
+      const sonuc = finalSatirlar.join('\n');
+      
+      console.log(`🧹 Agresif PDF temizleme: ${pdfText.length} → ${sonuc.length} karakter (${Math.round((1 - sonuc.length/pdfText.length) * 100)}% tasarruf)`);
+      console.log(`📊 Tekrarlayan yemek analizi: ${yemekSayac.size} benzersiz yemek bulundu`);
       
       return sonuc;
     }
