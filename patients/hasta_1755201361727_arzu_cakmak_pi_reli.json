@@ -1670,7 +1670,7 @@
         "günlük ortalama 5000 adım önerilir",
         "günlük su tüketimi 2 litrenin üzerinde olması önerilir"
       ],
-      "gptMesaj": "",
+      "gptMesaj": "Arzu Hanım merhaba,\n\nÖncelikle, bu hafta başlayacağınız yeni beslenme programınızın genel hatlarını belirtmek isterim. Her sabah güne ılık su, bir yemek kaşığı zeytinyağı, 5-10 damla limon ve bir yemek kaşığı elma sirkesi ile başlayacaksınız. Bunun yanında kurşun geçirmez kahve tüketmeniz de öneriliyor.\n\nÖğle ve akşam yemekleriniz genellikle protein, yağ ve sebze ağırlıklı olacak. Yemeklerinizi tercihen belirtilen saatlerde tüketmeniz öneriliyor. Örneğin, Pazartesi günü öğle yemeğinizde haşlanmış yumurta, peynir, zeytin ve yeşillikler tüketmeniz öneriliyor. Akşam yemeğinde ise kıymalı-patlıcanlı biber dolması ve yoğurt yer alıyor. \n\nSalı günü ise sahanda yumurta, peynir ve zeytin tüketirken, akşam yemeğinizde tavuk pirzola ve yeşil salata yer alıyor.\n\nProgramınız boyunca çeşitli sebzeler, yumurta, peynir, zeytin, et çeşitleri ve kuruyemişler tüketerek hem vitamin ve mineral ihtiyacınızı karşılayacak hem de tokluk hissinizi sağlayacaksınız. Ayrıca, ara öğün olarak önerilen maden suyu tüketimi ile mineral alımınızı destekleyeceksiniz.\n\nÖzellikle belirtilen saatlerde yemeğinizi tüketmeniz, metabolizmanızın düzenli çalışmasını sağlayacaktır. Ayrıca, bu beslenme programı ile birlikte günlük ortalama 5000 adım atmanız ve 2 litreden fazla su tüketmeniz öneriliyor. Bu, hem kilo vermenize yardımcı olacak hem de genel sağlık durumunuzu iyileştirecektir.\n\nHer günün sonunda kollajen almanız, cildinizin sağlığını korurken, eklem ve bağ dokunuzun güçlenmesine yardımcı olacaktır. \n\nBu beslenme programı, sizin sağlıklı ve dengeli bir şekilde kilo vermenizi ve vücudunuzun ihtiyaç duyduğu tüm besin öğelerini almanızı hedeflemektedir. Herhangi bir sorunuz olursa, lütfen bana bildirin. Başarılar dilerim.",
       "kilitli": false,
       "githubLink": "https://github.com/mustafasacar35/nutrition-planner/blob/main/patients/hasta_1755201361727_arzu_cakmak_pi_reli.json",
       "githubRawLink": "https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/patients/hasta_1755201361727_arzu_cakmak_pi_reli.json",
@@ -1771,11 +1771,12 @@
         "haşhaş ezmesi ekmeği (1 dilim)",
         "haşhaş ezmesi ekmeği (1 dilim)",
         "patlıcan musakka"
-      ]
+      ],
+      "ekNotlar": ""
     }
   ],
   "olusturmaTarihi": "2025-08-14T19:56:01.727Z",
   "yeniSistem": true,
-  "sonGuncelleme": "2025-08-15T14:38:51.284Z",
+  "sonGuncelleme": "2025-08-15T14:50:29.796Z",
   "githubKaydedildi": true
 }
