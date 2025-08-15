@@ -2164,7 +2164,7 @@
         "günlük ortalama 5000 adım önerilir",
         "günlük su tüketimi 2 litrenin üzerinde olması önerilir"
       ],
-      "gptMesaj": "Arzu Hanım merhaba,\n\nBir hafta daha beraberiz ve bu hafta lipödem tedavi takip programımızda yeni bir aşama başlıyoruz, lipödem egzersizlerine başlıyoruz. Bu egzersizlerin amacı, derin lenf sistemini aktive etmek ve kas pompasının çalışmasını sağlayarak dolaşım sistemini güçlendirmektir. Bu, lipödem tedavisinde önemli bir adımdır ve sizin için olumlu sonuçlar getireceğine inanıyorum.\n\nGelelim bu haftaki beslenme planınıza. Öncelikle belirtmek isterim ki, planınızda yer alan besinlerin seçimi, sizin genel sağlık durumunuzu, böbrek taşı ve hipertansiyon gibi durumlarınızı da göz önünde bulundurarak yapılmıştır. \n\nBu haftaki beslenme planınızda yine her sabah güne başlarken tüketmeniz gereken ılık su, zeytinyağı, limon ve elma sirkesi karışımı bulunuyor. Bu karışım, metabolizmanızı hızlandırırken aynı zamanda vücudunuzun detoks yapmasına yardımcı olur. Bunun yanında kurşun geçirmez kahveniz de enerji seviyenizi yükselterek, güne daha dinamik başlamanızı sağlar.\n\nHaftanızın ilk gününde öğlen yemeğinde badem unlu krep, tulum peyniri, haşlanmış yumurta ve mevsim yeşillikleri tüketmeniz öneriliyor. Badem unlu krep, hem protein hem de sağlıklı yağlar açısından zengin bir seçenektir. \n\nBu hafta mide bulantısı sorununuz olduğunu belirtmişsiniz. Bu durumu göz önünde bulundurarak, hafta boyunca özellikle ağır ve yağlı yemeklerden kaçınmanızı öneriyoruz. Özellikle akşam yemeklerinde daha hafif seçenekler tercih edilmiştir. Örneğin Pazartesi günü akşam yemeğinde sulu köfte ve labneli pancar salatasını tercih edebilirsiniz.\n\nHipertansiyonunuz için özellikle tuz tüketiminizi gözden geçirmenizi ve gerektiğinde azaltmanızı öneriyoruz. Ayrıca, böbrek taşınız için bol su tüketmeyi ihmal etmeyin.\n\nBu hafta içinde takıldığınız, sormak istediğiniz bir nokta olursa her zaman bana ulaşabilirsiniz. Unutmayın, bu süreçte en önemli nokta, kendinizi iyi hissetmek ve sağlıklı bir yaşam sürdürmektir. Bu nedenle, herhangi bir rahatsızlık hissettiğinizde lütfen bana bildirin.\n\nAyrıca, bedensel incelmenin takip edilmesi açısından, iki haftada bir ölçüm bilgilerinizi bana iletmeyi unutmayın. Bu, sürecin nasıl ilerlediğini takip etmemiz açısından önemli.\n\nSağlıkla ve mutlulukla kalın, Arzu Hanım. İyi haftalar dilerim.",
+      "gptMesaj": "Merhaba Arzu Hanım,\n\nBu hafta beslenme listemizde lipödem egzersizlerine de yer verdik. Lipödem tedavi takip programımıza bu hafta itibariyle egzersizleri de ekledik. Lipödem egzersizlerinin derin lenf sistemini aktive ederek kas pompasını çalıştırıp dolaşım sistemini güçlendirdiğini biliyoruz. Bu egzersizlerin lipödemle ilişkisini anlatarak, vücuttaki değişimleri desteklemeyi hedefliyoruz.\n\nBeslenme listemizde badem unlu krep, tulum peyniri, haşlanmış yumurta, mevsim yeşillikleri, fındık, labneli pancar salatası, ceviz, toz kollajen, badem unlu kabak ve peynirli poğaça gibi besinleri bulabilirsiniz. Ayrıca, sulu köfte, haşlama et, köz patlıcan, ev yoğurdu, lupin unlu kek gibi lezzetli ve sağlıklı seçenekler de liste içerisinde yer alıyor.\n\nBedeninizdeki değişimleri takip etmek için iki haftada bir benden ölçülerinizi göndermenizi rica ediyorum. Eğer herhangi bir sorunuz veya takıldığınız bir nokta olursa bana her zaman mesaj atabilirsiniz. Sağlıklı ve keyifli bir hafta dilerim.\n\nSevgiler,\n[Adınız]",
       "kilitli": false,
       "githubLink": "https://github.com/mustafasacar35/nutrition-planner/blob/main/patients/hasta_1755201361727_arzu_cakmak_pi_reli.json",
       "githubRawLink": "https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/patients/hasta_1755201361727_arzu_cakmak_pi_reli.json",
@@ -2258,11 +2258,11 @@
         "közlenmiş patlıcan salatası",
         "kıymalı bamya / patlıcan musakka /kabak yemeği (100 gram kıyma ile)"
       ],
-      "ekNotlar": "mide bulantısı sorunu olmuş. iki kez kusmuş.\n\nAçıklama: mide ülseri var\n\nAçıklama: mide ülseri var\n\nAçıklama: mide ülseri var\n\nAçıklama: mide ülseri var\n\nAçıklama: mide ülseri var\n\n=== AÇIKLAMA ===\ndiş ağrısı olmuş."
+      "ekNotlar": "mide bulantısı sorunu olmuş. iki kez kusmuş.\n=== AÇIKLAMA ===\ndiş ağrısı olmuş."
     }
   ],
   "olusturmaTarihi": "2025-08-14T19:56:01.727Z",
   "yeniSistem": true,
-  "sonGuncelleme": "2025-08-15T19:40:18.094Z",
+  "sonGuncelleme": "2025-08-15T19:41:30.603Z",
   "githubKaydedildi": true
 }
