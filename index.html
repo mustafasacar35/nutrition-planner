@@ -6202,6 +6202,31 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
       // Sol sidebar'da aktif hastayı vurgula
       renderHastalar();
       
+      // Otomatik olarak ek bilgilerdeki tekrarları temizle (sadece console'da göster)
+      setTimeout(() => {
+        if (seciliHasta && seciliHasta.haftalar) {
+          let temizlenenHaftaSayisi = 0;
+          seciliHasta.haftalar.forEach((hafta, index) => {
+            const ekNotlarInput = document.getElementById(`ekNotlar_${index}`);
+            if (ekNotlarInput && ekNotlarInput.value && ekNotlarInput.value.trim()) {
+              const eskiMetin = ekNotlarInput.value;
+              const yeniMetin = temizleEkBilgilerTekrarlari(eskiMetin);
+              
+              if (yeniMetin !== eskiMetin.trim()) {
+                ekNotlarInput.value = yeniMetin;
+                temizlenenHaftaSayisi++;
+              }
+            }
+          });
+          
+          if (temizlenenHaftaSayisi > 0) {
+            console.log(`🧹 Otomatik temizlik: ${temizlenenHaftaSayisi} haftanın ek bilgileri temizlendi`);
+            // Hasta verilerini kaydet
+            localStorage.setItem(HASTALAR_KEY, JSON.stringify(hastalar));
+          }
+        }
+      }, 500); // Hafta tabları yüklendikten sonra çalışsın
+      
       // Hafta listesini göster (center panel'de)
       gosterHaftalar();
       
@@ -12371,7 +12396,58 @@ Detaylı bilgiler için tarayıcı konsolunu (F12) açın.`);
         // Butonu sidebar'a ekle
         sidebarButtons.appendChild(topluZipButton);
         console.log('✅ Toplu ZIP butonu eklendi');
+        
+        // Ek Bilgiler Temizleme butonunu da ekle
+        ekleEkBilgilerTemizleButonu(sidebarButtons);
       }
+    }
+    
+    // Ek Bilgiler Temizleme butonunu sidebar'a ekle
+    function ekleEkBilgilerTemizleButonu(sidebarButtons) {
+      // Eğer buton zaten varsa ekleme
+      if (sidebarButtons.querySelector('.ek-bilgiler-temizle-button')) {
+        return;
+      }
+      
+      const temizleButton = document.createElement('button');
+      temizleButton.className = 'ek-bilgiler-temizle-button';
+      temizleButton.innerHTML = '🧹 EK BİLGİLER TEMİZLE';
+      temizleButton.title = 'Aktif hastanın tüm hafta "Ek Bilgiler" alanlarındaki tekrarları temizle';
+      temizleButton.style.cssText = `
+        width: 100%;
+        padding: 10px;
+        background: #28a745;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: bold;
+        font-size: 11px;
+        cursor: pointer;
+        margin-top: 5px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        text-align: center;
+      `;
+      
+      temizleButton.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-1px)';
+        this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
+        this.style.background = '#218838';
+      });
+      
+      temizleButton.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+        this.style.background = '#28a745';
+      });
+      
+      temizleButton.onclick = function() {
+        tumEkBilgileriTemizle();
+      };
+      
+      // Butonu sidebar'a ekle
+      sidebarButtons.appendChild(temizleButton);
+      console.log('✅ Ek Bilgiler Temizle butonu eklendi');
     }
     
     // === MİGRATION COMPLETED - YENİ SİSTEM AKTİF ===
@@ -15003,19 +15079,42 @@ ${mesajlar.join('\n')}
             ekNotlarInput.value = aciklamaMetni;
             console.log('✅ Açıklama alanındaki metin "Ek Bilgiler" alanına otomatik çekildi:', aciklamaMetni);
           } else {
-            // Tekrar eklenmesini önle - hem açıklama metninin hem de "Açıklama:" prefix'inin zaten var olup olmadığını kontrol et
+            // KAPSAMLI TEMİZLEME: Önce mevcut ek notlardaki tüm tekrarları temizle
+            let temizlenmisEkNotlar = mevcutEkNotlar;
+            
+            // "Açıklama: mide ülseri var" gibi tekrarları temizle
+            const aciklamaPattern = /Açıklama:\s*mide\s+ülseri\s+var/gi;
+            const tekrarlar = temizlenmisEkNotlar.match(aciklamaPattern);
+            if (tekrarlar && tekrarlar.length > 1) {
+              // İlk hariç hepsini kaldır
+              console.log(`🧹 ${tekrarlar.length} adet tekrar bulundu, temizleniyor...`);
+              temizlenmisEkNotlar = temizlenmisEkNotlar.replace(aciklamaPattern, '');
+              temizlenmisEkNotlar = temizlenmisEkNotlar.replace(/\n\s*\n\s*\n+/g, '\n\n'); // Fazla boş satırları temizle
+              temizlenmisEkNotlar = temizlenmisEkNotlar.trim();
+            }
+            
+            // Yeni açıklamayı temizle ve kontrol et
             const cleanAciklamaMetni = aciklamaMetni.replace(/^Açıklama:\s*/i, '').trim();
-            const temizEkNotlar = mevcutEkNotlar.toLowerCase().trim();
+            const temizEkNotlar = temizlenmisEkNotlar.toLowerCase().trim();
             const temizAciklama = cleanAciklamaMetni.toLowerCase().trim();
             
-            if (!temizEkNotlar.includes(temizAciklama) && 
-                !temizEkNotlar.includes(`açıklama: ${temizAciklama}`) && 
-                temizAciklama.length > 5) {
-              // Açıklama metnini "Açıklama:" prefix'i olmadan ekle
-              ekNotlarInput.value = `${mevcutEkNotlar}\n\n${cleanAciklamaMetni}`;
-              console.log('✅ Açıklama mevcut ek notlara eklendi (tekrar önlendi)');
+            // Açıklama zaten var mı kontrol et (hem temiz hem prefix'li versiyonları)
+            const zatenVar = temizEkNotlar.includes(temizAciklama) || 
+                            temizEkNotlar.includes(`açıklama: ${temizAciklama}`) ||
+                            temizEkNotlar.includes(aciklamaMetni.toLowerCase().trim());
+            
+            if (!zatenVar && temizAciklama.length > 5) {
+              // Yeni açıklamayı ekle (sadece bir kez)
+              if (temizlenmisEkNotlar.trim()) {
+                ekNotlarInput.value = `${temizlenmisEkNotlar.trim()}\n\n${cleanAciklamaMetni}`;
+              } else {
+                ekNotlarInput.value = cleanAciklamaMetni;
+              }
+              console.log('✅ Açıklama temizlendikten sonra eklendi (tekrar önlendi)');
             } else {
-              console.log('ℹ️ Açıklama zaten ek notlarda mevcut, tekrar eklenmedi');
+              // Sadece temizlenmiş halini güncelle (yeni açıklama ekleme)
+              ekNotlarInput.value = temizlenmisEkNotlar.trim();
+              console.log('ℹ️ Açıklama zaten mevcut, sadece tekrarlar temizlendi');
             }
           }
         }
@@ -15192,6 +15291,91 @@ ${mesajlar.join('\n')}
       
       console.log(`📊 ${analizler.length} önceki hafta analizi bulundu (${haftaIndex + 1}. hafta için)`);
       return analizler;
+    }
+    
+    // Ek Bilgiler alanındaki tekrarları temizle (yardımcı fonksiyon)
+    function temizleEkBilgilerTekrarlari(metinIcerik) {
+      if (!metinIcerik || typeof metinIcerik !== 'string') return '';
+      
+      let temizMetin = metinIcerik.trim();
+      
+      // 1. Yaygın tekrarları tespit et ve temizle
+      const tekrarPatterns = [
+        /Açıklama:\s*mide\s+ülseri\s+var/gi,
+        /Açıklama:\s*hipertansiyon\s+var/gi,
+        /Açıklama:\s*böbrek\s+taşı\s+vardı/gi,
+        /Açıklama:\s*mide\s+bulantısı/gi,
+        /Açıklama:\s*kusmuş/gi
+      ];
+      
+      tekrarPatterns.forEach(pattern => {
+        const matches = temizMetin.match(pattern);
+        if (matches && matches.length > 1) {
+          console.log(`🧹 "${pattern}" deseninde ${matches.length} tekrar bulundu, temizleniyor...`);
+          // İlk eşleşme hariç hepsini kaldır
+          let firstFound = false;
+          temizMetin = temizMetin.replace(pattern, (match) => {
+            if (!firstFound) {
+              firstFound = true;
+              return match.replace(/^Açıklama:\s*/i, ''); // İlkinden "Açıklama:" prefix'ini kaldır
+            }
+            return ''; // Diğerlerini tamamen kaldır
+          });
+        }
+      });
+      
+      // 2. Genel olarak ardışık aynı satırları kaldır
+      const satirlar = temizMetin.split('\n');
+      const benzersizSatirlar = [];
+      const gorulenler = new Set();
+      
+      satirlar.forEach(satir => {
+        const temizSatir = satir.trim().toLowerCase();
+        if (temizSatir.length > 0 && !gorulenler.has(temizSatir)) {
+          gorulenler.add(temizSatir);
+          benzersizSatirlar.push(satir.trim());
+        }
+      });
+      
+      // 3. Fazla boş satırları temizle
+      const sonuc = benzersizSatirlar.join('\n').replace(/\n\s*\n\s*\n+/g, '\n\n').trim();
+      
+      if (sonuc !== metinIcerik.trim()) {
+        console.log(`🧹 Ek Bilgiler temizlendi: ${metinIcerik.length} → ${sonuc.length} karakter`);
+      }
+      
+      return sonuc;
+    }
+    
+    // Aktif hastanın tüm hafta ek bilgilerini temizle (kullanıcı komutu)
+    function tumEkBilgileriTemizle() {
+      if (!seciliHasta || !seciliHasta.haftalar) {
+        showToast('❌ Önce bir hasta seçin', 'error', 3000);
+        return;
+      }
+      
+      let temizlenenHaftaSayisi = 0;
+      
+      seciliHasta.haftalar.forEach((hafta, index) => {
+        const ekNotlarInput = document.getElementById(`ekNotlar_${index}`);
+        if (ekNotlarInput && ekNotlarInput.value && ekNotlarInput.value.trim()) {
+          const eskiMetin = ekNotlarInput.value;
+          const yeniMetin = temizleEkBilgilerTekrarlari(eskiMetin);
+          
+          if (yeniMetin !== eskiMetin.trim()) {
+            ekNotlarInput.value = yeniMetin;
+            temizlenenHaftaSayisi++;
+          }
+        }
+      });
+      
+      if (temizlenenHaftaSayisi > 0) {
+        // Hasta verilerini kaydet
+        localStorage.setItem(HASTALAR_KEY, JSON.stringify(hastalar));
+        showToast(`✅ ${temizlenenHaftaSayisi} haftanın ek bilgileri temizlendi`, 'success', 4000);
+      } else {
+        showToast('ℹ️ Temizlenecek tekrar bulunamadı', 'info', 3000);
+      }
     }
     
     // PDF içeriğini temizle ve optimize et (agresif token tasarrufu)
