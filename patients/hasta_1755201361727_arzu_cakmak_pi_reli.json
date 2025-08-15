@@ -1179,7 +1179,7 @@
         "günlük ortalama 5000 adım önerilir",
         "günlük su tüketimi 2 litrenin üzerinde olması önerilir"
       ],
-      "gptMesaj": "",
+      "gptMesaj": "Arzu Hanım merhaba,\n\nÖncelikle geçen haftaki beslenme listeniz üzerinde yaptığınız tüm çabayı takdir etmek istiyorum. Bu hafta, pazartesi günü başlayacak yeni hafta için bir beslenme listesi hazırladık. \n\nBu beslenme listesi, genel sağlığınızı ve enerji seviyenizi artırmayı, kilo kontrolünü sağlamayı ve genel yaşam kalitenizi iyileştirmeyi hedefler. Liste, günlük yiyeceklerinizi ve bunları ne zaman tüketmeniz gerektiğini, ayrıca hangi yiyeceklerin hangi günlerde tüketilmesi gerektiğini belirtir.\n\nHer sabah güne, ılık su, zeytinyağı ve limon ile başlamanızı öneriyoruz. Bu kombinasyon, vücudunuzun sindirim sistemini harekete geçirir ve metabolizmanızı hızlandırır. Ayrıca, kurşun geçirmez kahve, enerji seviyenizi yükseltmeye yardımcı olur ve sabahları daha canlı hissetmenizi sağlar.\n\nHafta boyunca, öğle ve akşam yemekleriniz protein, sağlıklı yağlar ve lif açısından zengin olacak. Örneğin, pazartesi günleri haşlanmış yumurta ve zeytinle öğle yemeği, çıtır tavuk ve yeşil salata ile akşam yemeği tüketmeniz önerilir. Bu yiyecekler, size gün boyunca enerji sağlar ve açlık hissinizi kontrol altına alır.\n\nSalı günleri, mantarlı omlet ve yeşilliklerle öğle yemeği, ızgara balık ve yeşil salata ile akşam yemeği tüketmeniz önerilir. Bu yiyecekler, protein ve lif açısından zengindir ve size enerji sağlar.\n\nÇarşamba günleri, sucuklu yumurta ve haşhaş ezmesi ekmeği ile öğle yemeği, haşlanmış tavuk göğsü ve roka salatası ile akşam yemeği tüketmeniz önerilir.\n\nPerşembe günleri, patlıcan tost ve haşlanmış yumurta ile öğle yemeği, köfte ve semizotu salatası ile akşam yemeği tüketmeniz önerilir.\n\nCuma günleri, sahanda yumurta ve yeşillikler ile öğle yemeği, tavuk pirzola ve közlenmiş patlıcan salatası ile akşam yemeği tüketmeniz önerilir.\n\nCumartesi günleri, lupin unlu poğaça ve yeşillikler ile öğle yemeği, kıymalı lahana/kabak/yeşil fasulye yemeği ve yoğurtlu enginar ya da kereviz salatası ile akşam yemeği tüketmeniz önerilir.\n\nPazar günleri, yumurtalı ıspanak ya da pazı kavurma ve yeşillikler ile öğle yemeği, kuzu kavurma ve mevsim salata ile akşam yemeği tüketmeniz önerilir.\n\nBu hafta, ara öğün olarak maden suyu tüketmenizi öneriyoruz. Ayrıca, günlük adım hedefinizin ortalama 5000 ve su tüketiminizin 2 litrenin üzerinde olması gerektiğini unutmayın.\n\nHepinize sağlıklı bir hafta dilerim.",
       "kilitli": false,
       "githubLink": "https://github.com/mustafasacar35/nutrition-planner/blob/main/patients/hasta_1755201361727_arzu_cakmak_pi_reli.json",
       "githubRawLink": "https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/patients/hasta_1755201361727_arzu_cakmak_pi_reli.json",
@@ -1279,7 +1279,8 @@
         "yumurtalı ıspanak ya da pazı kavurma (2 yumurta, 100 gr. ispanak, 1 yemek kaşığı zeytinyağı, tercihen soğan",
         "haşhaş ezmesi ekmeği (1 dilim)",
         "haşhaş ezmesi ekmeği (1 dilim)"
-      ]
+      ],
+      "ekNotlar": ""
     },
     {
       "haftaNo": 6,
@@ -2028,6 +2029,6 @@
   ],
   "olusturmaTarihi": "2025-08-14T19:56:01.727Z",
   "yeniSistem": true,
-  "sonGuncelleme": "2025-08-15T15:04:20.407Z",
+  "sonGuncelleme": "2025-08-15T15:05:03.724Z",
   "githubKaydedildi": true
 }
