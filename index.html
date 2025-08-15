@@ -12507,58 +12507,7 @@ Detaylı bilgiler için tarayıcı konsolunu (F12) açın.`);
         // Butonu sidebar'a ekle
         sidebarButtons.appendChild(topluZipButton);
         console.log('✅ Toplu ZIP butonu eklendi');
-        
-        // Ek Bilgiler Temizleme butonunu da ekle
-        ekleEkBilgilerTemizleButonu(sidebarButtons);
       }
-    }
-    
-    // Ek Bilgiler Temizleme butonunu sidebar'a ekle
-    function ekleEkBilgilerTemizleButonu(sidebarButtons) {
-      // Eğer buton zaten varsa ekleme
-      if (sidebarButtons.querySelector('.ek-bilgiler-temizle-button')) {
-        return;
-      }
-      
-      const temizleButton = document.createElement('button');
-      temizleButton.className = 'ek-bilgiler-temizle-button';
-      temizleButton.innerHTML = '🧹 EK BİLGİLER TEMİZLE';
-      temizleButton.title = 'Aktif hastanın tüm hafta "Ek Bilgiler" alanlarındaki tekrarları temizle';
-      temizleButton.style.cssText = `
-        width: 100%;
-        padding: 10px;
-        background: #28a745;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        font-weight: bold;
-        font-size: 11px;
-        cursor: pointer;
-        margin-top: 5px;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        text-align: center;
-      `;
-      
-      temizleButton.addEventListener('mouseenter', function() {
-        this.style.transform = 'translateY(-1px)';
-        this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
-        this.style.background = '#218838';
-      });
-      
-      temizleButton.addEventListener('mouseleave', function() {
-        this.style.transform = 'translateY(0)';
-        this.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
-        this.style.background = '#28a745';
-      });
-      
-      temizleButton.onclick = function() {
-        tumEkBilgileriTemizle();
-      };
-      
-      // Butonu sidebar'a ekle
-      sidebarButtons.appendChild(temizleButton);
-      console.log('✅ Ek Bilgiler Temizle butonu eklendi');
     }
     
     // === MİGRATION COMPLETED - YENİ SİSTEM AKTİF ===
@@ -15481,38 +15430,7 @@ ${mesajlar.join('\n')}
       
       return sonuc;
     }
-    
-    // Aktif hastanın tüm hafta ek bilgilerini temizle (kullanıcı komutu)
-    function tumEkBilgileriTemizle() {
-      if (!seciliHasta || !seciliHasta.haftalar) {
-        showToast('❌ Önce bir hasta seçin', 'error', 3000);
-        return;
-      }
-      
-      let temizlenenHaftaSayisi = 0;
-      
-      seciliHasta.haftalar.forEach((hafta, index) => {
-        const ekNotlarInput = document.getElementById(`ekNotlar_${index}`);
-        if (ekNotlarInput && ekNotlarInput.value && ekNotlarInput.value.trim()) {
-          const eskiMetin = ekNotlarInput.value;
-          const yeniMetin = temizleEkBilgilerTekrarlari(eskiMetin);
-          
-          if (yeniMetin !== eskiMetin.trim()) {
-            ekNotlarInput.value = yeniMetin;
-            temizlenenHaftaSayisi++;
-          }
-        }
-      });
-      
-      if (temizlenenHaftaSayisi > 0) {
-        // Hasta verilerini kaydet
-        localStorage.setItem(HASTALAR_KEY, JSON.stringify(hastalar));
-        showToast(`✅ ${temizlenenHaftaSayisi} haftanın ek bilgileri temizlendi`, 'success', 4000);
-      } else {
-        showToast('ℹ️ Temizlenecek tekrar bulunamadı', 'info', 3000);
-      }
-    }
-    
+
     // Ek Notları kaydet ve temizle (kullanıcı manuel değişiklik yaptığında çağrılır)
     function ekNotlarKaydetVeTemizle(haftaIndex) {
       if (!seciliHasta || !seciliHasta.haftalar || !seciliHasta.haftalar[haftaIndex]) {
