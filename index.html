@@ -15098,15 +15098,16 @@ ${mesajlar.join('\n')}
                 // PDF içeriğini temizle ve optimize et
                 const temizPdfIcerik = temizlePdfIcerik(pdfText);
                 
-                prompts.push('PDF İçeriği (Optimize Edildi):');
+                // Temizlenmiş içeriği global değişkende sakla (modal için)
+                const maxLength = 2000;
+                window.cleanedPdfContent = temizPdfIcerik.length > maxLength 
+                  ? temizPdfIcerik.substring(0, maxLength) + '...[Optimize edildi]'
+                  : temizPdfIcerik;
                 
-                // Temizlenmiş içeriği kullan
-                const maxLength = 2000; // Optimize edilmiş içerik için daha düşük limit
-                if (temizPdfIcerik.length > maxLength) {
-                  prompts.push(temizPdfIcerik.substring(0, maxLength) + '...[Optimize edildi]');
-                } else {
-                  prompts.push(temizPdfIcerik);
-                }
+                prompts.push('PDF İçeriği (Optimize Edildi):');
+                prompts.push(window.cleanedPdfContent);
+                
+                console.log('🧹 PDF temizlendi ve global değişkende saklandı:', window.cleanedPdfContent.length, 'karakter');
               } else {
                 throw new Error('PDF metni çıkarılamadı');
               }
@@ -15305,6 +15306,29 @@ ${mesajlar.join('\n')}
     
     // Nihai prompt gösterme ve düzenleme modal'ı (önceki analizler checkbox'ı ile)
     function showFinalPromptModal(finalPrompt, haftaIndex, settings, gptMesajTextarea) {
+      // Temizlenmiş PDF içeriğini sakla (checkbox güncellemeleri için)
+      if (seciliHasta?.haftalar?.[haftaIndex]) {
+        const hafta = seciliHasta.haftalar[haftaIndex];
+        if (hafta.pdf && hafta.pdf.length > 1000) {
+          // PDF içeriğinden temizlenmiş kısmı çıkar ve sakla
+          extractTextFromPdf(hafta.pdf).then(pdfText => {
+            if (pdfText && pdfText.trim().length > 50) {
+              const temizPdfIcerik = temizlePdfIcerik(pdfText);
+              const maxLength = 2000;
+              window.cleanedPdfContent = temizPdfIcerik.length > maxLength 
+                ? temizPdfIcerik.substring(0, maxLength) + '...[Optimize edildi]'
+                : temizPdfIcerik;
+              console.log('🧹 Temizlenmiş PDF içeriği global değişkende saklandı:', window.cleanedPdfContent.length, 'karakter');
+            }
+          }).catch(error => {
+            console.warn('PDF temizleme hatası:', error);
+            window.cleanedPdfContent = '';
+          });
+        } else {
+          window.cleanedPdfContent = '';
+        }
+      }
+      
       // Token ve maliyet hesapla
       const tokenSayisi = hesaplaToken(finalPrompt);
       const maliyet = hesaplaMaliyet(tokenSayisi, settings.model || 'gpt-4');
@@ -15330,14 +15354,28 @@ ${mesajlar.join('\n')}
             </div>
             <div style="max-height: 120px; overflow-y: auto;">
               ${oncekiAnalizler.map((analiz, index) => `
-                <label style="display: block; margin-bottom: 5px; cursor: pointer; font-size: 12px;">
+                <label style="
+                  display: block; 
+                  margin-bottom: 5px; 
+                  padding: 8px; 
+                  cursor: pointer; 
+                  font-size: 12px; 
+                  border-radius: 4px; 
+                  background: #e8f5e8; 
+                  border: 1px solid #d4edda;
+                  transition: all 0.2s ease;
+                " onmouseover="this.style.background='#d1ecf1'" onmouseout="this.style.background=this.querySelector('input').checked ? '#e8f5e8' : '#f8f9fa'">
                   <input type="checkbox" 
                          id="oncekiAnaliz_${analiz.haftaNo}" 
                          checked 
                          onchange="updatePromptWithSelectedAnalyses(${haftaIndex})"
-                         style="margin-right: 5px;"> 
-                  <span style="font-weight: bold;">${analiz.haftaNo}. Hafta</span> 
-                  <span style="color: #6c757d;">(${analiz.icerik.substring(0, 50)}...)</span>
+                         style="margin-right: 8px;"> 
+                  <span style="font-weight: bold; color: #28a745;">🗓️ ${analiz.haftaNo}. Hafta</span> 
+                  <br>
+                  <span style="color: #6c757d; font-size: 11px; margin-left: 20px;">${analiz.icerik.substring(0, 80)}...</span>
+                  <div style="margin-left: 20px; margin-top: 4px; font-size: 10px; color: #007bff;">
+                    ~${Math.round(hesaplaToken(analiz.icerik))} token | ~$${hesaplaMaliyet(hesaplaToken(analiz.icerik), 'gpt-4').toplamMaliyet.toFixed(4)}
+                  </div>
                 </label>
               `).join('')}
             </div>
@@ -15375,12 +15413,15 @@ ${mesajlar.join('\n')}
             </h3>
             
             <!-- Token ve Maliyet Bilgisi -->
-            <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #28a745;">
+            <div class="modal-maliyet-panel" style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #28a745;">
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; font-size: 12px;">
                 <div><strong>📊 Token:</strong> ~${tokenSayisi.toLocaleString()}</div>
                 <div><strong>🤖 Model:</strong> ${maliyet.model}</div>
                 <div><strong>💰 Tahmini Maliyet:</strong> ~$${maliyet.toplamMaliyet.toFixed(4)}</div>
                 <div><strong>🔢 Toplam Token:</strong> ~${maliyet.toplamToken.toLocaleString()}</div>
+              </div>
+              <div style="margin-top: 8px; font-size: 11px; color: #666;">
+                📚 <strong>${oncekiAnalizler.length}</strong> hafta analizi mevcut | Tikleri kaldırarak token/maliyet azaltabilirsiniz
               </div>
             </div>
             
@@ -15463,9 +15504,12 @@ ${mesajlar.join('\n')}
         modal.remove();
       }
       
-      // Geçici değişkeni temizle
+      // Geçici değişkenleri temizle
       if (window.tempSettings) {
         delete window.tempSettings;
+      }
+      if (window.cleanedPdfContent) {
+        delete window.cleanedPdfContent;
       }
       
       // Loading durumunu sıfırla
@@ -15552,7 +15596,7 @@ ${mesajlar.join('\n')}
       }
     }
     
-    // Seçili analizlerle prompt'u güncelle
+    // Seçili analizlerle prompt'u güncelle (dinamik token/maliyet hesaplama ile)
     function updatePromptWithSelectedAnalyses(haftaIndex) {
       // Seçili analizleri topla
       const selectedAnalyses = [];
@@ -15566,7 +15610,7 @@ ${mesajlar.join('\n')}
         }
       });
       
-      // Yeni prompt oluştur
+      // Yeni prompt oluştur (temel yapı)
       const prompts = [];
       
       // 1. Genel prompt ekle
@@ -15578,35 +15622,82 @@ ${mesajlar.join('\n')}
         }
       }
       
-      // 2. Hasta bilgilerini ekle
-      if (seciliHasta) {
+      // 2. Haftalık prompt ekle
+      if (document.getElementById(`haftalikPrompt_${haftaIndex}`)?.checked) {
+        const haftalikPromptlar = JSON.parse(localStorage.getItem(HAFTALIK_PROMPTLAR_KEY) || '[]');
+        const haftaPrompt = haftalikPromptlar.find(p => p.haftaNo === (haftaIndex + 1));
+        if (haftaPrompt) {
+          prompts.push('=== HAFTALIK TEMA ===');
+          prompts.push(haftaPrompt.icerik);
+        }
+      }
+      
+      // 3. Hasta bilgilerini ekle
+      if (document.getElementById(`hastaPrompt_${haftaIndex}`)?.checked && seciliHasta) {
         prompts.push('=== HASTA BİLGİLERİ ===');
         prompts.push(`Hasta Adı: ${seciliHasta.hastaIsim || seciliHasta.isim || 'Bilinmiyor'}`);
         if (seciliHasta.not) {
           prompts.push(`Hasta Notu: ${seciliHasta.not}`);
         }
+        if (seciliHasta.notlar) {
+          prompts.push(`Hasta Notları: ${seciliHasta.notlar}`);
+        }
+        if (seciliHasta.yasam) {
+          prompts.push(`Yaşam Bilgileri: ${seciliHasta.yasam}`);
+        }
       }
       
-      // 3. Seçili önceki analizleri ekle
+      // 4. Seçili önceki analizleri ekle
       if (selectedAnalyses.length > 0) {
         prompts.push('=== ÖNCEKİ HAFTALARIN GPT ANALİZLERİ (TUTARLILIK İÇİN) ===');
         prompts.push('ÖNEMLİ: Bu içerikleri aynen tekrar etmeyin! Sadece tutarlılık sağlamak ve tekrardan kaçınmak için kullanın.');
+        prompts.push('Hasta ile daha önce konuştukları konuları tekrar etmek yerine, süreci ileriye taşıyan yeni bakış açıları sunun.');
         prompts.push('');
         selectedAnalyses.forEach(analiz => {
           prompts.push(`--- ${analiz.haftaNo}. Hafta (Özet) ---`);
           prompts.push(analiz.icerik.substring(0, 800) + '...');
           prompts.push('');
         });
+        prompts.push('--- Önceki analizlerin sonu ---');
+        prompts.push('Bu hafta için tamamen yeni, önceki haftaları tamamlayan içerik oluşturun.');
       }
       
-      // 4. Bu hafta verilerini ekle (ek notlar, beslenme listesi vs.)
-      const ekNotlar = document.getElementById(`ekNotlar_${haftaIndex}`)?.value?.trim();
-      if (ekNotlar) {
-        prompts.push('=== BU HAFTA İÇİN EK BİLGİLER ===');
-        prompts.push(ekNotlar);
+      // 5. Bu hafta ek bilgileri
+      if (document.getElementById(`ekPrompt_${haftaIndex}`)?.checked) {
+        const ekNotlar = document.getElementById(`ekNotlar_${haftaIndex}`)?.value?.trim();
+        if (ekNotlar) {
+          prompts.push('=== BU HAFTA İÇİN EK BİLGİLER ===');
+          prompts.push(ekNotlar);
+        }
       }
       
-      // Final prompt
+      // 6. Beslenme listesi (PDF içeriği) - Önceden temizlenmiş içeriği kullan
+      if (seciliHasta?.haftalar?.[haftaIndex]) {
+        const hafta = seciliHasta.haftalar[haftaIndex];
+        prompts.push('=== BESLENME LİSTESİ ===');
+        
+        // Global değişkenden temizlenmiş PDF içeriğini al (modal açılırken hazırlanmış)
+        if (window.cleanedPdfContent && window.cleanedPdfContent.trim()) {
+          prompts.push('PDF İçeriği (Optimize Edildi):');
+          prompts.push(window.cleanedPdfContent);
+        } else if (hafta.pdf && hafta.pdf.length > 1000) {
+          // Eğer temizlenmiş içerik yoksa, ham PDF'den tarif listesi al
+          prompts.push('Tarif Listesi:');
+          if (hafta.tarifler && hafta.tarifler.length > 0) {
+            prompts.push(hafta.tarifler.map(t => `• ${t}`).join('\n'));
+          } else {
+            prompts.push('PDF içeriği işlenmiş, temizlenmiş tarif listesi hazırlanıyor...');
+          }
+        } else if (hafta.tarifler && hafta.tarifler.length > 0) {
+          // Tarif listesi var
+          prompts.push('Tarif Listesi:');
+          prompts.push(hafta.tarifler.map(t => `• ${t}`).join('\n'));
+        } else {
+          prompts.push('Bu hafta için henüz beslenme listesi yüklenmemiş.');
+        }
+      }
+      
+      // Final prompt oluştur
       const updatedPrompt = prompts.join('\n\n');
       
       // Prompt alanlarını güncelle
@@ -15619,25 +15710,60 @@ ${mesajlar.join('\n')}
       
       document.getElementById('promptPreview').innerHTML = formattedPrompt;
       
-      // Token ve maliyet güncelle
+      // Token ve maliyet hesapla (GERÇEK ZAMANLI)
       const tokenSayisi = hesaplaToken(updatedPrompt);
       const settings = window.tempSettings || JSON.parse(localStorage.getItem('gptSettings') || '{}');
       const maliyet = hesaplaMaliyet(tokenSayisi, settings.model || 'gpt-4');
       
-      // Maliyet panelini güncelle
-      const maliyetPanel = document.querySelector('[style*="background: #f8f9fa"]');
-      if (maliyetPanel) {
-        maliyetPanel.innerHTML = `
+      // Maliyet panelini dinamik güncelle
+      const maliyetPanel = document.querySelector('.modal-maliyet-panel');
+      if (!maliyetPanel) {
+        // İlk kez çalışıyorsa class ekle
+        const panel = document.querySelector('[style*="background: #f8f9fa"]');
+        if (panel) {
+          panel.classList.add('modal-maliyet-panel');
+        }
+      }
+      
+      const maliyetPaneli = document.querySelector('.modal-maliyet-panel') || document.querySelector('[style*="background: #f8f9fa"]');
+      if (maliyetPaneli) {
+        // Renk kodlaması: yeşil (ucuz), sarı (orta), kırmızı (pahalı)
+        let renkKodu = '#28a745'; // yeşil
+        if (maliyet.toplamMaliyet > 0.02) renkKodu = '#ffc107'; // sarı
+        if (maliyet.toplamMaliyet > 0.05) renkKodu = '#dc3545'; // kırmızı
+        
+        maliyetPaneli.innerHTML = `
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; font-size: 12px;">
             <div><strong>📊 Token:</strong> ~${tokenSayisi.toLocaleString()}</div>
             <div><strong>🤖 Model:</strong> ${maliyet.model}</div>
-            <div><strong>💰 Tahmini Maliyet:</strong> ~$${maliyet.toplamMaliyet.toFixed(4)}</div>
+            <div style="color: ${renkKodu}; font-weight: bold;"><strong>💰 Tahmini Maliyet:</strong> ~$${maliyet.toplamMaliyet.toFixed(4)}</div>
             <div><strong>🔢 Toplam Token:</strong> ~${maliyet.toplamToken.toLocaleString()}</div>
           </div>
+          <div style="margin-top: 8px; font-size: 11px; color: #666;">
+            📚 <strong>${selectedAnalyses.length}</strong> hafta analizi dahil edildi 
+            ${selectedAnalyses.length > 0 ? '| Çıkarılan token: ~' + Math.round(selectedAnalyses.length * 200) : ''}
+          </div>
         `;
+        
+        // Panel kenarını da maliyet durumuna göre renklendir
+        maliyetPaneli.style.borderLeft = `4px solid ${renkKodu}`;
       }
       
-      console.log(`📊 Prompt güncellendi: ${selectedAnalyses.length} hafta seçili, ${tokenSayisi} token`);
+      // Checkbox durumuna göre görsel feedback
+      checkboxes.forEach(checkbox => {
+        const label = checkbox.closest('label');
+        if (label) {
+          if (checkbox.checked) {
+            label.style.opacity = '1';
+            label.style.background = '#e8f5e8';
+          } else {
+            label.style.opacity = '0.5';
+            label.style.background = '#f8f9fa';
+          }
+        }
+      });
+      
+      console.log(`📊 Dinamik güncelleme: ${selectedAnalyses.length} hafta seçili, ${tokenSayisi} token, $${maliyet.toplamMaliyet.toFixed(4)} maliyet`);
     }
     
     // GPT'ye prompt gönder
