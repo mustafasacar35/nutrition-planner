@@ -932,9 +932,300 @@ Yanıtlarını yapılandırılmış ve pratik olacak şekilde ver.`,
         <button onclick="generateCustomEgzersizTakvimi()" style="width:100%; margin-bottom:5px; padding:6px; font-size:11px; background:#007bff; color:white; border:none; border-radius:3px; cursor:pointer;">🏃 Egzersiz Takvimi</button>
       </div>
 
+      <!-- 🎯 KAPSAMLI PROMPT YÖNETİM PANELİ -->
+      <div class="sidebar-section">
+        <h3>🎯 Prompt Yönetim Merkezi</h3>
+        
+        <!-- Accordion: Genel Prompt Şablonları -->
+        <div class="prompt-accordion">
+          <button class="prompt-accordion-header" onclick="togglePromptAccordion('genelSablonlar')" style="
+            width: 100%;
+            padding: 8px 12px;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            margin-bottom: 5px;
+          ">
+            <span>📋 Genel Prompt Şablonları</span>
+            <span id="genelSablonlarIcon">▶</span>
+          </button>
+          <div id="genelSablonlarContent" class="prompt-accordion-content" style="
+            display: none;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 8px;
+          ">
+            <!-- Şablon Seçici -->
+            <div style="margin-bottom: 10px;">
+              <label style="font-size: 10px; font-weight: bold; color: #666; display: block; margin-bottom: 3px;">Aktif Şablon:</label>
+              <select id="aktifGenelSablon" onchange="loadGenelSablon()" style="
+                width: 100%;
+                padding: 4px;
+                font-size: 10px;
+                border: 1px solid #ddd;
+                border-radius: 3px;
+                margin-bottom: 5px;
+              ">
+                <option value="lipodem">🩺 Lipodem Analizi</option>
+                <option value="beslenme">🥗 Genel Beslenme</option>
+                <option value="diyet">⚖️ Diyet Takibi</option>
+                <option value="ozel">✨ Özel Şablon</option>
+              </select>
+              
+              <div style="display: flex; gap: 3px;">
+                <button onclick="yeniGenelSablonEkle()" style="
+                  flex: 1; padding: 3px; font-size: 9px; background: #28a745; color: white; 
+                  border: none; border-radius: 2px; cursor: pointer;
+                ">➕ Yeni</button>
+                <button onclick="genelSablonKopyala()" style="
+                  flex: 1; padding: 3px; font-size: 9px; background: #17a2b8; color: white; 
+                  border: none; border-radius: 2px; cursor: pointer;
+                ">📋 Kopya</button>
+                <button onclick="genelSablonSil()" style="
+                  flex: 1; padding: 3px; font-size: 9px; background: #dc3545; color: white; 
+                  border: none; border-radius: 2px; cursor: pointer;
+                ">🗑️ Sil</button>
+              </div>
+            </div>
+            
+            <!-- Şablon İçeriği -->
+            <div style="margin-bottom: 10px;">
+              <label style="font-size: 10px; font-weight: bold; color: #666; display: block; margin-bottom: 3px;">Şablon İçeriği:</label>
+              <textarea id="genelSablonIcerik" 
+                        placeholder="Genel prompt şablonu yazın..."
+                        style="width:100%; height:120px; padding:6px; font-size:10px; border:1px solid #ddd; border-radius:3px; resize:vertical; font-family:inherit; line-height:1.4;"
+                        oninput="saveGenelSablonIcerik()"></textarea>
+              
+              <div style="font-size: 9px; color: #666; margin-top: 3px;">
+                💡 <span id="genelSablonKarakterSayisi">0</span> karakter | Token tahmini: ~<span id="genelSablonTokenTahmini">0</span>
+              </div>
+            </div>
+            
+            <!-- Hızlı Etiketler -->
+            <div style="margin-bottom: 8px;">
+              <label style="font-size: 10px; font-weight: bold; color: #666; display: block; margin-bottom: 3px;">🏷️ Hızlı Etiketler:</label>
+              <div style="display: flex; flex-wrap: wrap; gap: 2px;">
+                <button onclick="addToGenelSablon('[HASTA_ADI]')" class="tag-btn">👤 Hasta</button>
+                <button onclick="addToGenelSablon('[HAFTA_NO]')" class="tag-btn">📅 Hafta</button>
+                <button onclick="addToGenelSablon('[TARIH]')" class="tag-btn">📆 Tarih</button>
+                <button onclick="addToGenelSablon('[YEMEK_LISTESI]')" class="tag-btn">🍽️ Yemekler</button>
+                <button onclick="addToGenelSablon('[PDF_ICERIK]')" class="tag-btn">📄 PDF</button>
+              </div>
+            </div>
+            
+            <!-- Şablon Önizleme -->
+            <button onclick="genelSablonOnizle()" style="
+              width: 100%; padding: 5px; font-size: 10px; background: #6f42c1; color: white; 
+              border: none; border-radius: 3px; cursor: pointer; margin-top: 5px;
+            ">👁️ Önizleme Göster</button>
+          </div>
+        </div>
+
+        <!-- Accordion: Hafta Özel Promptları -->
+        <div class="prompt-accordion">
+          <button class="prompt-accordion-header" onclick="togglePromptAccordion('haftaPromptlari')" style="
+            width: 100%;
+            padding: 8px 12px;
+            background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            margin-bottom: 5px;
+          ">
+            <span>📅 Hafta Özel Promptları</span>
+            <span id="haftaPromptlariIcon">▶</span>
+          </button>
+          <div id="haftaPromptlariContent" class="prompt-accordion-content" style="
+            display: none;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 8px;
+          ">
+            <!-- Hafta Seçici -->
+            <div style="margin-bottom: 10px;">
+              <label style="font-size: 10px; font-weight: bold; color: #666; display: block; margin-bottom: 3px;">Hafta Seçin:</label>
+              <div style="display: flex; gap: 3px; margin-bottom: 5px;">
+                <select id="haftaSecici" onchange="loadHaftaPrompt()" style="
+                  flex: 1; padding: 4px; font-size: 10px; border: 1px solid #ddd; border-radius: 3px;
+                ">
+                  <option value="1">1. Hafta - Başlangıç</option>
+                  <option value="2">2. Hafta - Alışma</option>
+                  <option value="3">3. Hafta - Stabilizasyon</option>
+                  <option value="4">4. Hafta - İlerleme</option>
+                  <option value="5">5. Hafta - Gelişim</option>
+                  <option value="6">6. Hafta - Değerlendirme</option>
+                  <option value="7">7. Hafta - İleri</option>
+                  <option value="8">8. Hafta - Uzman</option>
+                </select>
+                <button onclick="haftaPromptKopyala()" style="
+                  padding: 4px 8px; font-size: 9px; background: #17a2b8; color: white; 
+                  border: none; border-radius: 3px; cursor: pointer;
+                ">📋</button>
+              </div>
+              
+              <div style="font-size: 9px; color: #666; margin-bottom: 8px;">
+                📍 Aktif Hasta: <span id="aktifHastaInfo">Seçilmedi</span> | 
+                Aktif Hafta: <span id="aktifHaftaInfo">-</span>
+              </div>
+            </div>
+            
+            <!-- Hafta Prompt İçeriği -->
+            <div style="margin-bottom: 10px;">
+              <label style="font-size: 10px; font-weight: bold; color: #666; display: block; margin-bottom: 3px;">
+                <span id="seciliHaftaLabel">Hafta</span> Prompt'u:
+              </label>
+              <textarea id="haftaPromptIcerik" 
+                        placeholder="Bu hafta için özel talimatlar yazın..."
+                        style="width:100%; height:100px; padding:6px; font-size:10px; border:1px solid #ddd; border-radius:3px; resize:vertical; font-family:inherit; line-height:1.4;"
+                        oninput="saveHaftaPromptIcerik()"></textarea>
+              
+              <div style="font-size: 9px; color: #666; margin-top: 3px;">
+                💡 <span id="haftaPromptKarakterSayisi">0</span> karakter | Token tahmini: ~<span id="haftaPromptTokenTahmini">0</span>
+              </div>
+            </div>
+            
+            <!-- Hafta Şablonları -->
+            <div style="margin-bottom: 8px;">
+              <label style="font-size: 10px; font-weight: bold; color: #666; display: block; margin-bottom: 3px;">🎯 Hafta Şablonları:</label>
+              <div style="display: flex; flex-wrap: wrap; gap: 2px;">
+                <button onclick="loadHaftaSablonu('baslangic')" class="week-template-btn">🚀 Başlangıç</button>
+                <button onclick="loadHaftaSablonu('ilerleme')" class="week-template-btn">📈 İlerleme</button>
+                <button onclick="loadHaftaSablonu('degerlendirme')" class="week-template-btn">📊 Değerlendirme</button>
+                <button onclick="loadHaftaSablonu('ozel')" class="week-template-btn">✨ Özel</button>
+              </div>
+            </div>
+            
+            <!-- Hafta İşlemleri -->
+            <div style="display: flex; gap: 3px;">
+              <button onclick="haftaPromptTemizle()" style="
+                flex: 1; padding: 4px; font-size: 9px; background: #dc3545; color: white; 
+                border: none; border-radius: 3px; cursor: pointer;
+              ">🗑️ Temizle</button>
+              <button onclick="tumHaftalaraKopyala()" style="
+                flex: 1; padding: 4px; font-size: 9px; background: #28a745; color: white; 
+                border: none; border-radius: 3px; cursor: pointer;
+              ">📤 Tüm Haftalara</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accordion: Prompt Önizleme ve Test -->
+        <div class="prompt-accordion">
+          <button class="prompt-accordion-header" onclick="togglePromptAccordion('promptOnizleme')" style="
+            width: 100%;
+            padding: 8px 12px;
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            margin-bottom: 5px;
+          ">
+            <span>👁️ Prompt Önizleme</span>
+            <span id="promptOnizlemeIcon">▶</span>
+          </button>
+          <div id="promptOnizlemeContent" class="prompt-accordion-content" style="
+            display: none;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 8px;
+          ">
+            <!-- Önizleme Ayarları -->
+            <div style="margin-bottom: 8px;">
+              <label style="font-size: 10px; font-weight: bold; color: #666; display: block; margin-bottom: 3px;">Önizleme Türü:</label>
+              <div style="display: flex; gap: 2px;">
+                <button onclick="showPromptPreview('genel')" style="
+                  flex: 1; padding: 3px; font-size: 9px; background: #3498db; color: white; 
+                  border: none; border-radius: 2px; cursor: pointer;
+                ">📋 Genel</button>
+                <button onclick="showPromptPreview('hafta')" style="
+                  flex: 1; padding: 3px; font-size: 9px; background: #e67e22; color: white; 
+                  border: none; border-radius: 2px; cursor: pointer;
+                ">📅 Hafta</button>
+                <button onclick="showPromptPreview('birlesik')" style="
+                  flex: 1; padding: 3px; font-size: 9px; background: #9b59b6; color: white; 
+                  border: none; border-radius: 2px; cursor: pointer;
+                ">🔀 Birleşik</button>
+              </div>
+            </div>
+            
+            <!-- Önizleme Alanı -->
+            <div style="margin-bottom: 8px;">
+              <label style="font-size: 10px; font-weight: bold; color: #666; display: block; margin-bottom: 3px;">Önizleme:</label>
+              <textarea id="promptOnizlemeAlani" 
+                        readonly
+                        placeholder="Prompt önizlemesi burada görünecek..."
+                        style="width:100%; height:120px; padding:6px; font-size:9px; border:1px solid #ddd; border-radius:3px; resize:vertical; font-family:monospace; line-height:1.3; background:#f8f9fa;"></textarea>
+              
+              <div style="font-size: 9px; color: #666; margin-top: 3px;">
+                📊 Toplam: <span id="toplamKarakterSayisi">0</span> karakter | 
+                Token: ~<span id="toplamTokenTahmini">0</span> | 
+                Maliyet: ~$<span id="maliyetTahmini">0.00</span>
+              </div>
+            </div>
+            
+            <!-- Test ve İşlemler -->
+            <div style="display: flex; gap: 3px;">
+              <button onclick="copyPromptOnizleme()" style="
+                flex: 1; padding: 4px; font-size: 9px; background: #17a2b8; color: white; 
+                border: none; border-radius: 3px; cursor: pointer;
+              ">📋 Kopyala</button>
+              <button onclick="promptTokenHesapla()" style="
+                flex: 1; padding: 4px; font-size: 9px; background: #6f42c1; color: white; 
+                border: none; border-radius: 3px; cursor: pointer;
+              ">🧮 Token</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- CSS için stil eklemeleri -->
+        <style>
+          .tag-btn, .week-template-btn {
+            padding: 2px 6px;
+            font-size: 8px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 2px;
+            cursor: pointer;
+            margin: 1px;
+          }
+          .tag-btn:hover, .week-template-btn:hover {
+            background: #5a6268;
+          }
+          .prompt-accordion-content {
+            transition: all 0.3s ease;
+          }
+        </style>
+      </div>
+
       <!-- GPT Analiz Bölümü -->
       <div class="sidebar-section">
-        <h3>🤖 GPT Analiz</h3>
+        <h3>🤖 GPT Hızlı Analiz</h3>
         
         <!-- GPT API Key Input -->
         <input type="password" 
@@ -6125,6 +6416,11 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
           // Hafta tablarını göster
           gosterHaftalar();
           
+          // Prompt yönetim panelini güncelle
+          if (typeof onHastaChanged === 'function') {
+            onHastaChanged();
+          }
+          
           // Eşleşmeyenler listesini güncelle (hasta değiştiğinde)
           setTimeout(() => {
             try {
@@ -7364,6 +7660,11 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
       
       // Sidebar'ları güncelle
       haftaTabSecildiginde(activeIndex);
+      
+      // Prompt yönetim panelini güncelle (hafta değiştiğinde)
+      if (typeof onHastaChanged === 'function') {
+        onHastaChanged();
+      }
       
       console.log(`🏷️ ${activeIndex + 1}. hafta tab'ına geçildi`);
     }
@@ -15904,6 +16205,471 @@ ${ekMetin ? `💬 EK NOTLAR VE SORULAR:\n${ekMetin}\n` : ''}
 🎯 Lütfen bu hasta için detaylı bir analiz yap ve önerilerini sun.`;
     }
     
+    // 🎯 PROMPT YÖNETİM PANELİ FONKSİYONLARI
+    
+    // Prompt Yönetim Sistemi - LocalStorage Anahtarları
+    const PROMPT_STORAGE_KEYS = {
+      GENEL_SABLONLAR: 'promptGenelSablonlar',
+      HAFTA_PROMPTLARI: 'promptHaftaPromptlari',
+      AKTIF_GENEL_SABLON: 'promptAktifGenelSablon'
+    };
+    
+    // Varsayılan prompt şablonları
+    const DEFAULT_GENEL_SABLONLAR = {
+      lipodem: {
+        isim: '🩺 Lipodem Analizi',
+        icerik: `Sen lipodem hastalarının beslenme planlarını analiz eden uzman bir diyetisyen ve sağlık danışmanısın.
+
+HASTA: [HASTA_ADI]
+HAFTA: [HAFTA_NO]
+TARİH: [TARIH]
+
+GÖREVIN:
+1. Hastanın beslenme verilerini ketojenik diyet kurallarına göre değerlendir
+2. Lipodem hastalığına özel önerilerde bulun
+3. Uygunluk durumunu açık şekilde belirt
+
+ÇIKTI FORMATI:
+- Uygunluk: Uygun/Kısmen Uygun/Uygun Değil
+- Puan: /10
+- Kısa değerlendirme (maksimum 3 cümle)
+- 2-3 spesifik öneri`
+      },
+      beslenme: {
+        isim: '🥗 Genel Beslenme',
+        icerik: `Beslenme uzmanı olarak hasta beslenme verilerini analiz et.
+
+HASTA: [HASTA_ADI] 
+YEMEKLER: [YEMEK_LISTESI]
+
+Kısa ve net değerlendirme yap:
+- Beslenme kalitesi: /10
+- Ana eksiklikler
+- 2 somut öneri`
+      },
+      diyet: {
+        isim: '⚖️ Diyet Takibi',
+        icerik: `Diyet uzmanı olarak hastanın ilerleme durumunu değerlendir.
+
+HAFTA: [HAFTA_NO]
+HASTA: [HASTA_ADI]
+
+DEĞERLENDİR:
+1. Plan uyumu
+2. İlerleme durumu  
+3. Motivasyon önerileri`
+      },
+      ozel: {
+        isim: '✨ Özel Şablon',
+        icerik: 'Özel prompt şablonunuzu buraya yazın...'
+      }
+    };
+    
+    const DEFAULT_HAFTA_SABLONLARI = {
+      baslangic: `1. HAFTA BAŞLANGIÇ ANALİZİ:
+- Hastanın beslenme alışkanlıklarını değerlendir
+- Ketojenik diyete geçiş sürecindeki zorlukları belirle
+- İlk hafta motivasyon önerileri ver`,
+      
+      ilerleme: `İLERLEME DEĞERLENDİRMESİ:
+- Önceki haftalarla karşılaştır
+- Gelişim alanlarını belirle
+- Sürdürülebilirlik önerileri sun`,
+      
+      degerlendirme: `HAFTA DEĞERLENDİRMESİ:
+- Haftalık başarı analizi yap
+- Problem alanlarını tespit et
+- Gelecek hafta için hedefler belirle`,
+      
+      ozel: 'Özel hafta şablonunuzu buraya yazın...'
+    };
+    
+    // Accordion Toggle Fonksiyonu
+    function togglePromptAccordion(section) {
+      const content = document.getElementById(section + 'Content');
+      const icon = document.getElementById(section + 'Icon');
+      
+      if (content.style.display === 'none' || content.style.display === '') {
+        content.style.display = 'block';
+        icon.textContent = '▼';
+      } else {
+        content.style.display = 'none';
+        icon.textContent = '▶';
+      }
+    }
+    
+    // Genel Şablon Yönetimi
+    function loadGenelSablon() {
+      const secilenSablon = document.getElementById('aktifGenelSablon').value;
+      const sablonlar = getGenelSablonlar();
+      const sablon = sablonlar[secilenSablon] || DEFAULT_GENEL_SABLONLAR[secilenSablon];
+      
+      if (sablon) {
+        document.getElementById('genelSablonIcerik').value = sablon.icerik;
+        saveAktifGenelSablon(secilenSablon);
+        updateGenelSablonStats();
+      }
+    }
+    
+    function saveGenelSablonIcerik() {
+      const secilenSablon = document.getElementById('aktifGenelSablon').value;
+      const icerik = document.getElementById('genelSablonIcerik').value;
+      
+      const sablonlar = getGenelSablonlar();
+      if (!sablonlar[secilenSablon]) {
+        sablonlar[secilenSablon] = { ...DEFAULT_GENEL_SABLONLAR[secilenSablon] };
+      }
+      sablonlar[secilenSablon].icerik = icerik;
+      
+      localStorage.setItem(PROMPT_STORAGE_KEYS.GENEL_SABLONLAR, JSON.stringify(sablonlar));
+      updateGenelSablonStats();
+      
+      // Ana GPT konfigürasyonuna da kaydet
+      window.GPT_CONFIG.GENEL_PROMPT = icerik;
+      window.GPT_CONFIG.saveGenelPrompt(icerik);
+    }
+    
+    function updateGenelSablonStats() {
+      const icerik = document.getElementById('genelSablonIcerik').value;
+      const karakterSayisi = icerik.length;
+      const tokenTahmini = Math.ceil(karakterSayisi / 4); // Yaklaşık token hesaplaması
+      
+      document.getElementById('genelSablonKarakterSayisi').textContent = karakterSayisi;
+      document.getElementById('genelSablonTokenTahmini').textContent = tokenTahmini;
+    }
+    
+    function getGenelSablonlar() {
+      const saved = localStorage.getItem(PROMPT_STORAGE_KEYS.GENEL_SABLONLAR);
+      return saved ? JSON.parse(saved) : { ...DEFAULT_GENEL_SABLONLAR };
+    }
+    
+    function saveAktifGenelSablon(sablonAdi) {
+      localStorage.setItem(PROMPT_STORAGE_KEYS.AKTIF_GENEL_SABLON, sablonAdi);
+    }
+    
+    function yeniGenelSablonEkle() {
+      const isim = prompt('Yeni şablon adı:');
+      if (!isim) return;
+      
+      const key = isim.toLowerCase().replace(/[^a-z0-9]/g, '_');
+      const sablonlar = getGenelSablonlar();
+      
+      sablonlar[key] = {
+        isim: isim,
+        icerik: 'Yeni şablon içeriğinizi buraya yazın...'
+      };
+      
+      localStorage.setItem(PROMPT_STORAGE_KEYS.GENEL_SABLONLAR, JSON.stringify(sablonlar));
+      
+      // Select'e yeni option ekle
+      const select = document.getElementById('aktifGenelSablon');
+      const option = document.createElement('option');
+      option.value = key;
+      option.textContent = isim;
+      select.appendChild(option);
+      select.value = key;
+      
+      loadGenelSablon();
+      showToast('Yeni şablon eklendi: ' + isim, 'success');
+    }
+    
+    function genelSablonKopyala() {
+      const icerik = document.getElementById('genelSablonIcerik').value;
+      navigator.clipboard.writeText(icerik).then(() => {
+        showToast('Şablon kopyalandı!', 'success');
+      });
+    }
+    
+    function genelSablonSil() {
+      const secilenSablon = document.getElementById('aktifGenelSablon').value;
+      if (['lipodem', 'beslenme', 'diyet'].includes(secilenSablon)) {
+        showToast('Varsayılan şablonlar silinemez!', 'error');
+        return;
+      }
+      
+      if (!confirm('Bu şablonu silmek istediğinizden emin misiniz?')) return;
+      
+      const sablonlar = getGenelSablonlar();
+      delete sablonlar[secilenSablon];
+      localStorage.setItem(PROMPT_STORAGE_KEYS.GENEL_SABLONLAR, JSON.stringify(sablonlar));
+      
+      // Select'ten option'ı kaldır
+      const select = document.getElementById('aktifGenelSablon');
+      const option = select.querySelector(`option[value="${secilenSablon}"]`);
+      if (option) option.remove();
+      
+      select.value = 'lipodem';
+      loadGenelSablon();
+      showToast('Şablon silindi!', 'success');
+    }
+    
+    function addToGenelSablon(etiket) {
+      const textarea = document.getElementById('genelSablonIcerik');
+      const cursorPos = textarea.selectionStart;
+      const currentValue = textarea.value;
+      
+      textarea.value = currentValue.slice(0, cursorPos) + etiket + currentValue.slice(cursorPos);
+      textarea.focus();
+      textarea.setSelectionRange(cursorPos + etiket.length, cursorPos + etiket.length);
+      
+      saveGenelSablonIcerik();
+    }
+    
+    function genelSablonOnizle() {
+      const icerik = document.getElementById('genelSablonIcerik').value;
+      const onizleme = processPromptTemplate(icerik);
+      
+      // Prompt önizleme accordion'ını aç ve içeriği göster
+      document.getElementById('promptOnizlemeContent').style.display = 'block';
+      document.getElementById('promptOnizlemeIcon').textContent = '▼';
+      document.getElementById('promptOnizlemeAlani').value = onizleme;
+      updatePromptPreviewStats();
+    }
+    
+    // Hafta Prompt Yönetimi
+    function loadHaftaPrompt() {
+      const haftaNo = document.getElementById('haftaSecici').value;
+      const haftaPromptlari = getHaftaPromptlari();
+      const prompt = haftaPromptlari[haftaNo] || '';
+      
+      document.getElementById('haftaPromptIcerik').value = prompt;
+      document.getElementById('seciliHaftaLabel').textContent = `${haftaNo}. Hafta`;
+      updateHaftaPromptStats();
+      updateAktifHastaInfo();
+    }
+    
+    function saveHaftaPromptIcerik() {
+      const haftaNo = document.getElementById('haftaSecici').value;
+      const icerik = document.getElementById('haftaPromptIcerik').value;
+      
+      const haftaPromptlari = getHaftaPromptlari();
+      haftaPromptlari[haftaNo] = icerik;
+      
+      localStorage.setItem(PROMPT_STORAGE_KEYS.HAFTA_PROMPTLARI, JSON.stringify(haftaPromptlari));
+      updateHaftaPromptStats();
+      
+      // Ana GPT konfigürasyonuna da kaydet
+      if (window.GPT_CONFIG && window.GPT_CONFIG.saveHaftaPrompt) {
+        window.GPT_CONFIG.saveHaftaPrompt(parseInt(haftaNo), icerik);
+      }
+    }
+    
+    function updateHaftaPromptStats() {
+      const icerik = document.getElementById('haftaPromptIcerik').value;
+      const karakterSayisi = icerik.length;
+      const tokenTahmini = Math.ceil(karakterSayisi / 4);
+      
+      document.getElementById('haftaPromptKarakterSayisi').textContent = karakterSayisi;
+      document.getElementById('haftaPromptTokenTahmini').textContent = tokenTahmini;
+    }
+    
+    function getHaftaPromptlari() {
+      const saved = localStorage.getItem(PROMPT_STORAGE_KEYS.HAFTA_PROMPTLARI);
+      return saved ? JSON.parse(saved) : {};
+    }
+    
+    function updateAktifHastaInfo() {
+      const hastaAdi = seciliHasta ? (seciliHasta.hastaIsim || seciliHasta.isim || 'İsimsiz') : 'Seçilmedi';
+      const aktifHafta = seciliHasta ? (getCurrentHaftaIndex() + 1) : '-';
+      
+      document.getElementById('aktifHastaInfo').textContent = hastaAdi;
+      document.getElementById('aktifHaftaInfo').textContent = aktifHafta;
+    }
+    
+    function haftaPromptKopyala() {
+      const icerik = document.getElementById('haftaPromptIcerik').value;
+      navigator.clipboard.writeText(icerik).then(() => {
+        showToast('Hafta prompt\'u kopyalandı!', 'success');
+      });
+    }
+    
+    function loadHaftaSablonu(sablon) {
+      const sablonIcerik = DEFAULT_HAFTA_SABLONLARI[sablon] || '';
+      document.getElementById('haftaPromptIcerik').value = sablonIcerik;
+      saveHaftaPromptIcerik();
+      showToast(`${sablon} şablonu yüklendi!`, 'info');
+    }
+    
+    function haftaPromptTemizle() {
+      if (!confirm('Bu hafta prompt\'unu temizlemek istediğinizden emin misiniz?')) return;
+      
+      document.getElementById('haftaPromptIcerik').value = '';
+      saveHaftaPromptIcerik();
+      showToast('Hafta prompt\'u temizlendi!', 'info');
+    }
+    
+    function tumHaftalaraKopyala() {
+      const icerik = document.getElementById('haftaPromptIcerik').value;
+      if (!icerik.trim()) {
+        showToast('Kopyalanacak içerik yok!', 'error');
+        return;
+      }
+      
+      if (!confirm('Bu prompt\'u tüm haftalara kopyalamak istediğinizden emin misiniz?')) return;
+      
+      const haftaPromptlari = getHaftaPromptlari();
+      for (let i = 1; i <= 8; i++) {
+        haftaPromptlari[i] = icerik;
+      }
+      
+      localStorage.setItem(PROMPT_STORAGE_KEYS.HAFTA_PROMPTLARI, JSON.stringify(haftaPromptlari));
+      showToast('Prompt tüm haftalara kopyalandı!', 'success');
+    }
+    
+    // Prompt Önizleme ve Test
+    function showPromptPreview(tip) {
+      let onizleme = '';
+      
+      switch (tip) {
+        case 'genel':
+          onizleme = document.getElementById('genelSablonIcerik').value;
+          break;
+        case 'hafta':
+          onizleme = document.getElementById('haftaPromptIcerik').value;
+          break;
+        case 'birlesik':
+          const genelPrompt = document.getElementById('genelSablonIcerik').value;
+          const haftaPrompt = document.getElementById('haftaPromptIcerik').value;
+          const ekMetin = document.getElementById('ekMetinAlani') ? document.getElementById('ekMetinAlani').value : '';
+          
+          onizleme = processPromptTemplate(genelPrompt);
+          if (haftaPrompt.trim()) {
+            onizleme += '\n\n--- HAFTA ÖZELİ ---\n' + haftaPrompt;
+          }
+          if (ekMetin.trim()) {
+            onizleme += '\n\n--- EK BİLGİLER ---\n' + ekMetin;
+          }
+          break;
+      }
+      
+      onizleme = processPromptTemplate(onizleme);
+      document.getElementById('promptOnizlemeAlani').value = onizleme;
+      updatePromptPreviewStats();
+    }
+    
+    function processPromptTemplate(template) {
+      if (!template) return '';
+      
+      const hastaAdi = seciliHasta ? (seciliHasta.hastaIsim || seciliHasta.isim || 'Test Hasta') : 'Test Hasta';
+      const haftaNo = seciliHasta ? (getCurrentHaftaIndex() + 1) : 1;
+      const tarih = new Date().toLocaleDateString('tr-TR');
+      
+      // Yemek listesi (basit versiyon)
+      let yemekListesi = 'Örnek yemek listesi...';
+      if (seciliHasta && seciliHasta.haftalar && seciliHasta.haftalar[getCurrentHaftaIndex()]) {
+        const hafta = seciliHasta.haftalar[getCurrentHaftaIndex()];
+        if (hafta.tarifKartlari && hafta.tarifKartlari.length > 0) {
+          yemekListesi = hafta.tarifKartlari.slice(0, 5).map(k => k.tarifAdi || k.isim).join(', ');
+        }
+      }
+      
+      return template
+        .replace(/\[HASTA_ADI\]/g, hastaAdi)
+        .replace(/\[HAFTA_NO\]/g, haftaNo)
+        .replace(/\[TARIH\]/g, tarih)
+        .replace(/\[YEMEK_LISTESI\]/g, yemekListesi)
+        .replace(/\[PDF_ICERIK\]/g, 'PDF içeriği burada olacak...');
+    }
+    
+    function updatePromptPreviewStats() {
+      const icerik = document.getElementById('promptOnizlemeAlani').value;
+      const karakterSayisi = icerik.length;
+      const tokenTahmini = Math.ceil(karakterSayisi / 4);
+      const maliyetTahmini = (tokenTahmini * 0.00015).toFixed(4); // GPT-4 input pricing tahmini
+      
+      document.getElementById('toplamKarakterSayisi').textContent = karakterSayisi;
+      document.getElementById('toplamTokenTahmini').textContent = tokenTahmini;
+      document.getElementById('maliyetTahmini').textContent = maliyetTahmini;
+    }
+    
+    function copyPromptOnizleme() {
+      const icerik = document.getElementById('promptOnizlemeAlani').value;
+      navigator.clipboard.writeText(icerik).then(() => {
+        showToast('Prompt önizlemesi kopyalandı!', 'success');
+      });
+    }
+    
+    function promptTokenHesapla() {
+      const icerik = document.getElementById('promptOnizlemeAlani').value;
+      const tokenTahmini = Math.ceil(icerik.length / 4);
+      const kelimeSayisi = icerik.split(/\s+/).length;
+      
+      const detay = `📊 TOKEN ANALİZİ:
+      
+Karakter: ${icerik.length}
+Kelime: ${kelimeSayisi}
+Token (tahmini): ${tokenTahmini}
+
+💰 MALİYET TAHMİNLERİ:
+GPT-3.5-turbo: ~$${(tokenTahmini * 0.0015 / 1000).toFixed(4)}
+GPT-4: ~$${(tokenTahmini * 0.03 / 1000).toFixed(4)}
+GPT-4-turbo: ~$${(tokenTahmini * 0.01 / 1000).toFixed(4)}`;
+      
+      alert(detay);
+    }
+    
+    // Sistem başlatıldığında prompt yönetim panelini hazırla
+    function initPromptYonetimPaneli() {
+      // Genel şablonları yükle
+      const sablonlar = getGenelSablonlar();
+      const select = document.getElementById('aktifGenelSablon');
+      if (select) {
+        // Özel şablonları select'e ekle
+        Object.keys(sablonlar).forEach(key => {
+          if (!DEFAULT_GENEL_SABLONLAR[key]) {
+            const option = document.createElement('option');
+            option.value = key;
+            option.textContent = sablonlar[key].isim;
+            select.appendChild(option);
+          }
+        });
+        
+        // Son seçilen şablonu yükle
+        const aktifSablon = localStorage.getItem(PROMPT_STORAGE_KEYS.AKTIF_GENEL_SABLON) || 'lipodem';
+        select.value = aktifSablon;
+        loadGenelSablon();
+      }
+      
+      // Hafta seçiciyi aktif hafta ile senkronize et
+      const haftaSecici = document.getElementById('haftaSecici');
+      if (haftaSecici && seciliHasta) {
+        const aktifHafta = getCurrentHaftaIndex() + 1;
+        haftaSecici.value = aktifHafta;
+        loadHaftaPrompt();
+      }
+      
+      // Olay dinleyicilerini ekle
+      const genelSablonIcerik = document.getElementById('genelSablonIcerik');
+      if (genelSablonIcerik) {
+        genelSablonIcerik.addEventListener('input', updateGenelSablonStats);
+      }
+      
+      const haftaPromptIcerik = document.getElementById('haftaPromptIcerik');
+      if (haftaPromptIcerik) {
+        haftaPromptIcerik.addEventListener('input', updateHaftaPromptStats);
+      }
+      
+      updateAktifHastaInfo();
+    }
+    
+    // DOM yüklendiğinde çalışacak
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(initPromptYonetimPaneli, 1000);
+    });
+
+    // Sayfa yenilendiğinde veya hasta değiştiğinde güncelle
+    function onHastaChanged() {
+      updateAktifHastaInfo();
+      
+      // Aktif hafta ile hafta seçiciyi senkronize et
+      const haftaSecici = document.getElementById('haftaSecici');
+      if (haftaSecici && seciliHasta) {
+        const aktifHafta = getCurrentHaftaIndex() + 1;
+        haftaSecici.value = aktifHafta;
+        loadHaftaPrompt();
+      }
+    }
+    
     async function buildPdfAnalysisPrompt(hafta) {
       const hastaAdi = seciliHasta.hastaIsim || seciliHasta.isim;
       const hastaKilo = seciliHasta.kilo || 'Bilinmiyor';
@@ -16008,7 +16774,7 @@ ${hafta.indirmeUrl || hafta.githubRawLink || 'PDF linki bulunamadı'}
       seciliHasta.gptAnalizleri.push(analizVeri);
       
       // Local storage'a kaydet
-      saveHastaToLocalStorage();
+      autoSaveHastaData(seciliHasta);
       
       console.log('✅ GPT analizi hasta verilerine eklendi');
     }
