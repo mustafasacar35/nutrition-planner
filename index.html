@@ -7071,6 +7071,10 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
                     <span>👤 Hasta Bilgileri</span>
                   </label>
                   <label style="display: flex; align-items: center; gap: 5px; font-size: 12px;">
+                    <input type="checkbox" id="oncekiAnalizler_${i}" ${i > 0 ? 'checked' : ''} style="margin: 0;">
+                    <span>📚 Önceki Analizler</span>
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 5px; font-size: 12px;">
                     <input type="checkbox" id="ekPrompt_${i}" checked style="margin: 0;">
                     <span>📝 Ek Notlar</span>
                   </label>
@@ -15047,6 +15051,24 @@ ${mesajlar.join('\n')}
           }
         }
         
+        // 3.5. Önceki Haftaların GPT Analizleri (Tutarlılık için)
+        if (document.getElementById(`oncekiAnalizler_${haftaIndex}`)?.checked && seciliHasta) {
+          const oncekiAnalizler = getOncekiGptAnalizleri(haftaIndex);
+          if (oncekiAnalizler.length > 0) {
+            prompts.push('=== ÖNCEKİ HAFTALARIN GPT ANALİZLERİ (TUTARLILIK İÇİN) ===');
+            prompts.push('ÖNEMLİ: Bu içerikleri aynen tekrar etmeyin! Sadece tutarlılık sağlamak ve tekrardan kaçınmak için kullanın.');
+            prompts.push('Hasta ile daha önce konuştukları konuları tekrar etmek yerine, süreci ileriye taşıyan yeni bakış açıları sunun.');
+            prompts.push('');
+            oncekiAnalizler.forEach((analiz, index) => {
+              prompts.push(`--- ${analiz.haftaNo}. Hafta (Özet) ---`);
+              prompts.push(analiz.icerik.substring(0, 800) + '...');
+              prompts.push('');
+            });
+            prompts.push('--- Önceki analizlerin sonu ---');
+            prompts.push('Bu hafta için tamamen yeni, önceki haftaları tamamlayan içerik oluşturun.');
+          }
+        }
+        
         // 4. Ek Notlar
         if (document.getElementById(`ekPrompt_${haftaIndex}`)?.checked) {
           const ekNotlar = document.getElementById(`ekNotlar_${haftaIndex}`)?.value?.trim();
@@ -15111,8 +15133,68 @@ ${mesajlar.join('\n')}
       }
     }
     
+    // Önceki haftalardaki GPT analizlerini al (tutarlılık için)
+    function getOncekiGptAnalizleri(haftaIndex) {
+      const analizler = [];
+      
+      if (!seciliHasta || !seciliHasta.haftalar) {
+        return analizler;
+      }
+      
+      // Önceki haftalardaki GPT mesajlarını topla (max 5 hafta)
+      const maxOncekiHafta = Math.min(haftaIndex, 5);
+      
+      for (let i = Math.max(0, haftaIndex - maxOncekiHafta); i < haftaIndex; i++) {
+        const hafta = seciliHasta.haftalar[i];
+        if (hafta && hafta.gptMesaj && hafta.gptMesaj.trim().length > 50) {
+          analizler.push({
+            haftaNo: hafta.haftaNo || (i + 1),
+            icerik: hafta.gptMesaj.trim()
+          });
+        }
+      }
+      
+      console.log(`📊 ${analizler.length} önceki hafta analizi bulundu (${haftaIndex + 1}. hafta için)`);
+      return analizler;
+    }
+    
+    // Token hesaplayıcısı (yaklaşık)
+    function hesaplaToken(text) {
+      if (!text || typeof text !== 'string') return 0;
+      // Yaklaşık hesaplama: 1 token ≈ 4 karakter (İngilizce için)
+      // Türkçe için biraz daha fazla olabilir
+      return Math.ceil(text.length / 3.5);
+    }
+    
+    // Maliyet tahmini hesapla
+    function hesaplaMaliyet(tokenSayisi, model = 'gpt-4') {
+      const fiyatlar = {
+        'gpt-4': { input: 0.03, output: 0.06 }, // $0.03 input, $0.06 output per 1K tokens
+        'gpt-4-turbo': { input: 0.01, output: 0.03 },
+        'gpt-3.5-turbo': { input: 0.001, output: 0.002 }
+      };
+      
+      const fiyat = fiyatlar[model] || fiyatlar['gpt-4'];
+      const inputMaliyet = (tokenSayisi / 1000) * fiyat.input;
+      const outputMaliyet = (1000 / 1000) * fiyat.output; // Ortalama 1000 token output varsayımı
+      
+      return {
+        inputToken: tokenSayisi,
+        outputToken: 1000,
+        toplamToken: tokenSayisi + 1000,
+        inputMaliyet: inputMaliyet,
+        outputMaliyet: outputMaliyet,
+        toplamMaliyet: inputMaliyet + outputMaliyet,
+        model: model
+      };
+    }
+    
     // Nihai prompt gösterme ve düzenleme modal'ı
     function showFinalPromptModal(finalPrompt, haftaIndex, settings, gptMesajTextarea) {
+      // Token ve maliyet hesapla
+      const tokenSayisi = hesaplaToken(finalPrompt);
+      const maliyet = hesaplaMaliyet(tokenSayisi, settings.model || 'gpt-4');
+      
       // Prompt'u daha okunabilir hale getir (başlıkları bold ve altı çizili yap)
       const formattedPromptForDisplay = finalPrompt
         .replace(/=== (.*?) ===/g, '<div style="font-weight: bold; text-decoration: underline; color: #007bff; margin: 15px 0 10px 0; font-size: 14px;">📋 $1</div>')
@@ -15146,6 +15228,16 @@ ${mesajlar.join('\n')}
             <h3 style="margin: 0 0 15px 0; color: #004085; font-size: 18px; display: flex; align-items: center; gap: 10px;">
               <span>🎯</span> GPT'ye Gönderilecek Nihai Prompt
             </h3>
+            
+            <!-- Token ve Maliyet Bilgisi -->
+            <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #28a745;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; font-size: 12px;">
+                <div><strong>📊 Token:</strong> ~${tokenSayisi.toLocaleString()}</div>
+                <div><strong>🤖 Model:</strong> ${maliyet.model}</div>
+                <div><strong>💰 Tahmini Maliyet:</strong> ~$${maliyet.toplamMaliyet.toFixed(4)}</div>
+                <div><strong>🔢 Toplam Token:</strong> ~${maliyet.toplamToken.toLocaleString()}</div>
+              </div>
+            </div>
             
             <div style="margin-bottom: 15px; color: #666; font-size: 14px;">
               <strong>📋 İçerik Özeti:</strong> Seçili prompt bölümleri, hasta bilgileri ve beslenme listesi birleştirilerek hazırlandı.
