@@ -322,16 +322,152 @@
     
     .hafta-tab-content {
       display: none;
-      border: 2px solid #ddd;
-      padding: 20px;
-      border-radius: 0 8px 8px 8px;
-      background: #fff;
+      border: none;
+      padding: 0;
+      border-radius: 0;
+      background: #f8f9fa;
       min-height: 400px;
+      overflow-y: auto;
+      max-height: calc(100vh - 200px);
     }
     
     .hafta-tab-content.active {
       display: block;
       animation: fadeIn 0.3s ease-in;
+    }
+
+    /* Modern Card Styles */
+    .hafta-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      border-top: 4px solid;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .hafta-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(0,0,0,0.12);
+    }
+
+    .hafta-card.pdf-card { border-top-color: #28a745; }
+    .hafta-card.aciklama-card { border-top-color: #17a2b8; }
+    .hafta-card.gpt-card { border-top-color: #007bff; }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .card-icon {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 16px;
+    }
+
+    .card-icon.green { background: #28a745; }
+    .card-icon.blue { background: #17a2b8; }
+    .card-icon.primary { background: #007bff; }
+
+    .modern-input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 13px;
+      transition: border-color 0.2s ease;
+    }
+
+    .modern-input:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+    }
+
+    .modern-textarea {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 13px;
+      resize: vertical;
+      line-height: 1.5;
+      transition: border-color 0.2s ease;
+    }
+
+    .modern-textarea:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+    }
+
+    .modern-button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .modern-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .btn-success { background: #28a745; color: white; }
+    .btn-info { background: #17a2b8; color: white; }
+    .btn-primary { background: #007bff; color: white; }
+    .btn-secondary { background: #6c757d; color: white; }
+
+    /* Responsive Grid */
+    .responsive-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .responsive-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .hafta-card {
+        padding: 15px;
+        margin-bottom: 15px;
+      }
+    }
+
+    /* Smooth Scrollbars */
+    .hafta-tab-content::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .hafta-tab-content::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+
+    .hafta-tab-content::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 4px;
+    }
+
+    .hafta-tab-content::-webkit-scrollbar-thumb:hover {
+      background: #a1a1a1;
     }
     
     @keyframes fadeIn {
@@ -7085,34 +7221,37 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         contentTab.id = `haftaContent_${i}`;
         
         contentTab.innerHTML = `
-          <div class="hafta-tab-header">
-            <div style="display: flex; align-items: center; gap: 15px;">
-              <div style="display: flex; align-items: center; gap: 5px;">
-                <span id="haftaNoDisplay_${i}" style="font-weight: bold; font-size: 18px; cursor: text; padding: 4px 8px; border-radius: 4px; min-width: 20px; text-align: center;" 
+          <!-- Modern Header -->
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 15px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span id="haftaNoDisplay_${i}" style="background: rgba(255,255,255,0.2); padding: 8px 12px; border-radius: 50%; font-weight: bold; font-size: 18px; cursor: text;" 
                       onclick="editHaftaNo(${i})" title="Hafta numarasını düzenlemek için tıklayın">${haftaNo}</span>
-                <span style="font-weight: bold; font-size: 18px;">. Hafta</span>
+                <div>
+                  <div style="font-size: 18px; font-weight: bold;">${haftaNo}. Hafta</div>
+                  <div style="font-size: 14px; opacity: 0.9;">📅 ${hafta.baslangic} - ${hafta.bitis}</div>
+                </div>
                 <input type="number" id="haftaNo_${i}" value="${haftaNo}" min="1" max="52" 
-                       style="display: none; width: 50px; font-weight: bold; text-align: center; border: 2px solid #007bff; border-radius: 4px; padding: 4px;"
+                       style="display: none; width: 50px; font-weight: bold; text-align: center; border: 2px solid #fff; border-radius: 4px; padding: 4px;"
                        onblur="saveHaftaNo(${i})" onkeypress="if(event.key==='Enter') saveHaftaNo(${i})">
               </div>
-              <span style="color: #666; font-size: 14px;">📅 ${hafta.baslangic} - ${hafta.bitis}</span>
-            </div>
-            <div style="display: flex; gap: 5px;">
-              ${!hafta.kilitli ? `
-                <button onclick="haftaKaydet(${i})" class="kayit-btn" style="padding: 5px 12px; font-size: 12px;">💾 Kaydet</button>
-              ` : `
-                <button class="kayit-btn saved" style="padding: 5px 12px; font-size: 12px;">✅ Kaydedildi</button>
-                <button onclick="haftaKilidiAc(${i})" class="kilit-ac-btn" style="padding: 5px 10px; font-size: 11px;">🔓 Kilidi Aç</button>
-              `}
-              <button onclick="duzenleHafta(${i})" style="padding: 5px 10px; font-size: 12px;">Düzenle</button>
-              <button onclick="silHafta(${i})" style="padding: 5px 10px; font-size: 12px; color: red;">Sil</button>
-              ${haftaNo === 5 ? `<button onclick="haftaZipIndir(${i}, 5)" style="padding: 5px 10px; font-size: 12px; background: #17a2b8; color: white; border: none; border-radius: 4px;" title="5. hafta özel ZIP (Kilitli durumda da kullanılabilir)">📦 ZIP</button>` : ''}
-              ${haftaNo === 9 ? `<button onclick="haftaZipIndir(${i}, 9)" style="padding: 5px 10px; font-size: 12px; background: #6f42c1; color: white; border: none; border-radius: 4px;" title="9. hafta özel ZIP (Kilitli durumda da kullanılabilir)">📦 ZIP</button>` : ''}
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                ${!hafta.kilitli ? `
+                  <button onclick="haftaKaydet(${i})" style="background: rgba(40, 167, 69, 0.9); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;">💾 Kaydet</button>
+                ` : `
+                  <button style="background: rgba(40, 167, 69, 0.9); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px;">✅ Kaydedildi</button>
+                  <button onclick="haftaKilidiAc(${i})" style="background: rgba(255, 193, 7, 0.9); color: #212529; border: none; padding: 8px 12px; border-radius: 6px; font-size: 11px; cursor: pointer;">🔓 Kilidi Aç</button>
+                `}
+                <button onclick="duzenleHafta(${i})" style="background: rgba(0, 123, 255, 0.9); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;">Düzenle</button>
+                <button onclick="silHafta(${i})" style="background: rgba(220, 53, 69, 0.9); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;">Sil</button>
+                ${haftaNo === 5 ? `<button onclick="haftaZipIndir(${i}, 5)" style="background: rgba(23, 162, 184, 0.9); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;" title="5. hafta özel ZIP">📦 ZIP</button>` : ''}
+                ${haftaNo === 9 ? `<button onclick="haftaZipIndir(${i}, 9)" style="background: rgba(111, 66, 193, 0.9); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;" title="9. hafta özel ZIP">📦 ZIP</button>` : ''}
+              </div>
             </div>
           </div>
-          
-          <!-- Ana İçerik - Horizontal Layout (2 kolon: PDF ve Açıklama) -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+
+          <!-- Modern Card Layout -->
+          <div class="responsive-grid">
             
             <!-- PDF Bölümü -->
             <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;" class="${hafta.kilitli ? 'locked-area' : ''}">
