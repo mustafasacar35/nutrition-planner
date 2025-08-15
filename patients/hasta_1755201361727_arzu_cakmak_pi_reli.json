@@ -1,7 +1,7 @@
 {
   "id": 1755201361727,
   "isim": "ARZU ÇAKMAK PİRELİ",
-  "not": "böbrek talı vardı ve hipertansiyon",
+  "not": "böbrek taşı vardı ve hipertansiyon var.",
   "arsiv": false,
   "haftalar": [
     {
@@ -1776,6 +1776,6 @@
   ],
   "olusturmaTarihi": "2025-08-14T19:56:01.727Z",
   "yeniSistem": true,
-  "sonGuncelleme": "2025-08-15T14:38:40.501Z",
+  "sonGuncelleme": "2025-08-15T14:38:51.284Z",
   "githubKaydedildi": true
 }
