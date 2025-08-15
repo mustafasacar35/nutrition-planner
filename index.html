@@ -1114,12 +1114,71 @@
           <h3 style="margin: 0 0 15px 0; color: #ffc107; display: flex; align-items: center; gap: 8px;">
             <span>📅</span> Haftalık Prompt Temaları
           </h3>
-          <div style="margin-bottom: 10px;">
-            <input type="number" id="yeniHaftaNo" placeholder="Hafta No" min="1" max="52" style="width: 100px; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; margin-right: 10px;">
-            <input type="text" id="yeniHaftaBaslik" placeholder="Tema Başlığı (örn: Antiinflamatuar Beslenme)" style="width: 300px; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; margin-right: 10px;">
-            <button onclick="yeniHaftalikPrompt()" style="padding: 8px 15px; background: #ffc107; color: #212529; border: none; border-radius: 4px; cursor: pointer;">+ Haftalık Tema Ekle</button>
+          
+          <!-- Yeni Hafta Ekleme Formu -->
+          <div style="margin-bottom: 20px; padding: 15px; background: #fff8e1; border-radius: 8px; border: 1px solid #ffecb3;">
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <input type="number" id="yeniHaftaNo" placeholder="Hafta No" min="1" max="52" style="width: 100px; padding: 8px; border: 1px solid #ffcc02; border-radius: 4px; background: #fffde7;">
+              <input type="text" id="yeniHaftaBaslik" placeholder="Tema Başlığı (örn: Antiinflamatuar Beslenme)" style="flex: 1; min-width: 250px; padding: 8px; border: 1px solid #ffcc02; border-radius: 4px; background: #fffde7;">
+              <button onclick="yeniHaftalikPrompt()" style="padding: 8px 15px; background: #ffc107; color: #212529; border: none; border-radius: 4px; cursor: pointer; white-space: nowrap;">+ Haftalık Tema Ekle</button>
+            </div>
           </div>
-          <div id="haftalikPromptlar" style="max-height: 300px; overflow-y: auto;"></div>
+
+          <!-- Split View Container -->
+          <div style="display: flex; height: 500px; border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden;">
+            
+            <!-- Sol Panel - Hafta Listesi -->
+            <div style="width: 250px; background: #f8f9fa; border-right: 1px solid #dee2e6; display: flex; flex-direction: column;">
+              <div style="padding: 15px; background: #fff; border-bottom: 1px solid #dee2e6;">
+                <strong style="color: #ffc107;">📋 Hafta Listesi</strong>
+              </div>
+              <div id="haftalarListesi" style="flex: 1; overflow-y: auto; padding: 10px;">
+                <!-- Haftalar buraya yüklenecek -->
+              </div>
+            </div>
+
+            <!-- Sağ Panel - Seçili Hafta Detayları -->
+            <div style="flex: 1; display: flex; flex-direction: column; background: white;">
+              <div style="padding: 15px; background: #fff; border-bottom: 1px solid #dee2e6; display: flex; justify-content: space-between; align-items: center;">
+                <strong id="seciliHaftaBaslik" style="color: #ffc107;">Hafta seçiniz</strong>
+                <button id="haftaSilBtn" onclick="seciliHaftayiSil()" style="padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; display: none;">🗑️ Sil</button>
+              </div>
+              <div style="flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+                
+                <!-- Hafta Başlığı Düzenleme -->
+                <div id="haftaDetayForm" style="display: none; flex-direction: column; gap: 15px; height: 100%;">
+                  <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Hafta Başlığı:</label>
+                    <input type="text" id="seciliHaftaBaslikInput" style="width: 100%; padding: 10px; border: 1px solid #ffcc02; border-radius: 4px; background: #fffde7; font-size: 14px;">
+                  </div>
+                  
+                  <!-- Prompt İçeriği -->
+                  <div style="flex: 1; display: flex; flex-direction: column;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Prompt İçeriği:</label>
+                    <textarea id="seciliHaftaIcerikInput" style="flex: 1; padding: 15px; border: 1px solid #ffcc02; border-radius: 4px; resize: none; background: #fffde7; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 14px; line-height: 1.5;" 
+                              placeholder="Bu hafta için özel prompt içeriğini buraya yazınız...&#10;&#10;Örnek:&#10;- Antiinflamatuar besinlere odaklan&#10;- Omega-3 kaynakları öner&#10;- İşlenmiş gıdalardan kaçınmayı vurgula"></textarea>
+                  </div>
+
+                  <!-- Kaydet Butonu -->
+                  <div style="display: flex; justify-content: end; padding-top: 10px; border-top: 1px solid #dee2e6;">
+                    <button onclick="seciliHaftayiKaydet()" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">💾 Değişiklikleri Kaydet</button>
+                  </div>
+                </div>
+
+                <!-- Hafta Seçilmediğinde Gösterilen Mesaj -->
+                <div id="haftaSecinizMesaj" style="text-align: center; color: #6c757d; padding: 50px 20px;">
+                  <div style="font-size: 48px; margin-bottom: 20px;">📅</div>
+                  <h4 style="margin-bottom: 10px; color: #ffc107;">Haftalık Prompt Temaları</h4>
+                  <p style="margin: 0; line-height: 1.6;">Sol panelden bir hafta seçerek tema başlığını ve prompt içeriğini düzenleyebilirsiniz.</p>
+                  <div style="margin-top: 20px; font-size: 12px; color: #adb5bd;">
+                    💡 Her hafta için özel beslenme teması belirleyerek hastalarınıza daha odaklı öneriler verebilirsiniz.
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
         </div>
 
       </div>
@@ -16275,25 +16334,137 @@ ${mesajlar.join('\n')}
     
     // Haftalık promptları render et
     function renderHaftalikPromptlar() {
-      const container = document.getElementById('haftalikPromptlar');
+      const container = document.getElementById('haftalarListesi');
       const promptlar = JSON.parse(localStorage.getItem(HAFTALIK_PROMPTLAR_KEY) || '[]');
       
       // Hafta numarasına göre sırala
       promptlar.sort((a, b) => a.haftaNo - b.haftaNo);
       
-      container.innerHTML = promptlar.map(prompt => `
-        <div style="margin-bottom: 15px; padding: 15px; background: #fff8e1; border-radius: 8px; border: 1px solid #ffecb3;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <span style="font-weight: bold; color: #f57c00; margin-right: 10px;">${prompt.haftaNo}. Hafta:</span>
-            <input type="text" value="${prompt.baslik}" onchange="updateHaftalikPromptBaslik(${prompt.id}, this.value)" 
-                   style="flex: 1; padding: 5px; border: 1px solid #ffcc02; border-radius: 4px; background: #fffde7;">
-            <button onclick="deleteHaftalikPrompt(${prompt.id})" style="margin-left: 10px; padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">🗑️</button>
+      if (promptlar.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 30px 15px; color: #6c757d;">
+            <div style="font-size: 24px; margin-bottom: 10px;">📋</div>
+            <div style="font-size: 12px; line-height: 1.4;">Henüz haftalık tema eklenmemiş.<br><br>Yukarıdaki formu kullanarak yeni tema ekleyebilirsiniz.</div>
           </div>
-          <textarea onchange="updateHaftalikPromptIcerik(${prompt.id}, this.value)" rows="3" 
-                    style="width: 100%; padding: 8px; border: 1px solid #ffcc02; border-radius: 4px; resize: vertical; background: #fffde7;"
-                    placeholder="Hafta teması prompt içeriği...">${prompt.icerik}</textarea>
+        `;
+        return;
+      }
+      
+      container.innerHTML = promptlar.map(prompt => `
+        <div class="hafta-item" data-hafta-id="${prompt.id}" onclick="haftaSecil(${prompt.id})" 
+             style="margin-bottom: 8px; padding: 12px; background: white; border-radius: 6px; cursor: pointer; 
+                    border: 2px solid #e9ecef; transition: all 0.2s ease; display: flex; align-items: center; gap: 8px;">
+          <span style="background: #ffc107; color: #212529; border-radius: 50%; width: 24px; height: 24px; 
+                       display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; 
+                       flex-shrink: 0;">${prompt.haftaNo}</span>
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-size: 12px; font-weight: bold; color: #333; margin-bottom: 2px; 
+                        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${prompt.baslik}</div>
+            <div style="font-size: 10px; color: #6c757d; 
+                        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              ${prompt.icerik ? (prompt.icerik.length > 40 ? prompt.icerik.substring(0, 40) + '...' : prompt.icerik) : 'İçerik yok'}
+            </div>
+          </div>
         </div>
       `).join('');
+      
+      // Hover efektleri için CSS ekle
+      const style = document.createElement('style');
+      style.textContent = `
+        .hafta-item:hover {
+          border-color: #ffc107 !important;
+          background: #fff8e1 !important;
+          transform: translateX(3px);
+        }
+        .hafta-item.selected {
+          border-color: #ffc107 !important;
+          background: #fff8e1 !important;
+          box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+        }
+      `;
+      if (!document.getElementById('hafta-styles')) {
+        style.id = 'hafta-styles';
+        document.head.appendChild(style);
+      }
+    }
+
+    // Hafta seçme fonksiyonu
+    let seciliHaftaId = null;
+    
+    function haftaSecil(haftaId) {
+      seciliHaftaId = haftaId;
+      const promptlar = JSON.parse(localStorage.getItem(HAFTALIK_PROMPTLAR_KEY) || '[]');
+      const seciliPrompt = promptlar.find(p => p.id === haftaId);
+      
+      if (!seciliPrompt) return;
+      
+      // Seçili hafta görsel efektleri
+      document.querySelectorAll('.hafta-item').forEach(item => {
+        item.classList.remove('selected');
+      });
+      document.querySelector(`.hafta-item[data-hafta-id="${haftaId}"]`).classList.add('selected');
+      
+      // Sağ paneli güncelle
+      document.getElementById('seciliHaftaBaslik').textContent = `${seciliPrompt.haftaNo}. Hafta: ${seciliPrompt.baslik}`;
+      document.getElementById('seciliHaftaBaslikInput').value = seciliPrompt.baslik;
+      document.getElementById('seciliHaftaIcerikInput').value = seciliPrompt.icerik || '';
+      
+      // Form ve butonları göster
+      document.getElementById('haftaDetayForm').style.display = 'flex';
+      document.getElementById('haftaSilBtn').style.display = 'inline-block';
+      document.getElementById('haftaSecinizMesaj').style.display = 'none';
+    }
+
+    // Seçili haftayı kaydetme fonksiyonu
+    function seciliHaftayiKaydet() {
+      if (!seciliHaftaId) return;
+      
+      const yeniBaslik = document.getElementById('seciliHaftaBaslikInput').value.trim();
+      const yeniIcerik = document.getElementById('seciliHaftaIcerikInput').value.trim();
+      
+      const promptlar = JSON.parse(localStorage.getItem(HAFTALIK_PROMPTLAR_KEY) || '[]');
+      const prompt = promptlar.find(p => p.id === seciliHaftaId);
+      
+      if (prompt) {
+        prompt.baslik = yeniBaslik;
+        prompt.icerik = yeniIcerik;
+        localStorage.setItem(HAFTALIK_PROMPTLAR_KEY, JSON.stringify(promptlar));
+        
+        // Başarı mesajı göster
+        const button = event.target;
+        const originalText = button.textContent;
+        button.textContent = '✅ Kaydedildi';
+        button.style.background = '#28a745';
+        
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.style.background = '#28a745';
+        }, 1500);
+        
+        // Listeteki öğeyi güncelle
+        renderHaftalikPromptlar();
+        // Seçili haftayı tekrar seç
+        setTimeout(() => haftaSecil(seciliHaftaId), 100);
+      }
+    }
+
+    // Seçili haftayı silme fonksiyonu
+    function seciliHaftayiSil() {
+      if (!seciliHaftaId) return;
+      
+      const promptlar = JSON.parse(localStorage.getItem(HAFTALIK_PROMPTLAR_KEY) || '[]');
+      const prompt = promptlar.find(p => p.id === seciliHaftaId);
+      
+      if (prompt && confirm(`"${prompt.haftaNo}. Hafta: ${prompt.baslik}" temasını silmek istediğinizden emin misiniz?`)) {
+        deleteHaftalikPrompt(seciliHaftaId);
+        
+        // Seçimi temizle
+        seciliHaftaId = null;
+        document.getElementById('haftaDetayForm').style.display = 'none';
+        document.getElementById('haftaSilBtn').style.display = 'none';
+        document.getElementById('haftaSecinizMesaj').style.display = 'block';
+        document.getElementById('seciliHaftaBaslik').textContent = 'Hafta seçiniz';
+      }
     }
     
     // Haftalık prompt başlığını güncelle
@@ -16338,6 +16509,9 @@ ${mesajlar.join('\n')}
     window.updateHaftalikPromptBaslik = updateHaftalikPromptBaslik;
     window.updateHaftalikPromptIcerik = updateHaftalikPromptIcerik;
     window.deleteHaftalikPrompt = deleteHaftalikPrompt;
+    window.haftaSecil = haftaSecil;
+    window.seciliHaftayiKaydet = seciliHaftayiKaydet;
+    window.seciliHaftayiSil = seciliHaftayiSil;
     window.gptAnalizeEt = gptAnalizeEt;
     window.gptMesajKaydet = gptMesajKaydet;
     window.showFinalPromptModal = showFinalPromptModal;
