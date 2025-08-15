@@ -15003,9 +15003,16 @@ ${mesajlar.join('\n')}
             ekNotlarInput.value = aciklamaMetni;
             console.log('✅ Açıklama alanındaki metin "Ek Bilgiler" alanına otomatik çekildi:', aciklamaMetni);
           } else {
-            // Tekrar eklenmesini önle - aynı açıklama zaten var mı kontrol et
-            if (!mevcutEkNotlar.includes(aciklamaMetni)) {
-              ekNotlarInput.value = `${mevcutEkNotlar}\n\nAçıklama: ${aciklamaMetni}`;
+            // Tekrar eklenmesini önle - hem açıklama metninin hem de "Açıklama:" prefix'inin zaten var olup olmadığını kontrol et
+            const cleanAciklamaMetni = aciklamaMetni.replace(/^Açıklama:\s*/i, '').trim();
+            const temizEkNotlar = mevcutEkNotlar.toLowerCase().trim();
+            const temizAciklama = cleanAciklamaMetni.toLowerCase().trim();
+            
+            if (!temizEkNotlar.includes(temizAciklama) && 
+                !temizEkNotlar.includes(`açıklama: ${temizAciklama}`) && 
+                temizAciklama.length > 5) {
+              // Açıklama metnini "Açıklama:" prefix'i olmadan ekle
+              ekNotlarInput.value = `${mevcutEkNotlar}\n\n${cleanAciklamaMetni}`;
               console.log('✅ Açıklama mevcut ek notlara eklendi (tekrar önlendi)');
             } else {
               console.log('ℹ️ Açıklama zaten ek notlarda mevcut, tekrar eklenmedi');
@@ -15113,18 +15120,29 @@ ${mesajlar.join('\n')}
               }
             } catch (pdfError) {
               console.warn('PDF okuma hatası, tarif listesi kullanılıyor:', pdfError);
-              prompts.push('Tarif Listesi:');
+              // PDF hatası durumunda tarif listesini temizle ve global'e sakla
               if (hafta.tarifler && hafta.tarifler.length > 0) {
-                prompts.push(hafta.tarifler.map(t => `• ${t}`).join('\n'));
+                const tarifListesi = hafta.tarifler.map(t => `• ${t}`).join('\n');
+                const temizTarifler = temizlePdfIcerik(tarifListesi);
+                window.cleanedPdfContent = temizTarifler;
+                
+                prompts.push('Tarif Listesi:');
+                prompts.push(window.cleanedPdfContent);
               } else {
-                prompts.push('Henüz tarif listesi yok.');
+                window.cleanedPdfContent = 'Henüz tarif listesi yok.';
+                prompts.push(window.cleanedPdfContent);
               }
             }
           } else if (hafta.tarifler && hafta.tarifler.length > 0) {
+            const tarifListesi = hafta.tarifler.map(t => `• ${t}`).join('\n');
+            const temizTarifler = temizlePdfIcerik(tarifListesi);
+            window.cleanedPdfContent = temizTarifler;
+            
             prompts.push('Tarif Listesi:');
-            prompts.push(hafta.tarifler.map(t => `• ${t}`).join('\n'));
+            prompts.push(window.cleanedPdfContent);
           } else {
-            prompts.push('Bu hafta için henüz beslenme listesi yüklenmemiş.');
+            window.cleanedPdfContent = 'Bu hafta için henüz beslenme listesi yüklenmemiş.';
+            prompts.push(window.cleanedPdfContent);
           }
         }
         
@@ -15306,28 +15324,8 @@ ${mesajlar.join('\n')}
     
     // Nihai prompt gösterme ve düzenleme modal'ı (önceki analizler checkbox'ı ile)
     function showFinalPromptModal(finalPrompt, haftaIndex, settings, gptMesajTextarea) {
-      // Temizlenmiş PDF içeriğini sakla (checkbox güncellemeleri için)
-      if (seciliHasta?.haftalar?.[haftaIndex]) {
-        const hafta = seciliHasta.haftalar[haftaIndex];
-        if (hafta.pdf && hafta.pdf.length > 1000) {
-          // PDF içeriğinden temizlenmiş kısmı çıkar ve sakla
-          extractTextFromPdf(hafta.pdf).then(pdfText => {
-            if (pdfText && pdfText.trim().length > 50) {
-              const temizPdfIcerik = temizlePdfIcerik(pdfText);
-              const maxLength = 2000;
-              window.cleanedPdfContent = temizPdfIcerik.length > maxLength 
-                ? temizPdfIcerik.substring(0, maxLength) + '...[Optimize edildi]'
-                : temizPdfIcerik;
-              console.log('🧹 Temizlenmiş PDF içeriği global değişkende saklandı:', window.cleanedPdfContent.length, 'karakter');
-            }
-          }).catch(error => {
-            console.warn('PDF temizleme hatası:', error);
-            window.cleanedPdfContent = '';
-          });
-        } else {
-          window.cleanedPdfContent = '';
-        }
-      }
+      // PDF içeriği zaten önceden temizlenip window.cleanedPdfContent'e kaydedilmiş olmalı
+      // Ekstra işlem yapmayalım, sadece var olan temizlenmiş içeriği kullanalım
       
       // Token ve maliyet hesapla
       const tokenSayisi = hesaplaToken(finalPrompt);
