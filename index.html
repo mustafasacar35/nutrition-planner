@@ -15091,6 +15091,11 @@ ${mesajlar.join('\n')}
         // Final prompt oluştur
         const finalPrompt = prompts.length > 0 ? prompts.join('\n\n') : 'Bu hafta için analiz yapılabilecek veri bulunamadı.';
         
+        // Prompt'u daha okunabilir hale getir (başlıkları bold ve altı çizili yap)
+        const formattedPrompt = finalPrompt
+          .replace(/=== (.*?) ===/g, '<b><u>$1</u></b>')
+          .replace(/\n/g, '\n');
+        
         // Debug için prompt'u konsola yazdır
         console.log('🔍 GPT\'ye gönderilen prompt:', finalPrompt);
         
@@ -15108,6 +15113,11 @@ ${mesajlar.join('\n')}
     
     // Nihai prompt gösterme ve düzenleme modal'ı
     function showFinalPromptModal(finalPrompt, haftaIndex, settings, gptMesajTextarea) {
+      // Prompt'u daha okunabilir hale getir (başlıkları bold ve altı çizili yap)
+      const formattedPromptForDisplay = finalPrompt
+        .replace(/=== (.*?) ===/g, '<div style="font-weight: bold; text-decoration: underline; color: #007bff; margin: 15px 0 10px 0; font-size: 14px;">📋 $1</div>')
+        .replace(/\n/g, '<br>');
+      
       // Modal HTML'i oluştur
       const modalHtml = `
         <div id="finalPromptModal" style="
@@ -15141,21 +15151,39 @@ ${mesajlar.join('\n')}
               <strong>📋 İçerik Özeti:</strong> Seçili prompt bölümleri, hasta bilgileri ve beslenme listesi birleştirilerek hazırlandı.
             </div>
             
-            <textarea id="finalPromptText" style="
+            <!-- Görsel önizleme -->
+            <div id="promptPreview" style="
               width: 100%; 
-              height: 400px; 
+              height: 300px; 
               padding: 15px; 
               border: 2px solid #e3f2fd; 
               border-radius: 8px; 
-              font-family: monospace; 
+              font-family: Arial, sans-serif; 
               font-size: 12px; 
-              resize: vertical;
-              margin-bottom: 20px;
-            ">${finalPrompt}</textarea>
+              overflow-y: auto;
+              background: #f8f9fa;
+              margin-bottom: 15px;
+            ">${formattedPromptForDisplay}</div>
+            
+            <!-- Düzenlenebilir textarea (gizli) -->
+            <textarea id="finalPromptText" style="display: none;">${finalPrompt}</textarea>
+            
+            <!-- Düzenleme butonu -->
+            <div style="margin-bottom: 15px;">
+              <button id="editPromptBtn" onclick="toggleEditMode()" style="
+                padding: 8px 15px; 
+                background: #ffc107; 
+                color: #212529; 
+                border: none; 
+                border-radius: 4px; 
+                cursor: pointer;
+                font-size: 12px;
+              ">✏️ Düzenle</button>
+            </div>
             
             <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px;">
               <div style="color: #666; font-size: 12px;">
-                💡 <strong>İpucu:</strong> Prompt'u istediğiniz gibi düzenleyebilir ve sonra GPT'ye gönderebilirsiniz.
+                💡 <strong>İpucu:</strong> Prompt'u düzenleyebilir ve sonra GPT'ye gönderebilirsiniz.
               </div>
               
               <div style="display: flex; gap: 10px;">
@@ -15211,6 +15239,43 @@ ${mesajlar.join('\n')}
       });
     }
     
+    // Düzenleme modunu toggle et
+    function toggleEditMode() {
+      const previewDiv = document.getElementById('promptPreview');
+      const textareaEl = document.getElementById('finalPromptText');
+      const editBtn = document.getElementById('editPromptBtn');
+      
+      if (textareaEl.style.display === 'none') {
+        // Düzenleme moduna geç
+        previewDiv.style.display = 'none';
+        textareaEl.style.display = 'block';
+        textareaEl.style.width = '100%';
+        textareaEl.style.height = '300px';
+        textareaEl.style.padding = '15px';
+        textareaEl.style.border = '2px solid #e3f2fd';
+        textareaEl.style.borderRadius = '8px';
+        textareaEl.style.fontFamily = 'monospace';
+        textareaEl.style.fontSize = '12px';
+        textareaEl.style.resize = 'vertical';
+        editBtn.textContent = '👁️ Önizleme';
+        editBtn.style.background = '#17a2b8';
+        editBtn.style.color = 'white';
+      } else {
+        // Önizleme moduna geç
+        const updatedText = textareaEl.value;
+        const formattedText = updatedText
+          .replace(/=== (.*?) ===/g, '<div style="font-weight: bold; text-decoration: underline; color: #007bff; margin: 15px 0 10px 0; font-size: 14px;">📋 $1</div>')
+          .replace(/\n/g, '<br>');
+        
+        previewDiv.innerHTML = formattedText;
+        previewDiv.style.display = 'block';
+        textareaEl.style.display = 'none';
+        editBtn.textContent = '✏️ Düzenle';
+        editBtn.style.background = '#ffc107';
+        editBtn.style.color = '#212529';
+      }
+    }
+    
     // Düzenlenmiş prompt'u GPT'ye gönder
     async function sendFinalPromptToGpt(haftaIndex, settings, textareaId) {
       try {
@@ -15222,6 +15287,15 @@ ${mesajlar.join('\n')}
           return;
         }
         
+        // Settings'i doğru şekilde al
+        const currentSettings = window.tempSettings || JSON.parse(localStorage.getItem('gptSettings') || '{}');
+        
+        if (!currentSettings.apiKey) {
+          alert('❌ GPT API Key girilmemiş!\n\nLütfen GPT Yönetimi panelinden API Key\'inizi girin.');
+          closeFinalPromptModal();
+          return;
+        }
+        
         // Modal'ı kapat
         closeFinalPromptModal();
         
@@ -15229,8 +15303,7 @@ ${mesajlar.join('\n')}
         gptMesajTextarea.value = '🤖 GPT analiz ediyor, lütfen bekleyin...';
         gptMesajTextarea.disabled = true;
         
-        // GPT'ye gönder (settings'i global'den al)
-        const currentSettings = window.tempSettings || settings;
+        // GPT'ye gönder
         await sendToGpt(finalPromptText, haftaIndex, currentSettings, gptMesajTextarea);
         
       } catch (error) {
@@ -15448,6 +15521,7 @@ ${mesajlar.join('\n')}
     window.showFinalPromptModal = showFinalPromptModal;
     window.closeFinalPromptModal = closeFinalPromptModal;
     window.sendFinalPromptToGpt = sendFinalPromptToGpt;
+    window.toggleEditMode = toggleEditMode;
     
     // Global fonksiyonları ekle
     window.showToast = showToast;
