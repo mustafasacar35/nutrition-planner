@@ -2164,7 +2164,7 @@
         "günlük ortalama 5000 adım önerilir",
         "günlük su tüketimi 2 litrenin üzerinde olması önerilir"
       ],
-      "gptMesaj": "Merhaba Arzu Hanım,\n\nBu hafta beslenme listemizde lipödem egzersizlerine de yer verdik. Lipödem tedavi takip programımıza bu hafta itibariyle egzersizleri de ekledik. Lipödem egzersizlerinin derin lenf sistemini aktive ederek kas pompasını çalıştırıp dolaşım sistemini güçlendirdiğini biliyoruz. Bu egzersizlerin lipödemle ilişkisini anlatarak, vücuttaki değişimleri desteklemeyi hedefliyoruz.\n\nBeslenme listemizde badem unlu krep, tulum peyniri, haşlanmış yumurta, mevsim yeşillikleri, fındık, labneli pancar salatası, ceviz, toz kollajen, badem unlu kabak ve peynirli poğaça gibi besinleri bulabilirsiniz. Ayrıca, sulu köfte, haşlama et, köz patlıcan, ev yoğurdu, lupin unlu kek gibi lezzetli ve sağlıklı seçenekler de liste içerisinde yer alıyor.\n\nBedeninizdeki değişimleri takip etmek için iki haftada bir benden ölçülerinizi göndermenizi rica ediyorum. Eğer herhangi bir sorunuz veya takıldığınız bir nokta olursa bana her zaman mesaj atabilirsiniz. Sağlıklı ve keyifli bir hafta dilerim.\n\nSevgiler,\n[Adınız]",
+      "gptMesaj": "Merhaba Arzu Hanım, \n\nPazartesi günü 16-22 Haziran haftasına başlıyoruz. Bu hafta lipödem egzersizlerine de başlıyoruz. Bu egzersizlerin derin lenf sistemini aktive etmesi ve kas pompasını çalıştırarak dolaşım sistemini güçlendirmesi önemli. Lipödemle olan ilişkisini de unutmayalım.\n\nBu hafta beslenme listende badem unlu krep, tulum/kaşar/lor peyniri, haşlanmış yumurta, mevsim yeşillikleri, fındık, sulu köfte, labneli pancar salatası, ceviz, toz kollajen, badem unlu kabak ve peynirli poğaça, haşlama et, köz patlıcan, ev yoğurdu, lupin unlu kek, ızgara ya da fırında balık, kavurmalı yumurta, salatalık ve cherry domates, Urfa/Adana kebap, yeşil salata, kabak çekirdeği, kabaklı omlet, çiğ badem, tavuk pirzola ya da kanat, közlenmiş patlıcan salatası, turşu, menemen, köfte veya kuzu kavurma, köz biber salatası, sebzeli omlet, tulum peyniri veya kaşar peyniri, kıymalı bamya/patlıcan musakka/kabak yemeği ve mevsim salata var.\n\nMide bulantısı sorunu yaşamışsınız, bu nedenle ekstra dikkat etmeniz önemli. Ayrıca diş ağrısı yaşamışsınız, bu konuda bir doktora danışmanız faydalı olabilir. Herhangi bir sorunuz veya takıldığınız bir nokta olursa bana her zaman mesaj atabilir, yardımcı olmaktan memnuniyet duyarım. İyi bir hafta geçirmenizi dilerim.",
       "kilitli": false,
       "githubLink": "https://github.com/mustafasacar35/nutrition-planner/blob/main/patients/hasta_1755201361727_arzu_cakmak_pi_reli.json",
       "githubRawLink": "https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/patients/hasta_1755201361727_arzu_cakmak_pi_reli.json",
@@ -2263,6 +2263,6 @@
   ],
   "olusturmaTarihi": "2025-08-14T19:56:01.727Z",
   "yeniSistem": true,
-  "sonGuncelleme": "2025-08-15T19:41:30.603Z",
+  "sonGuncelleme": "2025-08-15T19:42:24.974Z",
   "githubKaydedildi": true
 }
