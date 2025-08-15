@@ -14986,6 +14986,22 @@ ${mesajlar.join('\n')}
           return;
         }
         
+        // Haftalık açıklama alanındaki metni otomatik olarak "Ek Bilgiler" alanına çek
+        const aciklamaInput = document.getElementById(`aciklama_${haftaIndex}`);
+        const ekNotlarInput = document.getElementById(`ekNotlar_${haftaIndex}`);
+        
+        if (aciklamaInput && ekNotlarInput && aciklamaInput.value.trim()) {
+          // Eğer ek notlar alanı boşsa açıklamayı otomatik çek
+          if (!ekNotlarInput.value.trim()) {
+            ekNotlarInput.value = aciklamaInput.value.trim();
+            console.log('✅ Açıklama alanındaki metin "Ek Bilgiler" alanına otomatik çekildi:', aciklamaInput.value);
+          } else {
+            // Eğer ek notlar alanında zaten metin varsa, açıklamayı da ekle
+            ekNotlarInput.value = `${ekNotlarInput.value.trim()}\n\nAçıklama: ${aciklamaInput.value.trim()}`;
+            console.log('✅ Açıklama mevcut ek notlara eklendi');
+          }
+        }
+        
         // Loading göster
         const gptMesajTextarea = document.getElementById(`gptMesaj_${haftaIndex}`);
         gptMesajTextarea.value = '🤖 GPT analiz ediyor, lütfen bekleyin...';
@@ -15017,9 +15033,15 @@ ${mesajlar.join('\n')}
         if (document.getElementById(`hastaPrompt_${haftaIndex}`)?.checked && seciliHasta) {
           prompts.push('=== HASTA BİLGİLERİ ===');
           prompts.push(`Hasta Adı: ${seciliHasta.hastaIsim || seciliHasta.isim || 'Bilinmiyor'}`);
+          // Ana hasta notu
+          if (seciliHasta.not) {
+            prompts.push(`Hasta Notu: ${seciliHasta.not}`);
+          }
+          // Ek notlar
           if (seciliHasta.notlar) {
             prompts.push(`Hasta Notları: ${seciliHasta.notlar}`);
           }
+          // Yaşam bilgileri
           if (seciliHasta.yasam) {
             prompts.push(`Yaşam Bilgileri: ${seciliHasta.yasam}`);
           }
@@ -15072,14 +15094,149 @@ ${mesajlar.join('\n')}
         // Debug için prompt'u konsola yazdır
         console.log('🔍 GPT\'ye gönderilen prompt:', finalPrompt);
         
-        // Direkt GPT'ye gönder (modal'ı atlayalım)
-        await sendToGpt(finalPrompt, haftaIndex, settings, gptMesajTextarea);
+        // Nihai prompt'u göster ve düzenleme imkanı ver
+        window.tempSettings = settings; // Geçici olarak global'e kaydet
+        showFinalPromptModal(finalPrompt, haftaIndex, settings, gptMesajTextarea);
         
       } catch (error) {
         console.error('GPT analiz hatası:', error);
         document.getElementById(`gptMesaj_${haftaIndex}`).value = `❌ GPT analiz hatası: ${error.message}`;
         document.getElementById(`gptMesaj_${haftaIndex}`).disabled = false;
         showToast('❌ GPT analizi başarısız', 'error', 4000);
+      }
+    }
+    
+    // Nihai prompt gösterme ve düzenleme modal'ı
+    function showFinalPromptModal(finalPrompt, haftaIndex, settings, gptMesajTextarea) {
+      // Modal HTML'i oluştur
+      const modalHtml = `
+        <div id="finalPromptModal" style="
+          position: fixed; 
+          top: 0; 
+          left: 0; 
+          width: 100%; 
+          height: 100%; 
+          background: rgba(0,0,0,0.7); 
+          display: flex; 
+          justify-content: center; 
+          align-items: center; 
+          z-index: 10000;
+        ">
+          <div style="
+            background: white; 
+            border-radius: 12px; 
+            padding: 25px; 
+            max-width: 90%; 
+            max-height: 90%; 
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+          ">
+            <h3 style="margin: 0 0 15px 0; color: #004085; font-size: 18px; display: flex; align-items: center; gap: 10px;">
+              <span>🎯</span> GPT'ye Gönderilecek Nihai Prompt
+            </h3>
+            
+            <div style="margin-bottom: 15px; color: #666; font-size: 14px;">
+              <strong>📋 İçerik Özeti:</strong> Seçili prompt bölümleri, hasta bilgileri ve beslenme listesi birleştirilerek hazırlandı.
+            </div>
+            
+            <textarea id="finalPromptText" style="
+              width: 100%; 
+              height: 400px; 
+              padding: 15px; 
+              border: 2px solid #e3f2fd; 
+              border-radius: 8px; 
+              font-family: monospace; 
+              font-size: 12px; 
+              resize: vertical;
+              margin-bottom: 20px;
+            ">${finalPrompt}</textarea>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+              <div style="color: #666; font-size: 12px;">
+                💡 <strong>İpucu:</strong> Prompt'u istediğiniz gibi düzenleyebilir ve sonra GPT'ye gönderebilirsiniz.
+              </div>
+              
+              <div style="display: flex; gap: 10px;">
+                <button onclick="closeFinalPromptModal()" style="
+                  padding: 10px 20px; 
+                  background: #6c757d; 
+                  color: white; 
+                  border: none; 
+                  border-radius: 6px; 
+                  cursor: pointer;
+                  font-size: 14px;
+                ">❌ İptal</button>
+                
+                <button onclick="sendFinalPromptToGpt(${haftaIndex}, null, '${gptMesajTextarea.id}')" style="
+                  padding: 10px 20px; 
+                  background: linear-gradient(135deg, #007bff, #0056b3); 
+                  color: white; 
+                  border: none; 
+                  border-radius: 6px; 
+                  cursor: pointer;
+                  font-size: 14px;
+                  font-weight: bold;
+                ">🚀 GPT'ye Gönder</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Modal'ı sayfaya ekle
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
+    
+    // Modal'ı kapat
+    function closeFinalPromptModal() {
+      const modal = document.getElementById('finalPromptModal');
+      if (modal) {
+        modal.remove();
+      }
+      
+      // Geçici değişkeni temizle
+      if (window.tempSettings) {
+        delete window.tempSettings;
+      }
+      
+      // Loading durumunu sıfırla
+      const allTextareas = document.querySelectorAll('[id^="gptMesaj_"]');
+      allTextareas.forEach(textarea => {
+        if (textarea.value === '🤖 GPT analiz ediyor, lütfen bekleyin...') {
+          textarea.value = '';
+          textarea.disabled = false;
+        }
+      });
+    }
+    
+    // Düzenlenmiş prompt'u GPT'ye gönder
+    async function sendFinalPromptToGpt(haftaIndex, settings, textareaId) {
+      try {
+        const finalPromptText = document.getElementById('finalPromptText').value.trim();
+        const gptMesajTextarea = document.getElementById(textareaId);
+        
+        if (!finalPromptText) {
+          alert('❌ Prompt boş olamaz!');
+          return;
+        }
+        
+        // Modal'ı kapat
+        closeFinalPromptModal();
+        
+        // Loading göster
+        gptMesajTextarea.value = '🤖 GPT analiz ediyor, lütfen bekleyin...';
+        gptMesajTextarea.disabled = true;
+        
+        // GPT'ye gönder (settings'i global'den al)
+        const currentSettings = window.tempSettings || settings;
+        await sendToGpt(finalPromptText, haftaIndex, currentSettings, gptMesajTextarea);
+        
+      } catch (error) {
+        console.error('Prompt gönderme hatası:', error);
+        alert(`❌ Hata: ${error.message}`);
+        closeFinalPromptModal();
       }
     }
     
@@ -15288,6 +15445,9 @@ ${mesajlar.join('\n')}
     window.deleteHaftalikPrompt = deleteHaftalikPrompt;
     window.gptAnalizeEt = gptAnalizeEt;
     window.gptMesajKaydet = gptMesajKaydet;
+    window.showFinalPromptModal = showFinalPromptModal;
+    window.closeFinalPromptModal = closeFinalPromptModal;
+    window.sendFinalPromptToGpt = sendFinalPromptToGpt;
     
     // Global fonksiyonları ekle
     window.showToast = showToast;
