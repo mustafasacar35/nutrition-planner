@@ -15088,8 +15088,18 @@ ${mesajlar.join('\n')}
             try {
               const pdfText = await extractTextFromPdf(hafta.pdf);
               if (pdfText && pdfText.trim().length > 50) {
-                prompts.push('PDF İçeriği:');
-                prompts.push(pdfText.substring(0, 3000)); // İlk 3000 karakter
+                // PDF içeriğini temizle ve optimize et
+                const temizPdfIcerik = temizlePdfIcerik(pdfText);
+                
+                prompts.push('PDF İçeriği (Optimize Edildi):');
+                
+                // Temizlenmiş içeriği kullan
+                const maxLength = 2000; // Optimize edilmiş içerik için daha düşük limit
+                if (temizPdfIcerik.length > maxLength) {
+                  prompts.push(temizPdfIcerik.substring(0, maxLength) + '...[Optimize edildi]');
+                } else {
+                  prompts.push(temizPdfIcerik);
+                }
               } else {
                 throw new Error('PDF metni çıkarılamadı');
               }
@@ -15156,6 +15166,76 @@ ${mesajlar.join('\n')}
       
       console.log(`📊 ${analizler.length} önceki hafta analizi bulundu (${haftaIndex + 1}. hafta için)`);
       return analizler;
+    }
+    
+    // PDF içeriğini temizle ve optimize et (token tasarrufu için)
+    function temizlePdfIcerik(pdfText) {
+      if (!pdfText || typeof pdfText !== 'string') return '';
+      
+      let temizIcerik = pdfText;
+      
+      // 1. Gereksiz header bilgilerini kaldır
+      temizIcerik = temizIcerik
+        .replace(/.*?\/.*?\d{1,2}-\d{1,2}\s+\w+\s+\d{4}/gi, '') // Tarih ve isim formatları
+        .replace(/her\s+sabah\s+güne\s+başlarken:/gi, '') // Sabit başlangıç metni
+        .replace(/kurşun\s+geçirmez\s+kahve.*?sade\s+yağ\)/gi, '') // Kahve tarifi
+        .replace(/ılık\s+su\s+\+.*?elma\s+sirkesi/gi, '') // Sabah içeceği
+        .replace(/hafta/gi, '') // Gereksiz "hafta" kelimesi
+        .replace(/tercihen\s+saat\s+\d{1,2}:\d{2}\s+civarında/gi, '') // Saat bilgileri
+        .replace(/tercihen\s+hava\s+kararınca/gi, ''); // Akşam saat bilgisi
+      
+      // 2. Günleri kaldır (pazartesi, salı vs.)
+      const gunler = ['pazartesi̇?', 'sali', 'çarşamba', 'perşembe', 'cuma', 'cumartesi̇?', 'pazar'];
+      gunler.forEach(gun => {
+        const regex = new RegExp(`^\\s*•\\s*${gun}\\s*$`, 'gim');
+        temizIcerik = temizIcerik.replace(regex, '');
+      });
+      
+      // 3. Öğün başlıklarını kaldır
+      temizIcerik = temizIcerik
+        .replace(/^\\s*•\\s*öğle.*?$/gim, '')
+        .replace(/^\\s*•\\s*akşam.*?$/gim, '');
+      
+      // 4. Gereksiz genel önerileri kaldır (sonda tekrar eden)
+      temizIcerik = temizIcerik
+        .replace(/ara\s+öğün.*?limon\s+sıkılmış\s+şekilde\)/gi, '')
+        .replace(/günlük\s+ortalama\s+\d+\s+adım\s+önerilir/gi, '')
+        .replace(/günlük\s+su\s+tüketimi.*?önerilir/gi, '');
+      
+      // 5. Çoklu boşlukları temizle
+      temizIcerik = temizIcerik
+        .replace(/\n\s*\n\s*\n/g, '\n\n') // Fazla boş satırları kaldır
+        .replace(/•\s*\n/g, '') // Boş bullet pointleri kaldır
+        .replace(/^\s*•\s*$/gm, '') // Sadece bullet olan satırları kaldır
+        .trim();
+      
+      // 6. Benzersiz yemekleri topla (tekrarları kaldır)
+      const satirlar = temizIcerik.split('\n');
+      const benzersizYemekler = new Set();
+      const temizSatirlar = [];
+      
+      satirlar.forEach(satir => {
+        const temizSatir = satir.trim();
+        if (temizSatir.length > 5 && temizSatir.startsWith('•')) {
+          const yemek = temizSatir.replace(/^•\s*/, '').toLowerCase();
+          // Sadece yemek ismi al, porsiyon bilgilerini göz ardı et
+          const yemekAdi = yemek.split('(')[0].trim();
+          
+          if (!benzersizYemekler.has(yemekAdi) && yemekAdi.length > 3) {
+            benzersizYemekler.add(yemekAdi);
+            temizSatirlar.push(temizSatir);
+          }
+        } else if (temizSatir.length > 0 && !temizSatir.startsWith('•')) {
+          // Bullet olmayan ama anlamlı satırları ekle
+          temizSatirlar.push(temizSatir);
+        }
+      });
+      
+      const sonuc = temizSatirlar.join('\n');
+      
+      console.log(`🧹 PDF temizleme: ${pdfText.length} → ${sonuc.length} karakter (${Math.round((1 - sonuc.length/pdfText.length) * 100)}% tasarruf)`);
+      
+      return sonuc;
     }
     
     // Token hesaplayıcısı (yaklaşık)
