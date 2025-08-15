@@ -1069,6 +1069,19 @@ Yanıtlarını yapılandırılmış ve pratik olacak şekilde ver.`,
             <div style="font-size: 9px; color: #bdc3c7; margin-top: 3px;">
               📊 Toplam: <span id="finalPromptStats">0 karakter, ~0 token, ~$0.00</span>
             </div>
+            
+            <!-- 4 Alanlı Sistem Analiz Butonu -->
+            <div style="margin-top: 8px; text-align: center;">
+              <button onclick="analyzeWith4AreaPrompt()" 
+                      style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                             color: white; border: none; padding: 8px 16px; 
+                             font-size: 11px; font-weight: bold; 
+                             border-radius: 5px; cursor: pointer; 
+                             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                             transition: all 0.3s ease;">
+                🚀 4 Alanlı Sistemle GPT Analizi Yap
+              </button>
+            </div>
           </div>
         </div>
 
@@ -12327,8 +12340,250 @@ Detaylı bilgiler için tarayıcı konsolunu (F12) açın.`);
       setTimeout(() => {
         updateYemekAnalizi();
       }, 500); // Hasta verilerinin yüklenmesi için kısa gecikme
+      
+      // 4 Alanlı Prompt Sistemi için hasta bilgilerini güncelle
+      setTimeout(() => {
+        if (typeof updateHastaBilgiArea === 'function') {
+          updateHastaBilgiArea();
+        }
+        if (typeof updateHaftaOzelArea === 'function') {
+          updateHaftaOzelArea();
+        }
+      }, 600);
     }
-    window.hastaSecildiginde = hastaSecildiginde;
+    // 4 ALANLI PROMPT YÖNETİM SİSTEMİ - EKSİK FONKSİYONLAR
+    // ====================================================
+    
+    // Hafta Özel Not (Alan 4) - Otomatik
+    function updateHaftaOzelArea() {
+      const mevcutHafta = getCurrentWeek();
+      const aktifHaftaIndex = getActiveWeekIndex();
+      
+      // Hafta özel notunu güncelle
+      let haftaOzel = `Hafta ${mevcutHafta} için özel notlar:\n`;
+      
+      // Açıklama alanından veri al (aktif hafta tabından)
+      const aciklamaInput = document.getElementById('aciklama_' + aktifHaftaIndex);
+      if (aciklamaInput && aciklamaInput.value.trim()) {
+        haftaOzel += `Açıklama: ${aciklamaInput.value.trim()}\n`;
+      }
+      
+      // Hafta yemek listesini al (PDF içeriği)
+      if (seciliHasta && seciliHasta.haftalar && seciliHasta.haftalar[aktifHaftaIndex]) {
+        const hafta = seciliHasta.haftalar[aktifHaftaIndex];
+        
+        if (hafta.yemekler && hafta.yemekler.length > 0) {
+          haftaOzel += `\n=== HAFTA ${mevcutHafta} YEMEK LİSTESİ (PDF İçeriği) ===\n`;
+          hafta.yemekler.forEach((yemek, index) => {
+            haftaOzel += `GÜN ${index + 1}: ${yemek.isim}`;
+            if (yemek.kalori) {
+              haftaOzel += ` (${yemek.kalori} kcal)`;
+            }
+            if (yemek.kategori) {
+              haftaOzel += ` - ${yemek.kategori}`;
+            }
+            haftaOzel += `\n`;
+          });
+        }
+        
+        // PDF dosya adı varsa ekle
+        if (hafta.pdfName) {
+          haftaOzel += `\nPDF Dosyası: ${hafta.pdfName}\n`;
+        }
+      }
+      
+      // UI elementlerini güncelle
+      const haftaOzelText = document.getElementById('haftaOzelText');
+      const haftaOzelInfo = document.getElementById('haftaOzelInfo');
+      
+      if (haftaOzelText) {
+        haftaOzelText.value = haftaOzel;
+      }
+      
+      if (haftaOzelInfo) {
+        haftaOzelInfo.textContent = `Hafta ${mevcutHafta}`;
+      }
+      
+      // Stats güncelle
+      updatePromptStats();
+      updatePromptPreview();
+    }
+    
+    // Yardımcı fonksiyonlar
+    function getCurrentWeek() {
+      // Aktif hafta tabını bul
+      const activeTabs = document.querySelectorAll('.hafta-tab.active');
+      if (activeTabs.length > 0) {
+        const tabText = activeTabs[0].textContent;
+        const weekMatch = tabText.match(/Hafta (\d+)/);
+        return weekMatch ? weekMatch[1] : '1';
+      }
+      return '1';
+    }
+    
+    function getActiveWeekIndex() {
+      // Aktif hafta tabının index'ini bul
+      const activeTabs = document.querySelectorAll('.hafta-tab.active');
+      if (activeTabs.length > 0) {
+        const haftaIndex = activeTabs[0].dataset.haftaIndex;
+        return haftaIndex ? parseInt(haftaIndex) : 0;
+      }
+      return 0;
+    }
+    
+    function getSelectedMealsForWeek() {
+      // Bu fonksiyon artık gereksiz çünkü hafta verilerinden doğrudan alıyoruz
+      // Ama eski kodla uyumluluk için boş array döndürüyoruz
+      return [];
+    }
+
+    // Açıklama alanı değişikliklerini dinle
+    function initAciklamaListener() {
+      // Tüm açıklama alanlarını dinle (her hafta için ayrı input var)
+      document.addEventListener('input', function(e) {
+        if (e.target.id && e.target.id.startsWith('aciklama_')) {
+          setTimeout(() => {
+            if (typeof updateHastaBilgiArea === 'function') {
+              updateHastaBilgiArea();
+            }
+            if (typeof updateHaftaOzelArea === 'function') {
+              updateHaftaOzelArea();
+            }
+          }, 300);
+        }
+      });
+    }
+
+    // Yemek seçimi değişikliklerini dinle
+    function initYemekSecimListener() {
+      document.addEventListener('change', function(e) {
+        if (e.target.tagName === 'SELECT' && e.target.id && e.target.id.includes('yemek')) {
+          setTimeout(() => {
+            if (typeof updateHaftaOzelArea === 'function') {
+              updateHaftaOzelArea();
+            }
+          }, 300);
+        }
+      });
+    }
+
+    // 4 Alanlı Sistem İlk Kurulum
+    function init4AreaSystem() {
+      // Event listener'ları ekle
+      initAciklamaListener();
+      initYemekSecimListener();
+      
+      // İlk yüklemede alanları güncelle
+      setTimeout(() => {
+        if (typeof updateHastaBilgiArea === 'function') {
+          updateHastaBilgiArea();
+        }
+        if (typeof updateHaftaOzelArea === 'function') {
+          updateHaftaOzelArea();
+        }
+      }, 1000);
+    }
+
+    // Sayfa yüklendiğinde 4 alanlı sistemi başlat
+    document.addEventListener('DOMContentLoaded', function() {
+      init4AreaSystem();
+    });
+
+    // 4 ALANLI PROMPT SİSTEMİNDEN FULL PROMPT OLUŞTUR
+    function buildFullPromptFrom4Areas() {
+      let fullPrompt = '';
+      
+      // Alan 1: Genel Prompt (her zaman dahil)
+      const genelPromptText = document.getElementById('genelPromptText');
+      if (genelPromptText && genelPromptText.value.trim()) {
+        fullPrompt += `=== GENEL PROMPT ===\n${genelPromptText.value.trim()}\n\n`;
+      }
+      
+      // Alan 2: Hafta Talimat (seçimliye)
+      const haftaTalimatCheck = document.getElementById('haftaTalimatCheck');
+      const haftaTalimatText = document.getElementById('haftaTalimatText');
+      if (haftaTalimatCheck && haftaTalimatCheck.checked && haftaTalimatText && haftaTalimatText.value.trim()) {
+        fullPrompt += `=== HAFTA TALİMATLARI ===\n${haftaTalimatText.value.trim()}\n\n`;
+      }
+      
+      // Alan 3: Hasta Genel (seçimliye)
+      const hastaGenelCheck = document.getElementById('hastaGenelCheck');
+      const hastaGenelText = document.getElementById('hastaGenelText');
+      if (hastaGenelCheck && hastaGenelCheck.checked && hastaGenelText && hastaGenelText.value.trim()) {
+        fullPrompt += `=== HASTA BİLGİLERİ ===\n${hastaGenelText.value.trim()}\n\n`;
+      }
+      
+      // Alan 4: Hafta Özel (seçimliye)
+      const haftaOzelCheck = document.getElementById('haftaOzelCheck');
+      const haftaOzelText = document.getElementById('haftaOzelText');
+      if (haftaOzelCheck && haftaOzelCheck.checked && haftaOzelText && haftaOzelText.value.trim()) {
+        fullPrompt += `=== HAFTA ÖZEL NOTLAR ===\n${haftaOzelText.value.trim()}\n\n`;
+      }
+      
+      return fullPrompt.trim();
+    }
+
+    // 4 ALANLI SİSTEMLE GPT ANALİZİ
+    async function analyzeWith4AreaPrompt() {
+      try {
+        // 4 alanlı prompt'u oluştur
+        const fullPrompt = buildFullPromptFrom4Areas();
+        
+        if (!fullPrompt) {
+          alert('⚠️ En azından Genel Prompt alanı doldurulmalı!');
+          return;
+        }
+        
+        console.log('🎯 4 Alanlı Prompt Hazırlandı:', fullPrompt.length, 'karakter');
+        
+        // Mevcut analiz alanının üstüne yazı ekle
+        const analizSonuc = document.getElementById('analizSonuc');
+        if (analizSonuc) {
+          analizSonuc.innerHTML = `
+            <div class="alert alert-info">
+              <h5>🤖 GPT Analizi Başlatılıyor...</h5>
+              <p>4 Alanlı Prompt Sistemi kullanılıyor</p>
+              <div class="spinner-border spinner-border-sm me-2"></div>
+              <small>Analiz sürüyor, lütfen bekleyin...</small>
+            </div>
+          `;
+        }
+        
+        // GPT API'ye gönder
+        const result = await sendToGPT(fullPrompt);
+        
+        // Sonucu göster
+        if (analizSonuc) {
+          analizSonuc.innerHTML = `
+            <div class="alert alert-success">
+              <h5>✅ 4 Alanlı GPT Analizi Tamamlandı</h5>
+              <div class="analysis-result">
+                ${result.replace(/\n/g, '<br>')}
+              </div>
+            </div>
+          `;
+        }
+        
+        console.log('✅ 4 Alanlı GPT Analizi başarılı');
+        
+      } catch (error) {
+        console.error('❌ 4 Alanlı GPT Analizi hatası:', error);
+        const analizSonuc = document.getElementById('analizSonuc');
+        if (analizSonuc) {
+          analizSonuc.innerHTML = `
+            <div class="alert alert-danger">
+              <h5>❌ GPT Analizi Hatası</h5>
+              <p>${error.message}</p>
+            </div>
+          `;
+        }
+      }
+    }
+
+    // 4 Alanlı Sistem İçin Analiz Butonunu Ekle (HTML'e zaten eklendi)
+    // Bu fonksiyonlar 4 alanlı sistemi tamamen destekliyor
+
+    // 4 ALANLI PROMPT YÖNETİM SİSTEMİ BİTİŞ
 
     // Hafta tab'ı seçildiğinde sidebar'ları güncelle
     function haftaTabSecildiginde(haftaIndex) {
@@ -12338,6 +12593,13 @@ Detaylı bilgiler için tarayıcı konsolunu (F12) açın.`);
       
       // Yemek analizini her hafta değişiminde otomatik güncelle
       updateYemekAnalizi();
+      
+      // 4 Alanlı Prompt Sistemi için hafta özel bilgilerini güncelle
+      setTimeout(() => {
+        if (typeof updateHaftaOzelArea === 'function') {
+          updateHaftaOzelArea();
+        }
+      }, 300);
     }
     window.haftaTabSecildiginde = haftaTabSecildiginde;
 
@@ -14227,6 +14489,14 @@ ${mesajlar.join('\n')}
       // Sonuç raporu göster
       showCokluPdfSonuclari(sonuclar, basarili, hatali);
       
+      // 4 Alanlı Prompt Sistemi için hafta özel bilgilerini güncelle
+      setTimeout(() => {
+        if (typeof updateHaftaOzelArea === 'function') {
+          updateHaftaOzelArea();
+          console.log('✅ 4 Alanlı Sistem PDF yüklemesinden sonra güncellendi');
+        }
+      }, 500);
+      
       console.log('🎉 Çoklu PDF işlemi tamamlandı! Başarılı:', basarili, 'Hatalı:', hatali);
     }
     
@@ -16099,6 +16369,83 @@ Lütfen detaylı ve hastaya özel bir analiz yap. Bu hastanın geçmiş verileri
       updatePromptPreview();
     }
     
+    // Eksik fonksiyonları ekle
+    function savePromptArea(areaType) {
+      switch(areaType) {
+        case 'genel':
+          const content = document.getElementById('genelPromptText').value;
+          localStorage.setItem('genelPrompt', content);
+          break;
+        case 'hafta':
+          const haftaContent = document.getElementById('haftaTalimatText').value;
+          const week = document.getElementById('haftaSelect').value || 1;
+          localStorage.setItem(`haftaTalimat_${week}`, haftaContent);
+          break;
+        case 'note':
+          const noteContent = document.getElementById('haftaNoteText').value;
+          if (seciliHasta) {
+            const currentWeek = window.mevcutHafta || 1;
+            localStorage.setItem(`haftaNote_${seciliHasta.id}_${currentWeek}`, noteContent);
+          }
+          break;
+      }
+    }
+    
+    function updatePromptStats() {
+      // Genel prompt stats
+      const genelContent = document.getElementById('genelPromptText')?.value || '';
+      const genelStats = document.getElementById('genelPromptStats');
+      if (genelStats) {
+        genelStats.textContent = `${genelContent.length} karakter`;
+      }
+      
+      // Hafta talimat stats  
+      const haftaContent = document.getElementById('haftaTalimatText')?.value || '';
+      const haftaStats = document.getElementById('haftaTalimatStats');
+      if (haftaStats) {
+        haftaStats.textContent = `${haftaContent.length} karakter`;
+      }
+      
+      // Note stats
+      const noteContent = document.getElementById('haftaNoteText')?.value || '';
+      const noteStats = document.getElementById('haftaNoteStats');
+      if (noteStats) {
+        noteStats.textContent = `${noteContent.length} karakter`;
+      }
+    }
+    
+    function updatePromptPreview() {
+      // Bu fonksiyon daha sonra düzgün implement edilecek
+      console.log('Preview güncelleniyor...');
+    }
+    
+    function tumAlanlariAc() {
+      const areas = ['genelPromptArea', 'haftaTalimatArea', 'hastaBilgiArea', 'haftaNoteArea'];
+      areas.forEach(areaId => {
+        const area = document.getElementById(areaId);
+        if (area) {
+          area.style.display = 'block';
+        }
+      });
+    }
+    
+    function tumAlanlariKapat() {
+      const areas = ['genelPromptArea', 'haftaTalimatArea', 'hastaBilgiArea', 'haftaNoteArea'];
+      areas.forEach(areaId => {
+        const area = document.getElementById(areaId);
+        if (area) {
+          area.style.display = 'none';
+        }
+      });
+    }
+    
+    function togglePromptArea(areaId) {
+      const area = document.getElementById(areaId);
+      if (area) {
+        area.style.display = area.style.display === 'none' ? 'block' : 'none';
+      }
+    }
+    
     // Genel Prompt Alanı (Alan 1)
     function loadGenelPrompt() {
       const savedPrompt = localStorage.getItem('genelPrompt') || DEFAULT_GENEL_PROMPT;
@@ -16136,24 +16483,53 @@ Lütfen detaylı ve hastaya özel bir analiz yap. Bu hastanın geçmiş verileri
     // Hasta Bilgileri Alanı (Alan 3) - Otomatik
     function updateHastaBilgiArea() {
       if (!seciliHasta) {
-        document.getElementById('hastaBilgiDisplay').innerHTML = 
-          '<p class="text-muted">Hasta seçilmedi</p>';
+        const hastaBilgiDisplay = document.getElementById('hastaBilgiDisplay');
+        const hastaGenelText = document.getElementById('hastaGenelText');
+        const hastaGenelInfo = document.getElementById('hastaGenelInfo');
+        
+        if (hastaBilgiDisplay) hastaBilgiDisplay.innerHTML = '<p class="text-muted">Hasta seçilmedi</p>';
+        if (hastaGenelText) hastaGenelText.value = '';
+        if (hastaGenelInfo) hastaGenelInfo.textContent = 'Hasta seçilmedi';
         return;
       }
       
-      const bilgiler = `
-        <div class="patient-info">
-          <h6>${seciliHasta.isim}</h6>
-          <p><strong>Yaş:</strong> ${seciliHasta.yas}</p>
-          <p><strong>Cinsiyet:</strong> ${seciliHasta.cinsiyet}</p>
-          <p><strong>Boy:</strong> ${seciliHasta.boy} cm</p>
-          <p><strong>Kilo:</strong> ${seciliHasta.kilo} kg</p>
-          <p><strong>BMI:</strong> ${(seciliHasta.kilo / ((seciliHasta.boy/100) ** 2)).toFixed(1)}</p>
-          ${seciliHasta.notlar ? `<p><strong>Notlar:</strong> ${seciliHasta.notlar}</p>` : ''}
-        </div>
-      `;
+      // Hasta genel bilgilerini toplama
+      let hastaGenel = '';
       
-      document.getElementById('hastaBilgiDisplay').innerHTML = bilgiler;
+      // Temel bilgiler
+      hastaGenel += `İsim: ${seciliHasta.isim}\n`;
+      hastaGenel += `Yaş: ${seciliHasta.yas}\n`;
+      hastaGenel += `Cinsiyet: ${seciliHasta.cinsiyet}\n`;
+      hastaGenel += `Boy: ${seciliHasta.boy} cm\n`;
+      hastaGenel += `Kilo: ${seciliHasta.kilo} kg\n`;
+      hastaGenel += `BMI: ${(seciliHasta.kilo / ((seciliHasta.boy/100) ** 2)).toFixed(1)}\n`;
+      
+      // Hasta notu (hasta kaydından)
+      if (seciliHasta.notlar) {
+        hastaGenel += `\nHasta Notu: ${seciliHasta.notlar}\n`;
+      }
+      
+      // Açıklama (aktif hafta tabındaki açıklama alanından)
+      const aktifHaftaIndex = getActiveWeekIndex();
+      const aciklamaInput = document.getElementById('aciklama_' + aktifHaftaIndex);
+      if (aciklamaInput && aciklamaInput.value.trim()) {
+        hastaGenel += `\nAçıklama: ${aciklamaInput.value.trim()}\n`;
+      }
+      
+      // UI elementlerini güncelle
+      const hastaGenelText = document.getElementById('hastaGenelText');
+      const hastaGenelInfo = document.getElementById('hastaGenelInfo');
+      
+      if (hastaGenelText) {
+        hastaGenelText.value = hastaGenel;
+      }
+      
+      if (hastaGenelInfo) {
+        hastaGenelInfo.textContent = `${seciliHasta.isim} (${seciliHasta.yas} yaş)`;
+      }
+      
+      // Stats güncelle
+      updatePromptStats();
       updatePromptPreview();
     }
     
