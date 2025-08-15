@@ -5559,15 +5559,73 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
     // --- Hasta Yönetimi Modülü ---
     // --- Kalıcı veri yönetimi ---
     const STORAGE_KEY = 'lipedem_hasta_kayitlari';
+    
+    // localStorage boyut kontrolü ve optimizasyonu
+    function optimizeLocalStorage() {
+      try {
+        const currentData = JSON.stringify(hastalar);
+        const sizeInMB = (currentData.length * 2) / (1024 * 1024); // UTF-16 encoding
+        
+        console.log(`📊 localStorage boyutu: ${sizeInMB.toFixed(2)} MB`);
+        
+        if (sizeInMB > 8) { // 8MB üzerindeyse optimize et
+          console.log('🧹 localStorage optimizasyonu başlatılıyor...');
+          
+          // Gereksiz verileri temizle
+          hastalar.forEach(hasta => {
+            if (hasta.haftalar) {
+              hasta.haftalar.forEach(hafta => {
+                // Çok büyük PDF verilerini sınırla
+                if (hafta.pdfMetni && hafta.pdfMetni.length > 10000) {
+                  hafta.pdfMetni = hafta.pdfMetni.substring(0, 10000) + '... [kısaltılmış]';
+                }
+                
+                // Gereksiz eşleşmeyen tarif verilerini temizle
+                if (hafta.eslesmeyenTarifler && hafta.eslesmeyenTarifler.length > 100) {
+                  hafta.eslesmeyenTarifler = hafta.eslesmeyenTarifler.slice(0, 100);
+                }
+              });
+            }
+          });
+          
+          const optimizedSize = (JSON.stringify(hastalar).length * 2) / (1024 * 1024);
+          console.log(`✅ Optimizasyon tamamlandı: ${optimizedSize.toFixed(2)} MB`);
+        }
+      } catch(e) {
+        console.warn('Optimizasyon hatası:', e);
+      }
+    }
+    
     function saveToStorage() {
       try {
+        // Önce optimizasyon yap
+        optimizeLocalStorage();
+        
         localStorage.setItem(STORAGE_KEY, JSON.stringify(hastalar));
         console.log('💾 Hastalar localStorage\'a kaydedildi');
         // Hasta sayılarını güncelle - async olarak çağır
         if (typeof guncelleHastaSayilari === 'function') {
           guncelleHastaSayilari().catch(err => console.warn('Hasta sayıları güncelleme hatası:', err));
         }
-      } catch(e) { console.error('localStorage kaydetme hatası:', e); }
+      } catch(e) { 
+        if (e.name === 'QuotaExceededError') {
+          console.error('🚨 localStorage dolu! Acil optimizasyon yapılıyor...');
+          // Acil durum optimizasyonu - sadece son 2 haftayı tut
+          hastalar.forEach(hasta => {
+            if (hasta.haftalar && hasta.haftalar.length > 2) {
+              hasta.haftalar = hasta.haftalar.slice(-2); // Son 2 hafta
+            }
+          });
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(hastalar));
+            console.log('✅ Acil optimizasyon başarılı');
+          } catch(e2) {
+            console.error('🚨 Acil optimizasyon başarısız:', e2);
+          }
+        } else {
+          console.error('localStorage kaydetme hatası:', e);
+        }
+      }
     }
     
     // Veri değiştiğinde otomatik kaydetme
@@ -12527,6 +12585,27 @@ Detaylı bilgiler için tarayıcı konsolunu (F12) açın.`);
       // Butonu sidebar'a ekle
       sidebarButtons.appendChild(temizleButton);
       console.log('✅ Ek Bilgiler Temizle butonu eklendi');
+      
+      // localStorage Optimizasyon butonu da ekle
+      const optimizeButton = document.createElement('button');
+      optimizeButton.textContent = '🧹 Depolama Optimizasyonu';
+      optimizeButton.style.cssText = `
+        background: #ffc107; color: #212529; border: none; padding: 8px 12px; 
+        border-radius: 4px; cursor: pointer; font-size: 11px; margin-top: 5px;
+        display: block; width: 100%;
+      `;
+      optimizeButton.title = 'localStorage boyutunu küçültür';
+      
+      optimizeButton.onclick = function() {
+        const oncekiBoyut = (JSON.stringify(hastalar).length * 2) / (1024 * 1024);
+        optimizeLocalStorage();
+        saveToStorage();
+        const sonrakiBoyut = (JSON.stringify(hastalar).length * 2) / (1024 * 1024);
+        alert(`✅ Optimizasyon tamamlandı!\nÖnceki: ${oncekiBoyut.toFixed(2)} MB\nSonrası: ${sonrakiBoyut.toFixed(2)} MB`);
+      };
+      
+      sidebarButtons.appendChild(optimizeButton);
+      console.log('✅ Depolama Optimizasyonu butonu eklendi');
     }
     
     // === MİGRATION COMPLETED - YENİ SİSTEM AKTİF ===
@@ -16173,13 +16252,9 @@ ${mesajlar.join('\n')}
           };
           requestBody = {
             model: settings.model || 'gpt-4o',
-            messages: [{ 
-              role: 'user', 
-              content: finalPrompt 
-            }],
+            input: finalPrompt,  // Responses API uses 'input' instead of 'messages'
             max_tokens: 2000,
-            temperature: 0.7,
-            project: settings.projectId
+            temperature: 0.7
           };
           
           console.log('🎯 ChatGPT Project API kullanılıyor:', settings.projectId);
@@ -16220,8 +16295,9 @@ ${mesajlar.join('\n')}
         // API response'una göre content'i al
         let gptYanit;
         if (settings.endpoint === 'responses') {
-          // Responses API format
-          gptYanit = result.choices?.[0]?.message?.content || result.response || 'Yanıt alınamadı';
+          // Responses API format - farklı response yapısı olabilir
+          gptYanit = result.content || result.output || result.response || result.text || 'Yanıt alınamadı';
+          console.log('🎯 Responses API yanıt formatı:', Object.keys(result));
         } else {
           // Standard Chat API format
           gptYanit = result.choices[0].message.content;
@@ -16427,6 +16503,7 @@ ${mesajlar.join('\n')}
     window.deleteHaftalikPrompt = deleteHaftalikPrompt;
     window.gptAnalizeEt = gptAnalizeEt;
     window.gptMesajKaydet = gptMesajKaydet;
+    window.optimizeLocalStorage = optimizeLocalStorage;
     window.showFinalPromptModal = showFinalPromptModal;
     window.closeFinalPromptModal = closeFinalPromptModal;
     window.sendFinalPromptToGpt = sendFinalPromptToGpt;
