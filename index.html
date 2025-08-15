@@ -5810,13 +5810,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
           
           li.appendChild(isimDiv);
           
-          // Not varsa ekle
-          if (hasta.not) {
-            const notDiv = document.createElement('div');
-            notDiv.style.cssText = `font-size: 11px; color: ${renkSemasi.textColor}90; margin-top: 2px;`;
-            notDiv.textContent = hasta.not; // textContent kullan
-            li.appendChild(notDiv);
-          }
+          // Not kısmı kaldırıldı - sadece isim ve hafta gösteriliyor
           
           li.onclick = () => hastaSecYeniSistem(hasta);
           li.dataset.hastaId = hasta.id;
@@ -7152,9 +7146,10 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
           <!-- GPT Mesajı - Grid'in Altında -->
           <div style="margin-bottom: 20px;" class="${hafta.kilitli ? 'locked-area' : ''}">
             <h4 style="margin: 0 0 10px 0; color: #dc3545; font-size: 16px;">💬 GPT Mesajı</h4>
-            <textarea id="gptMesaj_${i}" rows="3" 
+            <textarea id="gptMesajSync_${i}" rows="3" 
                       style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ddd; resize: vertical;"
                       placeholder="Bu hafta için GPT mesajı veya not..."
+                      onchange="gptMesajSyncKaydet(${i})"
                       ${hafta.kilitli ? 'disabled' : ''}>${hafta.gptMesaj||''}</textarea>
             <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
               <div>
@@ -10709,10 +10704,18 @@ function duzenleHafta(i) {
         return;
       }
       
-      hafta.gptMesaj = document.getElementById('gptMesaj_' + i).value;
+      const yeniMesaj = document.getElementById('gptMesaj_' + i).value;
+      hafta.gptMesaj = yeniMesaj;
+      
+      // Senkronize GPT alanını güncelle
+      const syncGptArea = document.getElementById('gptMesajSync_' + i);
+      if (syncGptArea) {
+        syncGptArea.value = yeniMesaj;
+      }
+      
       saveToStorage();
       
-      console.log('✅ GPT mesajı kaydedildi hafta:', i + 1);
+      console.log('✅ GPT mesajı kaydedildi ve senkronize edildi, hafta:', i + 1);
       
       // YENİ SİSTEM: GitHub'a da kaydet
       if (seciliHasta) {
@@ -10728,6 +10731,43 @@ function duzenleHafta(i) {
       }
       
       alert('GPT mesajı kaydedildi.');
+    }
+    
+    // Senkronize GPT Mesajı kaydet (💬 GPT Mesajı alanından değişiklik yapıldığında)
+    function gptMesajSyncKaydet(i) {
+      const hafta = getHaftaListesi()[i];
+      
+      // Kilit kontrolü
+      if (hafta.kilitli) {
+        alert('🔒 Bu hafta kilitli! GPT mesajını değiştirmek için önce kilidi açın.');
+        return;
+      }
+      
+      const yeniMesaj = document.getElementById('gptMesajSync_' + i).value;
+      hafta.gptMesaj = yeniMesaj;
+      
+      // Ana GPT alanını güncelle
+      const mainGptArea = document.getElementById('gptMesaj_' + i);
+      if (mainGptArea) {
+        mainGptArea.value = yeniMesaj;
+      }
+      
+      saveToStorage();
+      
+      console.log('✅ Senkronize GPT mesajı kaydedildi, hafta:', i + 1);
+      
+      // YENİ SİSTEM: GitHub'a da kaydet
+      if (seciliHasta) {
+        hastayiAyriKaydet(seciliHasta).then(basarili => {
+          if (basarili) {
+            console.log('✅ Senkronize GPT mesajı GitHub\'a da kaydedildi');
+          } else {
+            console.warn('⚠️ Senkronize GPT mesajı localStorage\'a kaydedildi ama GitHub kaydı başarısız');
+          }
+        }).catch(error => {
+          console.error('❌ GitHub kaydetme hatası:', error);
+        });
+      }
     }
     // --- JSON dışa aktar/yükle fonksiyonları ---
     function exportData() {
@@ -16040,6 +16080,13 @@ ${mesajlar.join('\n')}
         // Sonucu göster
         gptMesajTextarea.value = gptYanit;
         gptMesajTextarea.disabled = false;
+        
+        // Senkronize GPT alanını da güncelle
+        const syncGptArea = document.getElementById(`gptMesajSync_${haftaIndex}`);
+        if (syncGptArea) {
+          syncGptArea.value = gptYanit;
+          console.log('✅ GPT analiz sonucu senkronize alana da kopyalandı');
+        }
         
         // Hafta verisine kaydet
         if (seciliHasta?.haftalar?.[haftaIndex]) {
