@@ -92,7 +92,7 @@
         "günlük su tüketimi 2 litrenin üzerinde olması önerilir",
         "hi̇ndi̇ füme yok. kirmizi eti̇ kiyma olarak yi̇yor."
       ],
-      "gptMesaj": "",
+      "gptMesaj": "Merhaba Gizem Nur Hanım,\n\nBu hafta lipödemle mücadele yolculuğumuzun yeni bir etabına başlıyoruz. Geçen haftalarda temel bilgileri ve bazı diyet değişikliklerini ele aldık. Bu haftanın odak noktası ise beslenme düzeninizi daha da iyileştirmek ve böbrek sağlığınızı desteklemek üzerine olacak. Beslenme listenizdeki yiyeceklerin seçiminde, özellikle böbrek iltihabınızı göz önünde bulundurarak, inflamasyonu azaltıcı ve sindirimi kolaylaştırıcı öğeleri öne çıkardık.\n\nİlk olarak, bu haftaki menüde süt ürünlerinin olmamasının nedenine değinmek istiyorum. Gizli gıda duyarlılıklarının etkisini gözlemlemek, inflamasyon kaynaklarını azaltmak ve bağırsak florasını güçlendirmek için bu yönde bir karar aldık. Süt ürünleri, bazen inflamasyona neden olabilecek ve sindirim sürecini zorlaştırabilecek proteinler içerebilir. Bu nedenle, 3. haftadan itibaren kontrollü bir şekilde tekrar diyetinize dahil edeceğiz.\n\nBu hafta protein kaynağı olarak yumurtaya ağırlık veriyoruz. Yumurta, yüksek kaliteli proteinin yanı sıra A, D ve B12 vitaminleri açısından zengin, aynı zamanda lipödem sürecini destekleyici selenyum ve kolin içerir. Yumurta, böbrekler üzerinde yük oluşturmadan protein ihtiyacınızı karşılayacak ideal bir besindir.\n\nMenüde dikkat çeken diğer bir öğe ise yeşillikler ve zeytinyağlı salatalar. Anti-inflamatuar özellikleriyle bilinen zeytinyağı, lipödem ve böbrek sağlığınız için faydalıdır. Ayrıca, roka, dereotu ve maydanoz gibi yeşillikler, antioksidanlar açısından zengin olup toksinlerin vücuttan atılmasına yardımcı olur.\n\nHaftanın diğer öne çıkan yemeği ise sebzeli krep. Badem unu kullanarak hazırlanan bu krepler, düşük karbonhidratlı ve yüksek lifli bir seçenek sunar. Mantar ve cherry domatesler ise hem lezzet hem de besin değeri açısından menünüze zenginlik katıyor.\n\nAvokado ve ceviz gibi sağlıklı yağlar içeren besinler de menünüzde yer alıyor. Bu tür sağlıklı yağlar, hem inflamasyonu azaltmaya yardımcı olur hem de uzun süreli tokluk hissi sağlar.\n\nİki haftada bir yapmanızı rica ettiğim ölçümlerle ilerlemenizi takip etmek, bu süreçte motivasyonunuzu artıracak ve bana da sizin için en uygun programı düzenleme konusunda yardımcı olacaktır. Ölçümlerinizi alırken, sadece ağırlığa değil, vücut ölçülerindeki değişime de odaklanmanız önemli. İncelme, kilo kaybından daha değerli bir gösterge olabilir.\n\nHer zaman olduğu gibi, süreçle ilgili herhangi bir sorunuz olursa veya gözlemleriniz hakkında konuşmak isterseniz, lütfen bana ulaşmaktan çekinmeyin. Bu yolculukta hep yanınızdayım.\n\nSevgilerle,\n\n[İsim Soyisim / Unvan]",
       "kilitli": false,
       "githubLink": "https://github.com/mustafasacar35/nutrition-planner/blob/main/patients/hasta_1755290231749_gi_zem_nur_bi_rdal.json",
       "githubRawLink": "https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/patients/hasta_1755290231749_gi_zem_nur_bi_rdal.json",
@@ -163,7 +163,8 @@
         "haşhaş ezmesi ekmeği (1 dilim)",
         "patlıcan musakka (150 gr kıyma ile)",
         "haşhaş ezmesi ekmeği (1 dilim)"
-      ]
+      ],
+      "ekNotlar": ""
     },
     {
       "haftaNo": 2,
@@ -851,6 +852,6 @@
   ],
   "olusturmaTarihi": "2025-08-15T20:37:11.749Z",
   "yeniSistem": true,
-  "sonGuncelleme": "2025-08-15T21:30:31.827Z",
+  "sonGuncelleme": "2025-08-15T21:43:26.038Z",
   "githubKaydedildi": true
 }
