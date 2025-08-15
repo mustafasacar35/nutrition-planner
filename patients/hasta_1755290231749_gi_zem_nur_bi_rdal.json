@@ -511,7 +511,7 @@
         "günlük ortalama 5000 adım önerilir",
         "günlük su tüketimi 2 litrenin üzerinde olması önerilir"
       ],
-      "gptMesaj": "",
+      "gptMesaj": "Merhaba Gizem Nur Hanım,\n\nÜçüncü haftamıza hoş geldiniz! Programımızın bu evresinde, bağırsak florasını geliştirmeye odaklanacağız. Geçen haftalarda sindirim sisteminizi rahatlatma ve inflamasyonu azaltma yönünde önemli adımlar attık. Şimdi ise sağlıklı bağırsak florasını destekleyecek besinlere yer verme zamanı.\n\n### Bu Haftanın Menüsü\nBu hafta menünüzde süt ürünlerine kontrollü bir şekilde yer vermeye başlıyoruz. Özellikle probiyotik açısından zengin olan yoğurt ve peynir gibi fermente ürünler, bağırsak sağlığınızı destekleyecek. Ayrıca, menüde yer alan mevsim yeşillikleri, lif açısından zengin olmaları sebebiyle sindirim sistemini destekleyerek kabızlığa iyi gelecektir. İspanak, roka gibi yeşillikler ise hem demir hem de A vitamini kaynağı olarak hem sindirim hem de genel sağlık için faydalıdır.\n\n### Özel Ekleme: Kollajen\nBu hafta menünüze kollajen takviyesi ekledik. Kollajen, cildin elastikiyetini artırmanın yanı sıra bağırsak sağlığınız için de önemli. Yapılan araştırmalar, kollajenin bağırsak bariyerini güçlendirdiğini ve inflamasyonu azalttığını gösteriyor.\n\n### Yemek Listesi Detayları\n- **Fermente Süt Ürünleri:** Yoğurt ve peynir gibi ürünler, yararlı bakterilerle doludur ve bağırsak florasını iyileştirmeye yardımcı olur.\n- **Sebzeli Omlet ve Ispanaklı Tavuk Dolması:** Sebzeler, lif bakımından zengindir ve sindirim sistemi sağlığını destekler. Ayrıca, yumurtanın protein içeriği, sizi daha uzun süre tok tutar.\n- **Mevsim Yeşillikleri ve Salatalar:** Lif açısından zengin bu besinler, sindirim sisteminizi düzenlemeye ve inflamasyonu azaltmaya yardımcı olur.\n- **Çiğ Badem ve Ceviz:** Sağlıklı yağlar ve lifler içeren bu yemişler, hem enerji verir hem de kalp sağlığını destekler.\n\n### Sağlık Durumunuz ve Diyet\nBöbrek iltihabınız göz önünde bulundurularak, inflamasyonu azaltıcı ve sindirimi kolaylaştırıcı yiyecekler öne çıkarıldı. Bu yiyeceklerin seçiminde böbrek sağlığınızı destekleyecek öğeleri önceliklendirdik.\n\n### İlerleme ve Ölçümler\nProgramımızın bu aşamasında, vücudunuzun nasıl tepki verdiğini görmek için düzenli bedensel ölçümlerinizi yapmanızı ve bana göndermenizi rica ediyorum. Bu ölçümler, ilerlemenizi takip etmemiz ve gerektiğinde diyetinizi ayarlamamız için çok önemli.\n\nHer zaman olduğu gibi, herhangi bir sorunuz veya endişeniz olursa lütfen çekinmeden bize ulaşın. Programınızı en iyi şekilde sürdürmeniz için buradayız. Yorumlarınızı ve gözlemlerinizi merak ediyorum. Sevgilerle, sağlıklı ve mutlu günler dilerim!",
       "kilitli": false,
       "githubLink": "https://github.com/mustafasacar35/nutrition-planner/blob/main/patients/hasta_1755290231749_gi_zem_nur_bi_rdal.json",
       "githubRawLink": "https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/patients/hasta_1755290231749_gi_zem_nur_bi_rdal.json",
@@ -599,7 +599,8 @@
         "fırında tavuk kanat",
         "közlenmiş patlıcan salatası",
         "enginar mantısı"
-      ]
+      ],
+      "ekNotlar": ""
     },
     {
       "haftaNo": 4,
@@ -852,6 +853,6 @@
   ],
   "olusturmaTarihi": "2025-08-15T20:37:11.749Z",
   "yeniSistem": true,
-  "sonGuncelleme": "2025-08-15T22:03:57.243Z",
+  "sonGuncelleme": "2025-08-15T22:05:07.833Z",
   "githubKaydedildi": true
 }
