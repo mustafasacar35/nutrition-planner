@@ -1,0 +1,29 @@
+{
+  "id": 1755359106109,
+  "isim": "RÜVEYDA ÖZCAN",
+  "not": "KRONİK KABIZLIK",
+  "arsiv": false,
+  "haftalar": [
+    {
+      "haftaNo": 1,
+      "baslangic": "2025-08-11",
+      "bitis": "2025-08-17",
+      "aciklama": "",
+      "pdf": null,
+      "pdfName": null,
+      "pdfOrijinalIsim": null,
+      "pdfYolu": null,
+      "githubUrl": null,
+      "indirmeUrl": null,
+      "kayitTarihi": null,
+      "tarifKartlar": [],
+      "tarifler": [],
+      "gptMesaj": "",
+      "kilitli": false
+    }
+  ],
+  "olusturmaTarihi": "2025-08-16T15:45:06.109Z",
+  "yeniSistem": true,
+  "sonGuncelleme": "2025-08-16T15:47:04.688Z",
+  "githubKaydedildi": true
+}
