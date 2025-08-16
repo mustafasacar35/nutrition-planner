@@ -238,6 +238,12 @@
           "eslesmeTuru": "tam eşleşme"
         },
         {
+          "tarifAdi": "köfte (ekmeksiz, baharatlarla)",
+          "kartResmi": "keto_kofte.jpg",
+          "kartData": "https://mustafasacar35.github.io/nutrition-planner/tarifler/keto_kofte.jpg",
+          "eslesmeTuru": "manuel eşleştirme"
+        },
+        {
           "tarifAdi": "közlenmiş patlıcan salatası",
           "kartResmi": "kozlenmis_patlican_salatasi.jpg",
           "kartData": "https://mustafasacar35.github.io/nutrition-planner/tarifler/kozlenmis_patlican_salatasi.jpg",
@@ -248,6 +254,30 @@
           "kartResmi": "sebze_corbasi.jpg",
           "kartData": "https://mustafasacar35.github.io/nutrition-planner/tarifler/sebze_corbasi.jpg",
           "eslesmeTuru": "tam eşleşme"
+        },
+        {
+          "tarifAdi": "kıymalı lahana / kabak/ yeşil fasulye yemeği (100 gr kıyma ile)",
+          "kartResmi": "kiymali_kabak_yemegi.jpg",
+          "kartData": "https://mustafasacar35.github.io/nutrition-planner/tarifler/kiymali_kabak_yemegi.jpg",
+          "eslesmeTuru": "manuel eşleştirme"
+        },
+        {
+          "tarifAdi": "kıymalı lahana / kabak/ yeşil fasulye yemeği (100 gr kıyma ile)",
+          "kartResmi": "kiymali_lahana_yemegi.jpg",
+          "kartData": "https://mustafasacar35.github.io/nutrition-planner/tarifler/kiymali_lahana_yemegi.jpg",
+          "eslesmeTuru": "manuel eşleştirme"
+        },
+        {
+          "tarifAdi": "kıymalı lahana / kabak/ yeşil fasulye yemeği (100 gr kıyma ile)",
+          "kartResmi": "kiymali_taze_fasulye.jpg",
+          "kartData": "https://mustafasacar35.github.io/nutrition-planner/tarifler/kiymali_taze_fasulye.jpg",
+          "eslesmeTuru": "manuel eşleştirme"
+        },
+        {
+          "tarifAdi": "urfa / adana kebap 150 gram ( 1 porsiyon)",
+          "kartResmi": "adana_urfa_kebap.jpg",
+          "kartData": "https://mustafasacar35.github.io/nutrition-planner/tarifler/adana_urfa_kebap.jpg",
+          "eslesmeTuru": "manuel eşleştirme"
         }
       ],
       "tarifler": [
@@ -337,7 +367,7 @@
         "fındık turp yerine normal turp da kullanabilirsiniz.",
         "tariflerdeki domatesi salça ile değişim yapabilirsiniz."
       ],
-      "gptMesaj": "",
+      "gptMesaj": "Merhaba Ayşe Hanım,\n\nYeni bir haftaya daha birlikte başlamanın heyecanı içerisindeyiz. Özellikle bu hafta, beslenme düzeninizde yapacağımız bazı küçük değişikliklerle, lipödemle mücadeledeki ilerlemenizi daha da desteklemeyi hedefliyoruz. Unutmayın, her bir gıdanın seçimi, sizin sağlığınız ve iyileşme süreciniz düşünülerek belirleniyor.\n\nBu hafta menünüzde özellikle protein kaynaklarını dengeli bir şekilde sunuyoruz. Örneğin, sahanda yumurta ve menemen gibi yemekler, güne başlarken ihtiyacınız olan enerjiyi sağlamak için ideal. Yumurtalar, hem yüksek kaliteli protein kaynağı hem de B vitaminleri açısından zengindir. Bu vitaminler, enerji üretimi ve hücre sağlığı için çok önemlidir.\n\nPatlıcan musakka ve kıymalı lahana gibi yemekler ise hem lezzetli hem de doyurucu seçenekler. Patlıcan, lif açısından zengin bir sebze olduğu için sindirim sisteminizi destekler. Ayrıca, kıyma ile birleştiğinde, uzun süreli tokluk hissi sağlayarak gün içindeki atıştırmalık ihtiyacınızı azaltabilir.\n\nZeytinyağlı yeşil salatalar, içeriğindeki sağlıklı yağlar sayesinde inflamasyonla mücadelede önemli bir rol oynar. Zeytinyağı, kalp sağlığını destekleyen tekli doymamış yağ asitleri bakımından zengindir ve anti-inflamatuar özelliklere sahiptir.\n\nAyşe Hanım, bu hafta özellikle yağların ve proteinlerin dengesine büyük önem veriyoruz. Bu besinler, insülin seviyenizi dengede tutarak yağ yakımını kolaylaştırır ve lipödem semptomlarının hafifletilmesine yardımcı olur. Ayrıca, haşhaş ezmesi ekmeği gibi seçimlerle, geleneksel lezzetlerden vazgeçmeden sağlıklı alternatifler sunmaya çalışıyoruz.\n\nÖnceki haftalarda olduğu gibi, bu hafta da içeriği ve yemek seçimlerini sizin sağlık durumunuz ve lipödemle mücadeleniz göz önünde bulundurarak hazırladık. Her zaman olduğu gibi, herhangi bir sorunuz veya endişeniz olursa, lütfen bana ulaşmaktan çekinmeyin. Süreçle ilgili düşüncelerinizi ve gözlemlerinizi de duymak benim için çok değerli olacaktır.\n\nİlerleyen haftalarda vücudunuzdaki değişiklikleri görmeye başladığınızda, bu küçük değişikliklerin ne kadar büyük etkiler yaratabileceğini birlikte göreceğiz. Bu yolculukta yanınızda olmaktan büyük mutluluk duyuyorum.\n\nSevgilerimle,",
       "kilitli": false,
       "githubLink": "https://github.com/mustafasacar35/nutrition-planner/blob/main/patients/hasta_1755301073474_ayse_turan_uslu.json",
       "githubRawLink": "https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/patients/hasta_1755301073474_ayse_turan_uslu.json",
@@ -363,7 +393,6 @@
         "zeytin (5 adet)",
         "haşhaş ezmesi ekmeği (1 dilim)",
         "akşam (tercihen hava kararınca)",
-        "köfte (ekmeksiz, baharatlarla)",
         "çarşamba",
         "öğle (tercihen saat 12:00 civarında)",
         "kavurmalı yumurta (1 yumurta, 50 gr. kavurma,istenilen baharatlar)",
@@ -372,7 +401,6 @@
         "haşhaş ezmesi ekmeği (1 dilim)",
         "ceviz (3 adet)",
         "akşam (tercihen hava kararınca)",
-        "kıymalı lahana / kabak/ yeşil fasulye yemeği (100 gr kıyma ile)",
         "bitter çikolata (2 kare)",
         "perşembe",
         "öğle (tercihen saat 12:00 civarında)",
@@ -393,7 +421,6 @@
         "zeytin (5 adet)",
         "ceviz (3 adet)",
         "akşam (tercihen hava kararınca)",
-        "urfa / adana kebap 150 gram ( 1 porsiyon)",
         "mevsim yeşillikleri (dereotu, roka, maydanoz, marul vs. + 1 tatlı kaşığı zeytinyağı)",
         "kabak çekirdeği (1 avuç)",
         "bitter çikolata (2 kare)",
@@ -429,18 +456,22 @@
         "haşhaş ezmesi ekmeği (1 dilim)",
         "patlıcan musakka",
         "haşhaş ezmesi ekmeği (1 dilim)",
+        "köfte (ekmeksiz, baharatlarla)",
         "közlenmiş patlıcan salatası",
         "haşhaş ezmesi ekmeği (1 dilim)",
         "sebze çorbası",
+        "kıymalı lahana / kabak/ yeşil fasulye yemeği (100 gr kıyma ile)",
         "sebze çorbası",
+        "urfa / adana kebap 150 gram ( 1 porsiyon)",
         "haşhaş ezmesi ekmeği (1 dilim)"
       ],
       "kilitlenmeTarihi": "2025-08-16T07:27:29.812Z",
-      "kilitAcmaTarihi": "2025-08-16T07:27:51.748Z"
+      "kilitAcmaTarihi": "2025-08-16T07:27:51.748Z",
+      "ekNotlar": ""
     }
   ],
   "olusturmaTarihi": "2025-08-15T23:37:53.474Z",
   "yeniSistem": true,
-  "sonGuncelleme": "2025-08-16T07:29:16.213Z",
+  "sonGuncelleme": "2025-08-16T07:34:38.449Z",
   "githubKaydedildi": true
 }
