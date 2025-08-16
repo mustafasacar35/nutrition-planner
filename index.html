@@ -1653,7 +1653,7 @@
         const token = document.getElementById('githubToken').value.trim();
         if (token) {
           try {
-            // Hasta listesini GitHub'a kaydet
+            // Hasta listesini GitHub'a kaydet (ARRAY KONTROLÜ)
             const hastaListesi = await hastaListesiYukle() || [];
             const yeniHastaListesi = {
               id: hastaId, // Aynı ID'yi kullan
@@ -1665,7 +1665,16 @@
             // Aynı hasta yoksa ekle
             if (!hastaListesi.find(h => h.id === hastaId || h.isim === hastaAdi)) {
               hastaListesi.push(yeniHastaListesi);
-              await hastaListesiKaydet(hastaListesi); // Array olarak gönder
+              
+              // DEBUG: Kaydetmeden önce array olduğunu garantile
+              if (!Array.isArray(hastaListesi)) {
+                console.error('❌ hastaListesi array değil!', typeof hastaListesi, hastaListesi);
+                // Force array yapmaya çalış
+                const arrayHastaListesi = [yeniHastaListesi];
+                await hastaListesiKaydet(arrayHastaListesi);
+              } else {
+                await hastaListesiKaydet(hastaListesi); // Array olarak gönder
+              }
               console.log('✅ Hasta listesi GitHub\'a güncellendi');
             }
             
@@ -2822,6 +2831,9 @@
         // Hasta listesini yükle ve sonucu al
         const yuklenmisList = await hastaListesiYukle();
         
+        // Global değişkeni güncelle (ÖNEMLİ!)
+        hastaListesi = yuklenmisList || [];
+        
         if (yuklenmisList.length > 0) {
           console.log('✅ GitHub\'dan hasta listesi yüklendi:', yuklenmisList.length, 'hasta');
           
@@ -2912,10 +2924,12 @@
             const content = JSON.parse(contentStr);
             if (Array.isArray(content)) {
               console.log('✅ Hasta listesi GitHub\'dan yüklendi:', content.length, 'hasta');
+              console.log('🔍 Yüklenen hasta listesi:', content); // DEBUG LOG
               hastaListesi = content; // Global değişkeni güncelle
               return content;
             } else {
               console.log('⚠️ Hasta listesi array değil, yeni liste oluşturulacak');
+              console.log('🔍 Bozuk veri türü:', typeof content, content); // DEBUG LOG
               hastaListesi = []; // Global değişkeni sıfırla
               return [];
             }
@@ -6389,9 +6403,10 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         return;
       }
       
-      // Yeni hasta oluştur
+      // Yeni hasta oluştur (STANDART ID ile)
+      const hastaId = generatePatientId(duzeltilmisIsim); // Tutarlı ID oluşturma
       const yeniHasta = {
-        id: Date.now(),
+        id: hastaId, // Standart ID kullan
         isim: duzeltilmisIsim,
         not: yeniNot ? yeniNot.trim() : '',
         arsiv: false,
@@ -6400,36 +6415,48 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         yeniSistem: true
       };
       
-      console.log('✅ Yeni hasta oluşturuldu:', duzeltilmisIsim);
+      console.log(`✅ Yeni hasta oluşturuldu: ${duzeltilmisIsim} (ID: ${hastaId})`);
       
       // YENİ SİSTEME KAYDET
       // 1. Önce individual hasta dosyası olarak kaydet
-      hastayiAyriKaydet(yeniHasta).then(basarili => {
+      hastayiAyriKaydet(yeniHasta).then(async (basarili) => {
         if (basarili) {
           console.log('✅ Yeni hasta GitHub\'a kaydedildi:', duzeltilmisIsim);
           
-          // 2. Global hasta listesini güncelle
-          const yeniHastaListeItem = {
-            id: yeniHasta.id,
-            isim: yeniHasta.isim,
-            olusturmaTarihi: yeniHasta.olusturmaTarihi,
-            arsiv: yeniHasta.arsiv || false
-          };
-          hastaListesi.push(yeniHastaListeItem);
-          hastaListesi.sort((a, b) => {
-            if (!a || !a.isim) return 1;
-            if (!b || !b.isim) return -1;
-            return a.isim.localeCompare(b.isim, 'tr');
-          });
-          console.log('✅ Global hasta listesi güncellendi');
+          // 2. GitHub hasta listesini güncelle
+          try {
+            const mevcutListe = await hastaListesiYukle() || [];
+            const yeniHastaListeItem = {
+              id: yeniHasta.id,
+              isim: yeniHasta.isim,
+              kayitTarihi: yeniHasta.olusturmaTarihi,
+              durumu: 'aktif'
+            };
+            
+            // Aynı hasta yoksa ekle
+            if (!mevcutListe.find(h => h.id === yeniHasta.id || h.isim === yeniHasta.isim)) {
+              mevcutListe.push(yeniHastaListeItem);
+              await hastaListesiKaydet(mevcutListe);
+              
+              // 3. Global hastaListesi değişkenini de güncelle
+              hastaListesi = mevcutListe;
+              console.log('✅ GitHub hasta listesi güncellendi, global değişken senkronize edildi');
+            }
+          } catch (error) {
+            console.error('⚠️ Hasta listesi güncelleme hatası:', error);
+          }
           
-          // 3. Hasta listesini yeniden render et
+          // 4. Local hastalar dizisini güncelle
+          hastalar.push(yeniHasta);
+          saveToStorage();
+          
+          // 5. Hasta listesini yeniden render et
           renderHastalarYeniSistem();
           
-          // 4. Yeni hastayı seç
+          // 6. Yeni hastayı seç
           seciliHasta = yeniHasta;
           
-          // 5. Başarı mesajı
+          // 7. Başarı mesajı
           alert(`✅ Yeni hasta başarıyla eklendi!\n\n👤 ${duzeltilmisIsim}\n📁 Yeni sistem ile kaydedildi`);
           
         } else {
