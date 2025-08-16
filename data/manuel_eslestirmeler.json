@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "sonGuncelleme": "2025-08-16T07:32:12.738Z",
+  "sonGuncelleme": "2025-08-16T07:32:20.544Z",
   "eslestirmeler": {
     "avokadolu omlet": {
       "orijinalMetin": "avokadolu omlet",
@@ -46,6 +46,13 @@
         "kiymali_taze_fasulye.jpg"
       ],
       "eklemeTarihi": "2025-08-16T07:31:42.292Z"
+    },
+    "urfa adana kebap 150 gram 1 porsiyon": {
+      "orijinalMetin": "urfa / adana kebap 150 gram ( 1 porsiyon)",
+      "kartlar": [
+        "adana_urfa_kebap.jpg"
+      ],
+      "eklemeTarihi": "2025-08-16T07:32:15.240Z"
     }
   }
 }
