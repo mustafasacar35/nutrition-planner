@@ -1643,7 +1643,7 @@
         "günlük ortalama 5000 adım önerilir",
         "günlük su tüketimi 2 litrenin üzerinde olması önerilir"
       ],
-      "gptMesaj": "",
+      "gptMesaj": "• ceviz (5 adet)\n• 2 adet köfte\n• avokado (yarım) + roka (bir avuç) + limon suyu ve zeytinyağı\n• yoğurtlu çılbır (1 adet yumurta, 2 yemek kaşığı yoğurt)\n• ızgara levrek (150 gram)\n• sote mantar (1 yemek kaşığı zeytinyağı ile)\n• tahinli ceviz ezmesi (1 yemek kaşığı tahin, 1 adet ezilmiş ceviz içi, tarçın)\n• menemen (1 adet yumurta ile)\n• tulum peyniri veya kaşar peyniri (50 gram)\n• patlıcan musakka\n• roka salatası (yarım bağ roka, 1 adet küçük salatalık, 3 adet cherry domates, yarım kırmızı soğan, limon, zeytinyağı)\n• ceviz (5 adet)\n\nBu haftalık menüdeki yiyecekler, lipödem tedavisinde inflamasyonu azaltmaya, sindirimi düzenlemeye ve vücudu desteklemeye yardımcı olacak şekilde seçildi. Ayrıca, belirli takviyelerle birlikte kullanıldığında daha etkili olabilirler. Her öğünü keyifle tüketerek, sağlığınızı desteklemeye devam edebilirsiniz.\n\nÖneri ve sorularınız için her zaman buradayım.\n\nSevgilerle, [İsminiz]",
       "kilitli": false,
       "githubLink": "https://github.com/mustafasacar35/nutrition-planner/blob/main/patients/hasta_1755361735190_azi_me_surucu.json",
       "githubRawLink": "https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/patients/hasta_1755361735190_azi_me_surucu.json",
@@ -1744,11 +1744,12 @@
         "haşhaş ezmesi ekmeği (1 dilim)",
         "haşhaş ezmesi ekmeği (1 dilim)",
         "patlıcan musakka"
-      ]
+      ],
+      "ekNotlar": ""
     }
   ],
   "olusturmaTarihi": "2025-08-16T16:28:55.190Z",
   "yeniSistem": true,
-  "sonGuncelleme": "2025-08-16T16:40:42.449Z",
+  "sonGuncelleme": "2025-08-16T17:40:10.767Z",
   "githubKaydedildi": true
 }
