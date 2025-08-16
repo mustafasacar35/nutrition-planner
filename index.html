@@ -12623,12 +12623,6 @@ Detaylı bilgiler için tarayıcı konsolunu (F12) açın.`);
     async function sayfaBaslat() {
       console.log('🚀 YENİ SİSTEM BAŞLATILIYOR - Eski sistem devre dışı');
       
-      // Google Drive otomatik bağlantı kontrolü
-      console.log('💾 Google Drive cache kontrolü başlatılıyor...');
-      setTimeout(() => {
-        checkAndRestoreGoogleDriveConnection();
-      }, 1000); // 1 saniye gecikme ile başlat
-      
       // Sadece yeni sistemi yükle
       console.log('📋 SADECE YENİ SİSTEM: hasta listesi yükleniyor...');
       
@@ -13203,13 +13197,6 @@ Detaylı bilgiler için tarayıcı konsolunu (F12) açın.`);
     // Sayfa yüklendiğinde başlat
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => {
-        // Otomatik Google Drive bağlantı kontrolü
-        checkAndRestoreGoogleDriveConnection();
-      });
-    } else {
-      // DOM zaten hazır
-      checkAndRestoreGoogleDriveConnection();
-    }
     // === YEMEK KULLANIM ANALİZİ FONKSIYONLARI ===
     
     function siralaYemekAnalizi(tip) {
@@ -14393,9 +14380,6 @@ ${mesajlar.join('\n')}
     window.haftaKaydet = haftaKaydet;
     window.haftaKilidiAc = haftaKilidiAc;
 
-    // Sayfa yüklendiğinde başlat
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => {
         sayfaBaslat();
         initResizableSidebars();
       });
@@ -14657,16 +14641,6 @@ ${mesajlar.join('\n')}
             
             console.log('✅ GIS Token alındı:', response);
             window.accessToken = response.access_token;
-            
-            // Token'ı localStorage'a kaydet (cache için)
-            const tokenData = {
-              access_token: response.access_token,
-              expires_at: Date.now() + (response.expires_in * 1000), // Saniye cinsinden süreyi ms'ye çevir
-              timestamp: Date.now()
-            };
-            localStorage.setItem('googleDriveToken', JSON.stringify(tokenData));
-            console.log('💾 Token localStorage\'a kaydedildi');
-            
             gapi.client.setToken({access_token: response.access_token});
             window.googleSignedIn = true;
             console.log('✅ Google Drive\'a başarıyla giriş yapıldı (GIS)');
@@ -14727,14 +14701,10 @@ ${mesajlar.join('\n')}
       } else if (status === 'connected' || window.googleSignedIn) {
         statusDiv.textContent = 'Drive: Bağlı ✅';
         statusDiv.style.color = '#28a745';
-        btn.innerHTML = '<span style="font-size: 14px;">🔓</span> Bağlantıyı Kes';
+        btn.innerHTML = '<span style="font-size: 14px;">✅</span> Bağlı';
         btn.style.background = '#28a745';
         btn.disabled = false;
-        btn.onclick = () => {
-          if (confirm('Google Drive bağlantısını kesmek istediğinizden emin misiniz?\n\nCache temizlenecek ve yeniden giriş yapmanız gerekecek.')) {
-            signOutFromGoogle();
-          }
-        };
+        btn.onclick = () => alert('Google Drive\'a zaten bağlısınız!');
         
       } else if (status === 'error') {
         statusDiv.textContent = 'Drive: Hata ❌';
@@ -14750,104 +14720,6 @@ ${mesajlar.join('\n')}
         btn.style.background = '#4285f4';
         btn.disabled = false;
         btn.onclick = signInToGoogle;
-      }
-    }
-
-    // Otomatik Google Drive bağlantı kontrolü ve restore
-    async function checkAndRestoreGoogleDriveConnection() {
-      try {
-        // File protokolü kontrolü
-        if (window.isFileProtocol) {
-          console.log('⚠️ File protokolü - Google Drive otomatik bağlantı atlandı');
-          updateGoogleDriveStatus();
-          return;
-        }
-
-        // API ayarları kontrolü
-        if (window.GOOGLE_DRIVE_CONFIG.API_KEY === 'YOUR_API_KEY_HERE') {
-          console.log('⚠️ Google API ayarları eksik - otomatik bağlantı atlandı');
-          updateGoogleDriveStatus();
-          return;
-        }
-
-        // localStorage'dan kaydedilmiş token'ı kontrol et
-        const savedTokenData = localStorage.getItem('googleDriveToken');
-        if (!savedTokenData) {
-          console.log('💾 Cache\'de token bulunamadı');
-          updateGoogleDriveStatus();
-          return;
-        }
-
-        const tokenData = JSON.parse(savedTokenData);
-        const now = Date.now();
-        
-        // Token'ın geçerliliğini kontrol et (1 saat öncesine kadar geçerli kabul et)
-        if (now >= tokenData.expires_at - (60 * 60 * 1000)) {
-          console.log('⏰ Kaydedilmiş token süresi dolmuş, yenileme gerekli');
-          localStorage.removeItem('googleDriveToken');
-          updateGoogleDriveStatus();
-          return;
-        }
-
-        console.log('🔄 Kaydedilmiş token ile otomatik bağlanma deneniyor...');
-        updateGoogleDriveStatus('connecting');
-
-        // Google API'yi başlat
-        const loaded = await initGoogleApi();
-        if (!loaded) {
-          console.log('❌ Google API başlatılamadı');
-          updateGoogleDriveStatus('error');
-          return;
-        }
-
-        // Kaydedilmiş token'ı kullan
-        window.accessToken = tokenData.access_token;
-        gapi.client.setToken({access_token: tokenData.access_token});
-        
-        // Bağlantı test et (basit bir API çağrısı)
-        try {
-          await gapi.client.drive.files.list({
-            pageSize: 1,
-            fields: 'files(id,name)'
-          });
-          
-          // Başarılı - bağlı duruma geç
-          window.googleSignedIn = true;
-          console.log('✅ Cache\'den otomatik Google Drive bağlantısı başarılı!');
-          updateGoogleDriveStatus('connected');
-          
-        } catch (apiError) {
-          console.log('❌ Token geçersiz, cache temizleniyor:', apiError);
-          localStorage.removeItem('googleDriveToken');
-          window.googleSignedIn = false;
-          updateGoogleDriveStatus('error');
-        }
-
-      } catch (error) {
-        console.error('❌ Otomatik bağlantı hatası:', error);
-        localStorage.removeItem('googleDriveToken');
-        updateGoogleDriveStatus('error');
-      }
-    }
-
-    // Google Drive oturumunu kapat
-    function signOutFromGoogle() {
-      try {
-        // Token'ları temizle
-        window.accessToken = null;
-        window.googleSignedIn = false;
-        localStorage.removeItem('googleDriveToken');
-        
-        // GAPI token'ını temizle
-        if (window.gapi && gapi.client) {
-          gapi.client.setToken(null);
-        }
-        
-        console.log('✅ Google Drive oturumu kapatıldı');
-        updateGoogleDriveStatus();
-        
-      } catch (error) {
-        console.error('❌ Oturum kapatma hatası:', error);
       }
     }
     
