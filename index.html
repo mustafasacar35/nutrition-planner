@@ -15727,10 +15727,17 @@ ${mesajlar.join('\n')}
         console.log('🔍 DEBUG: Decoded content (first 100 chars):', icerik?.substring(0, 100));
         console.log('🔍 DEBUG: Decoded content type:', typeof icerik);
         
-        const parsedData = JSON.parse(icerik);
-        console.log('🔍 DEBUG: Parsed data type:', typeof parsedData, 'keys:', Object.keys(parsedData || {}).slice(0, 10));
-        console.log('🔍 DEBUG: parsedData.version:', parsedData.version);
-        console.log('🔍 DEBUG: parsedData.promptlar:', parsedData.promptlar?.length || 'undefined');
+        // Force proper JSON parsing with more explicit approach
+        let parsedData;
+        try {
+          parsedData = window.JSON.parse(icerik);
+        } catch (e) {
+          parsedData = eval('(' + icerik + ')');
+        }
+        
+        console.log('🔍 DEBUG: Parsed data type:', typeof parsedData, 'constructor:', parsedData?.constructor?.name);
+        console.log('🔍 DEBUG: parsedData.version:', parsedData?.version);
+        console.log('🔍 DEBUG: parsedData.promptlar:', parsedData?.promptlar?.length || 'undefined');
         
         return {
           success: true,
