@@ -1432,6 +1432,12 @@
         // "FİGEN TEZMAN 4-10 AĞUSTOS 1.HAFTA"
         /^(.+?)\s+(\d{1,2})-(\d{1,2})\s+([A-Za-zçÇğĞıİöÖşŞüÜ]+)\s+(\d+)\.?\s*HAFTA/i,
         
+        // "HASTA ADI_X_hafta" (Drive format - YENİ!)
+        /^(.+?)_(\d+)_hafta/i,
+        
+        // "HASTA ADI X hafta" (basit format - YENİ!)
+        /^(.+?)\s+(\d+)\s+hafta/i,
+        
         // "HASTA ADI TARIH ARALIGI X. HAFTA" (genel format)
         /^(.+?)\s+(.+?)\s+(\d+)\.?\s*HAFTA/i
       ];
@@ -1465,8 +1471,22 @@
               baslangicAy: match[4].toUpperCase(),
               bitisAy: match[4].toUpperCase() // Aynı ay
             };
+          } else if (pattern === patterns[2]) {
+            // "GÜLER VESEKCİ_1_hafta" (Drive format)
+            sonuc = {
+              hastaAdi: match[1].trim().toUpperCase().replace(/_/g, ' '),
+              haftaNo: parseInt(match[2]),
+              tarihAraligi: `Hafta ${match[2]}` // Genel tarih
+            };
+          } else if (pattern === patterns[3]) {
+            // "GÜLER VESEKCİ 1 hafta" (basit format)
+            sonuc = {
+              hastaAdi: match[1].trim().toUpperCase(),
+              haftaNo: parseInt(match[2]),
+              tarihAraligi: `Hafta ${match[2]}` // Genel tarih
+            };
           } else {
-            // Genel format
+            // Genel format (pattern 4)
             sonuc = {
               hastaAdi: match[1].trim().toUpperCase(),
               haftaNo: parseInt(match[3]),
@@ -5687,7 +5707,9 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         statusGoster(`❌ Hata: ${error.message}`, 'error');
       }
     }
+    
     // --- Tarifler klasörü görsellerini otomatik yükle (GitHub Pages uyumlu) ---
+    // GLOBAL değişken olarak tanımlandı
     let tariflerKlasoruGorselleri = [];
     
     function durumGuncelle() {
@@ -5807,17 +5829,80 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
       pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
     }
     // --- Hasta Yönetimi Modülü ---
-    // --- Kalıcı veri yönetimi ---
+    // --- Kalıcı veri yönetimi (QUOTA-SAFE) ---
     const STORAGE_KEY = 'lipedem_hasta_kayitlari';
+    
+    // Veri temizleme fonksiyonu (quota tasarrufu için)
+    function compressHastaData(hastaData) {
+      if (!hastaData || !Array.isArray(hastaData)) return [];
+      
+      return hastaData.map(hasta => {
+        // Sadece kritik verileri sakla
+        const compressed = {
+          id: hasta.id,
+          isim: hasta.isim,
+          not: hasta.not || '',
+          arsiv: hasta.arsiv || false,
+          haftalar: []
+        };
+        
+        // Haftalarda sadece temel bilgileri sakla
+        if (hasta.haftalar && Array.isArray(hasta.haftalar)) {
+          compressed.haftalar = hasta.haftalar.map(hafta => ({
+            haftaNo: hafta.haftaNo,
+            baslangic: hafta.baslangic,
+            bitis: hafta.bitis,
+            pdfOrijinalIsim: hafta.pdfOrijinalIsim,
+            pdfName: hafta.pdfName,
+            pdfYolu: hafta.pdfYolu,
+            githubUrl: hafta.githubUrl,
+            indirmeUrl: hafta.indirmeUrl,
+            // Base64 PDF verisi ve büyük objeler çıkarıldı (quota tasarrufu)
+            tarifKartlar: hafta.tarifKartlar ? Math.min(hafta.tarifKartlar.length, 5) : 0 // Sadece sayı
+          }));
+        }
+        
+        return compressed;
+      });
+    }
+    
     function saveToStorage() {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(hastalar));
-        console.log('💾 Hastalar localStorage\'a kaydedildi');
+        // Veriyi sıkıştır
+        const compressedData = compressHastaData(hastalar);
+        const jsonString = JSON.stringify(compressedData);
+        
+        // Veri boyutunu kontrol et (5MB limitine yakın değilse kaydet)
+        if (jsonString.length > 4000000) { // 4MB'dan büyükse
+          console.warn('⚠️ Veri çok büyük, sadece son 3 hasta kaydediliyor');
+          const limitedData = compressedData.slice(-3); // Son 3 hasta
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(limitedData));
+        } else {
+          localStorage.setItem(STORAGE_KEY, jsonString);
+        }
+        
+        console.log('💾 Hastalar localStorage\'a kaydedildi (Compressed)');
+        
         // Hasta sayılarını güncelle - async olarak çağır
         if (typeof guncelleHastaSayilari === 'function') {
           guncelleHastaSayilari().catch(err => console.warn('Hasta sayıları güncelleme hatası:', err));
         }
-      } catch(e) { console.error('localStorage kaydetme hatası:', e); }
+      } catch(e) { 
+        console.error('localStorage kaydetme hatası:', e);
+        
+        // Quota hatası ise localStorage'ı temizle ve tekrar dene
+        if (e.name === 'QuotaExceededError') {
+          console.warn('🧹 Quota exceeded, localStorage temizleniyor...');
+          try {
+            localStorage.clear();
+            const minimalData = hastalar.slice(-1); // Sadece son hasta
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(compressHastaData(minimalData)));
+            console.log('✅ Minimal veri ile localStorage tekrar kaydedildi');
+          } catch(e2) {
+            console.error('❌ Minimal kaydetme de başarısız:', e2);
+          }
+        }
+      }
     }
     
     // Veri değiştiğinde otomatik kaydetme
@@ -10424,6 +10509,9 @@ function duzenleHafta(i) {
     }
 
     async function otomatikEsleHafta(i) {
+  console.log(`\n🚀 otomatikEsleHafta başladı - Hafta ${i + 1}`);
+  console.log('🔍 İlk kontrol - tariflerKlasoruGorselleri.length:', tariflerKlasoruGorselleri.length);
+  
   // Tarif satırından alternatifli yemek adlarını ayıkla
   function extractYemekAdlari(satir) {
     // Baştaki * ve miktarları temizle
@@ -10542,13 +10630,18 @@ function duzenleHafta(i) {
     // Kart metninin tarif metninde ardışık olarak bulunup bulunmadığını kontrol et
     return tarifMetni.includes(kartMetni);
   }
- // Eğer görseller henüz yüklenmediyse, önce yükle
+  // Eğer görseller henüz yüklenmediyse, önce yükle
   if (tariflerKlasoruGorselleri.length === 0) {
+    console.log('🔄 Tarif kartları yüklenecek...');
     await tariflerKlasoruGorselleriniYukle();
   }
 
+  console.log('🎯 tariflerKlasoruGorselleri.length:', tariflerKlasoruGorselleri.length);
+
   const hafta = getHaftaListesi()[i];
   const eslesenDiv = document.getElementById('eslesenKartlar_' + i);
+  
+  console.log('📋 Hafta', i + 1, 'tarif sayısı:', hafta.tarifler ? hafta.tarifler.length : 0);
   
   // DOM element kontrolü - çoklu PDF işleminde element olmayabilir
   const domElementMevcut = eslesenDiv !== null;
@@ -10556,18 +10649,25 @@ function duzenleHafta(i) {
     eslesenDiv.innerHTML = '';
   }
 
-  if (!hafta.tarifler.length) {
+  if (!hafta.tarifler || !hafta.tarifler.length) {
+    console.log('⚠️ Hafta tarifleri yok:', hafta.tarifler);
     if (domElementMevcut) {
       eslesenDiv.innerHTML = '<i>Önce PDF yükleyin ve tarifleri çıkarın.</i>';
     }
     return [];
   }
 
-  // Hem manuel yüklenen hem tarifler klasörü görsellerini birleştir
-  const tumKartlar = [].concat(
-    hafta.tarifKartlar || [],
-    tariflerKlasoruGorselleri.map(g => ({ name: g.name, data: g.url, url: g.url }))
-  ).filter(kart => kart && kart.name); // Null/undefined kartları filtrele
+  // Eşleştirme için sadece GitHub'dan gelen tarifler klasörü kartlarını kullan
+  // hafta.tarifKartlar eşleştirme sonucu, hafta.manuelKartlar da olmayabilir
+  const tumKartlar = tariflerKlasoruGorselleri.map(g => ({ 
+    name: g.name, 
+    data: g.url, 
+    url: g.url 
+  })).filter(kart => kart && kart.name); // Null/undefined kartları filtrele
+
+  console.log('� GitHub\'dan yüklenen kartlar:', tariflerKlasoruGorselleri.length);
+  console.log('📦 Eşleştirme için kullanılan kart sayısı:', tumKartlar.length);
+  console.log('🔍 İlk 5 kart adı:', tumKartlar.slice(0, 5).map(k => k.name));
 
   if (!tumKartlar.length) {
     // Daha detaylı hata mesajı ve çözüm önerileri
@@ -10650,8 +10750,12 @@ function duzenleHafta(i) {
   let eslesmeyenTarifler = [];
   let eslesmeyenOneriler = [];
 
+  console.log('🔄 Eşleştirme başlıyor... Tarif sayısı:', hafta.tarifler.length);
+
   // Her tarif için eşleştirme yap
-  hafta.tarifler.forEach(tarif => {
+  hafta.tarifler.forEach((tarif, tarifIndex) => {
+    console.log(`\n🔍 Tarif ${tarifIndex + 1}/${hafta.tarifler.length}: "${tarif}"`);
+    
     let tarifSatir = tarif.replace(/^\*+\s*/, '').trim();
     let eslesen = null;
     let eslesenKartlar = [];
@@ -10680,11 +10784,14 @@ function duzenleHafta(i) {
     } else {
       // 2. Otomatik eşleştirme dene
       let yemekAdlari = extractYemekAdlari(tarifSatir);
+      console.log(`   📝 Çıkarılan yemek adları:`, yemekAdlari);
 
       // Her yemek adı için eşleştirme dene
       for (let yemekAdi of yemekAdlari) {
+        console.log(`   🍽️ Kontrol edilen yemek: "${yemekAdi}"`);
         const tarifNorm = normalize(yemekAdi);
         const tarifKelimeler = tarifNorm.split(' ').filter(k => k.length > 0);
+        console.log(`   🔤 Normalize edilmiş: "${tarifNorm}" (${tarifKelimeler.length} kelime)`);
 
         // Kullanılmayan kartlar arasında ara
         for (let kart of tumKartlar) {
@@ -10700,6 +10807,7 @@ function duzenleHafta(i) {
 
           // 1. Önce tam eşleşme kontrol et
           if (tarifNorm === kartNorm) {
+            console.log(`   ✅ TAM EŞLEŞME: "${kart.name}"`);
             eslesen = kart;
             eslesenKartlar = [kart];
             eslesenTip = 'tam eşleşme';
@@ -10708,6 +10816,7 @@ function duzenleHafta(i) {
 
           // 2. Kart kelimelerinin tarif içinde ardışık olarak bulunup bulunmadığını kontrol et
           if (kartKelimeleriniKontrolEt(kartKelimeler, tarifKelimeler)) {
+            console.log(`   ✅ ARDIŞIK EŞLEŞME: "${kart.name}"`);
             eslesen = kart;
             eslesenKartlar = [kart];
             eslesenTip = 'ardışık eşleşme';
@@ -10725,6 +10834,7 @@ function duzenleHafta(i) {
 
     // Eşleşme bulunduysa kaydet
     if (eslesenKartlar.length > 0) {
+      console.log(`   ✅ SONUÇ: Eşleşme bulundu - ${eslesenTip}`);
       eslesenKartlar.forEach(kart => {
         eslesenKartlarListesi.push({ 
           tarif: tarif, 
@@ -10733,6 +10843,7 @@ function duzenleHafta(i) {
         });
       });
     } else {
+      console.log(`   ❌ SONUÇ: Eşleşme bulunamadı`);
       eslesmeyenTarifler.push(tarif);
     }
   });
@@ -10921,6 +11032,7 @@ function duzenleHafta(i) {
     eslesenTarifIsimleri.includes(tarif.toLowerCase())
   ) : [];
   
+  console.log('\n🏁 EŞLEŞTIRME ÖZETİ:');
   console.log('📝 Eşleştirme öncesi toplam tarif:', hafta.tarifler ? hafta.tarifler.length : 0);
   console.log('📝 Eşleşen tarif isimleri:', eslesenTarifIsimleri);
   console.log('📝 Eşleşen tarif sayısı:', hafta.eslesenTarifler.length);
@@ -16941,6 +17053,7 @@ ${mesajlar.join('\n')}
 
 </body>
 </html>
+
 
 
 
