@@ -15725,9 +15725,12 @@ ${mesajlar.join('\n')}
         
         const icerik = decodeBase64UTF8(data.content);
         console.log('🔍 DEBUG: Decoded content (first 100 chars):', icerik?.substring(0, 100));
+        console.log('🔍 DEBUG: Decoded content type:', typeof icerik);
         
         const parsedData = JSON.parse(icerik);
-        console.log('🔍 DEBUG: Parsed data type:', typeof parsedData, 'keys:', Object.keys(parsedData || {}));
+        console.log('🔍 DEBUG: Parsed data type:', typeof parsedData, 'keys:', Object.keys(parsedData || {}).slice(0, 10));
+        console.log('🔍 DEBUG: parsedData.version:', parsedData.version);
+        console.log('🔍 DEBUG: parsedData.promptlar:', parsedData.promptlar?.length || 'undefined');
         
         return {
           success: true,
