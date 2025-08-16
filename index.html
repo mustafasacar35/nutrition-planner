@@ -1256,6 +1256,33 @@
           </div>
         </div>
 
+        <!-- GitHub Senkronizasyon -->
+        <div style="margin-bottom: 25px; padding: 15px; background: #e3f2fd; border-radius: 8px; border-left: 4px solid #2196f3;">
+          <h3 style="margin: 0 0 15px 0; color: #1976d2; display: flex; align-items: center; gap: 8px;">
+            <span>🔄</span> GitHub Senkronizasyon
+          </h3>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+            <button onclick="tumPromptlariSenkronizeEt()" style="padding: 10px 20px; background: #2196f3; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px;" title="Tüm promptları GitHub ile senkronize et">
+              <span>🔄</span> Tümünü Senkronize Et
+            </button>
+            <button onclick="genelPromptlariGitHubKaydet()" style="padding: 8px 16px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 6px;" title="Genel promptları GitHub'a kaydet">
+              <span>📤</span> Genel → GitHub
+            </button>
+            <button onclick="haftalikPromptlariGitHubKaydet()" style="padding: 8px 16px; background: #ff9800; color: white; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 6px;" title="Haftalık promptları GitHub'a kaydet">
+              <span>📤</span> Haftalık → GitHub
+            </button>
+            <button onclick="genelPromptlariGitHubYukle()" style="padding: 8px 16px; background: #9c27b0; color: white; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 6px;" title="GitHub'dan genel promptları yükle">
+              <span>📥</span> GitHub → Genel
+            </button>
+            <button onclick="haftalikPromptlariGitHubYukle()" style="padding: 8px 16px; background: #795548; color: white; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 6px;" title="GitHub'dan haftalık promptları yükle">
+              <span>📥</span> GitHub → Haftalık
+            </button>
+          </div>
+          <div style="margin-top: 10px; font-size: 12px; color: #616161; line-height: 1.4;">
+            <strong>💡 İpucu:</strong> İlk kez kullanıyorsanız "Tümünü Senkronize Et" butonunu kullanın. Bu, mevcut localStorage verilerinizi GitHub'a aktaracak.
+          </div>
+        </div>
+
         <!-- Genel Prompt Şablonları -->
         <div style="margin-bottom: 25px;">
           <h3 style="margin: 0 0 15px 0; color: #28a745; display: flex; align-items: center; gap: 8px;">
@@ -15367,6 +15394,305 @@ ${mesajlar.join('\n')}
     const GENEL_PROMPTLAR_KEY = 'genelPromptlar';
     const HAFTALIK_PROMPTLAR_KEY = 'haftalikPromptlar';
     
+    // GitHub yolları
+    const GITHUB_PROMPTLAR_PATH = 'promptlar/genel_promptlar.json';
+    const GITHUB_HAFTALIK_PROMPTLAR_PATH = 'promptlar/haftalik_promptlar.json';
+    const GITHUB_TEMPLATES_PATH = 'sablonlar/templates.json';
+    
+    // --- GitHub Prompt Yönetimi Fonksiyonları ---
+    
+    // Genel promptları GitHub'a kaydet
+    async function genelPromptlariGitHubKaydet() {
+      const token = document.getElementById('githubToken')?.value?.trim();
+      if (!token) {
+        console.warn('GitHub token bulunamadı');
+        return false;
+      }
+      
+      try {
+        const promptlar = JSON.parse(localStorage.getItem(GENEL_PROMPTLAR_KEY) || '[]');
+        
+        const data = {
+          version: '1.0',
+          lastUpdated: new Date().toISOString(),
+          source: 'localStorage_migration',
+          promptCount: promptlar.length,
+          promptlar: promptlar
+        };
+        
+        console.log('🔄 Genel promptlar GitHub\'a kaydediliyor...', promptlar.length, 'adet');
+        
+        const result = await dosyaGitHubKaydet(GITHUB_PROMPTLAR_PATH, data, 'Genel promptlar localStorage\'dan GitHub\'a aktarıldı');
+        
+        if (result.success) {
+          console.log('✅ Genel promptlar GitHub\'a kaydedildi');
+          return true;
+        } else {
+          console.error('❌ Genel promptlar kaydetme başarısız:', result.error);
+          return false;
+        }
+      } catch (error) {
+        console.error('❌ Genel promptlar kaydetme hatası:', error);
+        return false;
+      }
+    }
+    
+    // Haftalık promptları GitHub'a kaydet
+    async function haftalikPromptlariGitHubKaydet() {
+      const token = document.getElementById('githubToken')?.value?.trim();
+      if (!token) {
+        console.warn('GitHub token bulunamadı');
+        return false;
+      }
+      
+      try {
+        const promptlar = JSON.parse(localStorage.getItem(HAFTALIK_PROMPTLAR_KEY) || '[]');
+        
+        const data = {
+          version: '1.0',
+          lastUpdated: new Date().toISOString(),
+          source: 'localStorage_migration',
+          promptCount: promptlar.length,
+          promptlar: promptlar
+        };
+        
+        console.log('🔄 Haftalık promptlar GitHub\'a kaydediliyor...', promptlar.length, 'adet');
+        
+        const result = await dosyaGitHubKaydet(GITHUB_HAFTALIK_PROMPTLAR_PATH, data, 'Haftalık promptlar localStorage\'dan GitHub\'a aktarıldı');
+        
+        if (result.success) {
+          console.log('✅ Haftalık promptlar GitHub\'a kaydedildi');
+          return true;
+        } else {
+          console.error('❌ Haftalık promptlar kaydetme başarısız:', result.error);
+          return false;
+        }
+      } catch (error) {
+        console.error('❌ Haftalık promptlar kaydetme hatası:', error);
+        return false;
+      }
+    }
+    
+    // GitHub'dan genel promptları yükle
+    async function genelPromptlariGitHubYukle() {
+      const token = document.getElementById('githubToken')?.value?.trim();
+      if (!token) {
+        console.warn('GitHub token bulunamadı');
+        return false;
+      }
+      
+      try {
+        console.log('🔄 Genel promptlar GitHub\'dan yükleniyor...');
+        
+        const result = await dosyaGitHubOku(GITHUB_PROMPTLAR_PATH);
+        
+        if (result.success && result.data) {
+          const githubData = result.data;
+          const promptlar = githubData.promptlar || [];
+          
+          console.log('✅ GitHub\'dan', promptlar.length, 'genel prompt yüklendi');
+          
+          // localStorage'a kaydet
+          localStorage.setItem(GENEL_PROMPTLAR_KEY, JSON.stringify(promptlar));
+          
+          // UI'yi güncelle
+          renderGenelPromptlar();
+          
+          return true;
+        } else {
+          console.log('ℹ️ GitHub\'da genel promptlar dosyası bulunamadı');
+          return false;
+        }
+      } catch (error) {
+        console.error('❌ Genel promptlar yükleme hatası:', error);
+        return false;
+      }
+    }
+    
+    // GitHub'dan haftalık promptları yükle
+    async function haftalikPromptlariGitHubYukle() {
+      const token = document.getElementById('githubToken')?.value?.trim();
+      if (!token) {
+        console.warn('GitHub token bulunamadı');
+        return false;
+      }
+      
+      try {
+        console.log('🔄 Haftalık promptlar GitHub\'dan yükleniyor...');
+        
+        const result = await dosyaGitHubOku(GITHUB_HAFTALIK_PROMPTLAR_PATH);
+        
+        if (result.success && result.data) {
+          const githubData = result.data;
+          const promptlar = githubData.promptlar || [];
+          
+          console.log('✅ GitHub\'dan', promptlar.length, 'haftalık prompt yüklendi');
+          
+          // localStorage'a kaydet
+          localStorage.setItem(HAFTALIK_PROMPTLAR_KEY, JSON.stringify(promptlar));
+          
+          // UI'yi güncelle (gerekirse)
+          return true;
+        } else {
+          console.log('ℹ️ GitHub\'da haftalık promptlar dosyası bulunamadı');
+          return false;
+        }
+      } catch (error) {
+        console.error('❌ Haftalık promptlar yükleme hatası:', error);
+        return false;
+      }
+    }
+    
+    // Tüm promptları senkronize et (yük & kaydet)
+    async function tumPromptlariSenkronizeEt() {
+      const token = document.getElementById('githubToken')?.value?.trim();
+      if (!token) {
+        alert('Önce GitHub API token girin!');
+        return;
+      }
+      
+      try {
+        console.log('🔄 Tüm promptlar senkronize ediliyor...');
+        
+        // Önce GitHub'dan yükle
+        const genelYuklendi = await genelPromptlariGitHubYukle();
+        const haftalikYuklendi = await haftalikPromptlariGitHubYukle();
+        
+        // Eğer GitHub'da yoksa, localStorage'dan aktar
+        if (!genelYuklendi) {
+          console.log('📤 Genel promptlar localStorage\'dan GitHub\'a aktarılıyor...');
+          await genelPromptlariGitHubKaydet();
+        }
+        
+        if (!haftalikYuklendi) {
+          console.log('📤 Haftalık promptlar localStorage\'dan GitHub\'a aktarılıyor...');
+          await haftalikPromptlariGitHubKaydet();
+        }
+        
+        console.log('✅ Prompt senkronizasyonu tamamlandı');
+        alert('✅ Prompt senkronizasyonu başarıyla tamamlandı!');
+        
+      } catch (error) {
+        console.error('❌ Prompt senkronizasyon hatası:', error);
+        alert('❌ Senkronizasyon sırasında hata oluştu: ' + error.message);
+      }
+    }
+    
+    // Genel promptları otomatik senkronize et (ekleme/güncelleme sonrası)
+    async function genelPromptOtoSenkronize() {
+      const token = document.getElementById('githubToken')?.value?.trim();
+      if (!token) return; // Token yoksa sessizce geç
+      
+      try {
+        await genelPromptlariGitHubKaydet();
+      } catch (error) {
+        console.warn('⚠️ Otomatik senkronizasyon başarısız:', error);
+      }
+    }
+    
+    // Haftalık promptları otomatik senkronize et
+    async function haftalikPromptOtoSenkronize() {
+      const token = document.getElementById('githubToken')?.value?.trim();
+      if (!token) return; // Token yoksa sessizce geç
+      
+      try {
+        await haftalikPromptlariGitHubKaydet();
+      } catch (error) {
+        console.warn('⚠️ Otomatik senkronizasyon başarısız:', error);
+      }
+    }
+    
+    // --- GitHub Yardımcı Fonksiyonları ---
+    
+    // Dosya GitHub'a kaydet (genel kullanım)
+    async function dosyaGitHubKaydet(dosyaYolu, veri, commitMesaji) {
+      const owner = githubOwner;
+      const repo = githubRepo;
+      const token = document.getElementById('githubToken')?.value?.trim();
+      const branch = 'main';
+      
+      if (!token) throw new Error('GitHub token bulunamadı');
+      
+      try {
+        // Önce dosya var mı kontrol et
+        let dosyaSha = null;
+        try {
+          const mevcutRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${dosyaYolu}?ref=${branch}`, {
+            headers: { Authorization: `token ${token}` }
+          });
+          
+          if (mevcutRes.ok) {
+            const mevcutData = await mevcutRes.json();
+            dosyaSha = mevcutData.sha;
+          }
+        } catch (e) {
+          // Dosya yoksa sorun değil
+        }
+        
+        // Dosyayı kaydet
+        const requestBody = {
+          message: commitMesaji || `${dosyaYolu} güncellendi`,
+          content: encodeUTF8ToBase64(JSON.stringify(veri, null, 2)),
+          branch
+        };
+        
+        if (dosyaSha) {
+          requestBody.sha = dosyaSha;
+        }
+        
+        const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${dosyaYolu}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `token ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
+        });
+        
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(`GitHub API hatası: ${res.status} - ${errorText}`);
+        }
+        
+        return { success: true };
+        
+      } catch (error) {
+        return { success: false, error: error.message };
+      }
+    }
+    
+    // Dosya GitHub'dan oku (genel kullanım)
+    async function dosyaGitHubOku(dosyaYolu) {
+      const owner = githubOwner;
+      const repo = githubRepo;
+      const token = document.getElementById('githubToken')?.value?.trim();
+      const branch = 'main';
+      
+      if (!token) throw new Error('GitHub token bulunamadı');
+      
+      try {
+        const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${dosyaYolu}?ref=${branch}`, {
+          headers: { Authorization: `token ${token}` }
+        });
+        
+        if (!res.ok) {
+          return { success: false, error: `Dosya bulunamadı: ${res.status}` };
+        }
+        
+        const data = await res.json();
+        const icerik = decodeBase64UTF8(data.content);
+        
+        return {
+          success: true,
+          data: JSON.parse(icerik),
+          sha: data.sha
+        };
+        
+      } catch (error) {
+        return { success: false, error: error.message };
+      }
+    }
+    
     // GPT panelini göster
     function showGptPanel() {
       document.getElementById('gptPanel').style.display = 'block';
@@ -15423,12 +15749,17 @@ ${mesajlar.join('\n')}
       const yeniPrompt = {
         id: Date.now(),
         baslik: baslik,
-        icerik: `Sen bir beslenme uzmanısın. ${baslik} konusunda danışmanlık veriyorsun.`
+        icerik: `Sen bir beslenme uzmanısın. ${baslik} konusunda danışmanlık veriyorsun.`,
+        olusturmaTarihi: new Date().toISOString(),
+        guncellemeTarihi: new Date().toISOString()
       };
       promptlar.push(yeniPrompt);
       localStorage.setItem(GENEL_PROMPTLAR_KEY, JSON.stringify(promptlar));
       document.getElementById('yeniGenelPromptBaslik').value = '';
       renderGenelPromptlar();
+      
+      // Otomatik GitHub senkronizasyonu
+      genelPromptOtoSenkronize();
     }
     
     // Genel promptları render et
@@ -15524,6 +15855,7 @@ ${mesajlar.join('\n')}
       if (prompt) {
         prompt.baslik = yeniBaslik;
         prompt.icerik = yeniIcerik;
+        prompt.guncellemeTarihi = new Date().toISOString();
         localStorage.setItem(GENEL_PROMPTLAR_KEY, JSON.stringify(promptlar));
         
         // Başarı mesajı göster
@@ -15541,6 +15873,9 @@ ${mesajlar.join('\n')}
         renderGenelPromptlar();
         // Seçili şablonu tekrar seç
         setTimeout(() => sablonSecil(seciliSablonId), 100);
+        
+        // Otomatik GitHub senkronizasyonu
+        genelPromptOtoSenkronize();
       }
     }
 
@@ -16671,6 +17006,9 @@ ${mesajlar.join('\n')}
         const yeniPromptlar = promptlar.filter(p => p.id !== id);
         localStorage.setItem(GENEL_PROMPTLAR_KEY, JSON.stringify(yeniPromptlar));
         renderGenelPromptlar();
+        
+        // Otomatik GitHub senkronizasyonu
+        genelPromptOtoSenkronize();
       }
     }
     
@@ -16697,10 +17035,13 @@ ${mesajlar.join('\n')}
         id: Date.now(),
         haftaNo: haftaNo,
         baslik: baslik,
-        icerik: `${haftaNo}. hafta teması: ${baslik}\n\nBu haftaki beslenme listesinde...`
+        icerik: `${haftaNo}. hafta teması: ${baslik}\n\nBu haftaki beslenme listesinde...`,
+        olusturmaTarihi: new Date().toISOString(),
+        guncellemeTarihi: new Date().toISOString()
       };
       
       if (mevcutIndex >= 0) {
+        yeniPrompt.olusturmaTarihi = promptlar[mevcutIndex].olusturmaTarihi; // Orijinal tarih korunsun
         promptlar[mevcutIndex] = yeniPrompt;
       } else {
         promptlar.push(yeniPrompt);
@@ -16710,6 +17051,9 @@ ${mesajlar.join('\n')}
       document.getElementById('yeniHaftaNo').value = '';
       document.getElementById('yeniHaftaBaslik').value = '';
       renderHaftalikPromptlar();
+      
+      // Otomatik GitHub senkronizasyonu
+      haftalikPromptOtoSenkronize();
     }
     
     // Haftalık promptları render et
@@ -16853,7 +17197,11 @@ ${mesajlar.join('\n')}
       const prompt = promptlar.find(p => p.id === id);
       if (prompt) {
         prompt.baslik = yeniBaslik;
+        prompt.guncellemeTarihi = new Date().toISOString();
         localStorage.setItem(HAFTALIK_PROMPTLAR_KEY, JSON.stringify(promptlar));
+        
+        // Otomatik GitHub senkronizasyonu
+        haftalikPromptOtoSenkronize();
       }
     }
     
@@ -16863,7 +17211,11 @@ ${mesajlar.join('\n')}
       const prompt = promptlar.find(p => p.id === id);
       if (prompt) {
         prompt.icerik = yeniIcerik;
+        prompt.guncellemeTarihi = new Date().toISOString();
         localStorage.setItem(HAFTALIK_PROMPTLAR_KEY, JSON.stringify(promptlar));
+        
+        // Otomatik GitHub senkronizasyonu
+        haftalikPromptOtoSenkronize();
       }
     }
     
@@ -16874,6 +17226,9 @@ ${mesajlar.join('\n')}
         const yeniPromptlar = promptlar.filter(p => p.id !== id);
         localStorage.setItem(HAFTALIK_PROMPTLAR_KEY, JSON.stringify(yeniPromptlar));
         renderHaftalikPromptlar();
+        
+        // Otomatik GitHub senkronizasyonu
+        haftalikPromptOtoSenkronize();
       }
     }
     
@@ -16893,6 +17248,13 @@ ${mesajlar.join('\n')}
     window.updateHaftalikPromptIcerik = updateHaftalikPromptIcerik;
     window.deleteHaftalikPrompt = deleteHaftalikPrompt;
     window.haftaSecil = haftaSecil;
+    
+    // GitHub senkronizasyon fonksiyonları
+    window.tumPromptlariSenkronizeEt = tumPromptlariSenkronizeEt;
+    window.genelPromptlariGitHubKaydet = genelPromptlariGitHubKaydet;
+    window.haftalikPromptlariGitHubKaydet = haftalikPromptlariGitHubKaydet;
+    window.genelPromptlariGitHubYukle = genelPromptlariGitHubYukle;
+    window.haftalikPromptlariGitHubYukle = haftalikPromptlariGitHubYukle;
     window.seciliHaftayiKaydet = seciliHaftayiKaydet;
     window.seciliHaftayiSil = seciliHaftayiSil;
     window.gptAnalizeEt = gptAnalizeEt;
@@ -17050,6 +17412,55 @@ ${mesajlar.join('\n')}
       </div>
     </div>
   </div>
+
+  <script>
+    // Sayfa yüklendiğinde otomatik işlemler
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('🚀 Sayfa yüklendi, otomatik prompt senkronizasyonu başlatılıyor...');
+      
+      // GPT ayarlarını yükle
+      loadGptSettings();
+      
+      // Prompt verilerini render et
+      renderGenelPromptlar();
+      renderHaftalikPromptlar();
+      
+      // GitHub token varsa otomatik senkronizasyon dene (3 saniye sonra)
+      setTimeout(async () => {
+        const token = document.getElementById('githubToken')?.value?.trim();
+        if (token) {
+          console.log('🔄 GitHub token mevcut, otomatik prompt yükleme başlatılıyor...');
+          try {
+            // Önce GitHub'dan yüklemeyi dene
+            const genelYuklendi = await genelPromptlariGitHubYukle();
+            const haftalikYuklendi = await haftalikPromptlariGitHubYukle();
+            
+            if (!genelYuklendi && !haftalikYuklendi) {
+              console.log('📤 GitHub\'da prompt bulunamadı, localStorage verisi varsa aktarılacak...');
+              
+              // localStorage'da veri varsa GitHub'a aktar
+              const genelPromptlar = JSON.parse(localStorage.getItem(GENEL_PROMPTLAR_KEY) || '[]');
+              const haftalikPromptlar = JSON.parse(localStorage.getItem(HAFTALIK_PROMPTLAR_KEY) || '[]');
+              
+              if (genelPromptlar.length > 0) {
+                console.log('📤 Genel promptlar localStorage\'dan GitHub\'a aktarılıyor...', genelPromptlar.length, 'adet');
+                await genelPromptlariGitHubKaydet();
+              }
+              
+              if (haftalikPromptlar.length > 0) {
+                console.log('📤 Haftalık promptlar localStorage\'dan GitHub\'a aktarılıyor...', haftalikPromptlar.length, 'adet');
+                await haftalikPromptlariGitHubKaydet();
+              }
+            }
+          } catch (error) {
+            console.warn('⚠️ Otomatik prompt senkronizasyonu başarısız:', error);
+          }
+        } else {
+          console.log('ℹ️ GitHub token bulunamadı, sadece localStorage verileri kullanılacak');
+        }
+      }, 3000);
+    });
+  </script>
 
 </body>
 </html>
