@@ -15862,37 +15862,49 @@ ${mesajlar.join('\n')}
           }
         } catch (e) {
           console.log('🔍 DEBUG: JSON.parse failed, trying manual parsing:', e.message);
-          // Manual object construction
-          if (icerik.includes('"version"') && icerik.includes('"promptlar"')) {
+          
+          // Manuel parsing - JSON.parse bazen çalışmıyor, o yüzden direct parse deneyelim
+          try {
+            // Direct eval deneme (güvenli ortam)
+            parsedData = eval('(' + icerik + ')');
+            console.log('🔍 DEBUG: Manual eval parsing successful');
+            console.log('🔍 DEBUG: parsedData.version:', parsedData?.version);
+            console.log('🔍 DEBUG: parsedData.promptlar length:', parsedData?.promptlar?.length);
+          } catch (evalError) {
+            console.log('🔍 DEBUG: Eval parsing also failed:', evalError.message);
+            
+            // Fallback: Simple regex parsing
             parsedData = {};
             
             // Extract version
             const versionMatch = icerik.match(/"version"\s*:\s*"([^"]+)"/);
-            if (versionMatch) parsedData.version = versionMatch[1];
+            if (versionMatch) {
+              parsedData.version = versionMatch[1];
+            }
             
             // Extract lastUpdated  
             const lastUpdatedMatch = icerik.match(/"lastUpdated"\s*:\s*"([^"]+)"/);
-            if (lastUpdatedMatch) parsedData.lastUpdated = lastUpdatedMatch[1];
+            if (lastUpdatedMatch) {
+              parsedData.lastUpdated = lastUpdatedMatch[1];
+            }
             
             // Extract promptCount
             const promptCountMatch = icerik.match(/"promptCount"\s*:\s*(\d+)/);
-            if (promptCountMatch) parsedData.promptCount = parseInt(promptCountMatch[1]);
-            
-            // Extract promptlar array - FIXED
-            parsedData.promptlar = [];
-            const promptlarMatch = icerik.match(/"promptlar"\s*:\s*\[(.*?)\]/s);
-            if (promptlarMatch) {
-              const arrayContent = promptlarMatch[1].trim();
-              if (arrayContent !== '') {
-                // Simple array parsing for objects
-                // For now, just create empty array, actual prompts will be parsed differently
-                parsedData.promptlar = [];
-              }
+            if (promptCountMatch) {
+              parsedData.promptCount = parseInt(promptCountMatch[1]);
             }
             
-            console.log('🔍 DEBUG: Manual parsing completed, promptlar set to:', parsedData.promptlar);
-          } else {
-            parsedData = { version: '1.0', promptlar: [], promptCount: 0 };
+            // Try to get promptlar count from regex
+            const promptlarCountMatch = icerik.match(/"promptlar"\s*:\s*\[[\s\S]*?\]/);
+            if (promptlarCountMatch) {
+              // Count objects in array by counting opening braces
+              const arrayContent = promptlarCountMatch[0];
+              const objectCount = (arrayContent.match(/\{/g) || []).length;
+              parsedData.promptlar = new Array(objectCount).fill({});
+              console.log('🔍 DEBUG: Found promptlar array with', objectCount, 'items via regex');
+            } else {
+              parsedData.promptlar = [];
+            }
           }
         }
         
@@ -17796,44 +17808,106 @@ ${mesajlar.join('\n')}
       // GPT ayarlarını yükle
       loadGptSettings();
       
+      // GitHub token'ı localStorage'dan geri yükle
+      const savedToken = localStorage.getItem('githubToken');
+      if (savedToken) {
+        const tokenInput = document.getElementById('githubToken');
+        if (tokenInput) {
+          tokenInput.value = savedToken;
+          console.log('🔑 GitHub token localStorage\'dan geri yüklendi');
+        }
+      }
+      
       // Prompt verilerini render et
       renderGenelPromptlar();
       renderHaftalikPromptlar();
       
-      // GitHub token varsa otomatik senkronizasyon dene (3 saniye sonra)
-      setTimeout(async () => {
+      // Çoklu deneme sistemi ile otomatik prompt yükleme
+      let denemeSayisi = 0;
+      const maxDeneme = 3;
+      
+      const promptOtomatikYukle = async () => {
+        denemeSayisi++;
+        console.log(`🔄 Otomatik prompt yükleme denemesi ${denemeSayisi}/${maxDeneme}...`);
+        
         const token = document.getElementById('githubToken')?.value?.trim();
-        if (token) {
-          console.log('🔄 GitHub token mevcut, otomatik prompt yükleme başlatılıyor...');
-          try {
-            // Önce GitHub'dan yüklemeyi dene
-            const genelYuklendi = await genelPromptlariGitHubYukle();
-            const haftalikYuklendi = await haftalikPromptlariGitHubYukle();
-            
-            if (!genelYuklendi && !haftalikYuklendi) {
-              console.log('📤 GitHub\'da prompt bulunamadı, localStorage verisi varsa aktarılacak...');
-              
-              // localStorage'da veri varsa GitHub'a aktar
-              const genelPromptlar = JSON.parse(localStorage.getItem(GENEL_PROMPTLAR_KEY) || '[]');
-              const haftalikPromptlar = JSON.parse(localStorage.getItem(HAFTALIK_PROMPTLAR_KEY) || '[]');
-              
-              if (genelPromptlar.length > 0) {
-                console.log('📤 Genel promptlar localStorage\'dan GitHub\'a aktarılıyor...', genelPromptlar.length, 'adet');
-                await genelPromptlariGitHubKaydet();
-              }
-              
-              if (haftalikPromptlar.length > 0) {
-                console.log('📤 Haftalık promptlar localStorage\'dan GitHub\'a aktarılıyor...', haftalikPromptlar.length, 'adet');
-                await haftalikPromptlariGitHubKaydet();
-              }
-            }
-          } catch (error) {
-            console.warn('⚠️ Otomatik prompt senkronizasyonu başarısız:', error);
+        if (!token) {
+          console.log(`ℹ️ Deneme ${denemeSayisi}: GitHub token bulunamadı`);
+          
+          if (denemeSayisi < maxDeneme) {
+            // 2 saniye sonra tekrar dene
+            setTimeout(promptOtomatikYukle, 2000);
+          } else {
+            console.log('ℹ️ Token bulunamadı, sadece localStorage verileri kullanılacak');
           }
-        } else {
-          console.log('ℹ️ GitHub token bulunamadı, sadece localStorage verileri kullanılacak');
+          return;
         }
-      }, 3000);
+        
+        console.log('🔄 GitHub token mevcut, otomatik prompt yükleme başlatılıyor...');
+        try {
+          // Önce GitHub'dan yüklemeyi dene
+          const genelYuklendi = await genelPromptlariGitHubYukle();
+          const haftalikYuklendi = await haftalikPromptlariGitHubYukle();
+          
+          if (genelYuklendi || haftalikYuklendi) {
+            console.log('✅ GitHub\'dan promptlar başarıyla yüklendi');
+          } else {
+            console.log('📤 GitHub\'da prompt bulunamadı, localStorage verisi varsa aktarılacak...');
+            
+            // localStorage'da veri varsa GitHub'a aktar
+            const genelPromptlar = JSON.parse(localStorage.getItem(GENEL_PROMPTLAR_KEY) || '[]');
+            const haftalikPromptlar = JSON.parse(localStorage.getItem(HAFTALIK_PROMPTLAR_KEY) || '[]');
+            
+            if (genelPromptlar.length > 0) {
+              console.log('📤 Genel promptlar localStorage\'dan GitHub\'a aktarılıyor...', genelPromptlar.length, 'adet');
+              await genelPromptlariGitHubKaydet();
+            }
+            
+            if (haftalikPromptlar.length > 0) {
+              console.log('📤 Haftalık promptlar localStorage\'dan GitHub\'a aktarılıyor...', haftalikPromptlar.length, 'adet');
+              await haftalikPromptlariGitHubKaydet();
+            }
+          }
+        } catch (error) {
+          console.warn('⚠️ Otomatik prompt senkronizasyonu başarısız:', error);
+          
+          if (denemeSayisi < maxDeneme) {
+            console.log(`🔄 ${2} saniye sonra tekrar denenecek...`);
+            setTimeout(promptOtomatikYukle, 2000);
+          } else {
+            console.log('❌ Maksimum deneme sayısına ulaşıldı, sadece localStorage verileri kullanılacak');
+          }
+        }
+      };
+      
+      // İlk denemeyi 1 saniye sonra başlat
+      setTimeout(promptOtomatikYukle, 1000);
+      
+      // GitHub token değiştiğinde otomatik yeniden dene
+      const tokenInput = document.getElementById('githubToken');
+      if (tokenInput) {
+        tokenInput.addEventListener('input', function() {
+          const newToken = this.value.trim();
+          if (newToken) {
+            localStorage.setItem('githubToken', newToken);
+            console.log('🔑 Yeni GitHub token kaydedildi, prompt yükleme başlatılıyor...');
+            // Token değiştiğinde hemen yükle
+            setTimeout(promptOtomatikYukle, 500);
+          }
+        });
+        
+        // Paste olayını da yakala
+        tokenInput.addEventListener('paste', function() {
+          setTimeout(() => {
+            const newToken = this.value.trim();
+            if (newToken) {
+              localStorage.setItem('githubToken', newToken);
+              console.log('🔑 GitHub token yapıştırıldı, prompt yükleme başlatılıyor...');
+              setTimeout(promptOtomatikYukle, 500);
+            }
+          }, 100);
+        });
+      }
     });
   </script>
 
