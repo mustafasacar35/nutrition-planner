@@ -1405,7 +1405,7 @@
         "günlük ortalama 5000 adım önerilir",
         "günlük su tüketimi 2 litrenin üzerinde olması önerilir"
       ],
-      "gptMesaj": "",
+      "gptMesaj": "Merhaba Azime Hanım,\n\nAltıncı haftamıza girerken beslenme ve tedavi planınızda sağlam adımlarla ilerlediğimizi görmekten memnuniyet duyuyorum. Bu hafta, özellikle mikrobesinlerin lipödem tedavisindeki önemini vurgulamak istiyorum. Mikrobesinler, vücudumuzun temel yapı taşlarıdır ve sağlıklı bir lipödem yönetimi için hayati rol oynarlar.\n\nBu haftaki yemek listesinde, vücudunuzun ihtiyaç duyduğu çeşitli vitamin ve mineralleri destekleyecek öğeleri özenle seçtim. Örneğin, sahanda yumurta ve kavurmalı yumurta gibi yemekler, B12 vitamini ve D vitamini açısından zengindir. Bu vitaminler, enerjinizi artırır ve sinir sisteminizin sağlığını destekler. \n\nAyrıca, bu hafta menünüzde sıkça yer verdiğim tulum ve kaşar peyniri, kalsiyum ve protein açısından zengin olup, kemik sağlığınızı ve kas yapınızı desteklemekte. Mantarlı omlet ve mantarlı tavuk sote ise hem demir, hem de çinko açısından önemli; bu besinler cildinizin sıkılaşmasına ve hücresel onarım süreçlerine katkı sağlar.\n\nSalatalarınızda kullandığımız roka, dereotu ve kırmızı lahana gibi yeşillikler, C vitamini açısından zengindir ve bu vitamin, kolajen üretimini destekleyerek cilt sağlığınızı iyileştirmeye yardımcı olur. C vitamini ayrıca antioksidan özellikleri ile de inflamasyona karşı koruma sağlar.\n\nFındık, badem gibi çerezler ise E vitamini ve selenyum açısından zengin seçeneklerdir. Bu mikrobesinler, antioksidan kapasitenizi artırarak hücrelerinizin sağlığını korur ve iyileşme sürecini hızlandırır.\n\nHaftanın tariflerinden biri olan kabaklı börek ve yoğurtlu enginar ya da kereviz salatası, hem lezzetli hem de mikrobesin zengini alternatifler sunuyor. Bu tarifler, hem lifli yapılarıyla sindirim sisteminizi desteklerken hem de içerdikleri vitaminlerle genel sağlığınızı desteklemekte.\n\nÖnümüzdeki günlerde, bu mikrobesinlerin lipödem tedavisinde nasıl bir etki yarattığını ve neden bu kadar önemli olduklarını daha detaylı bir şekilde anlatacağım bir bilgilendirme dosyası göndereceğim. Bu bilgiler, günlük beslenme tercihlerinizde daha bilinçli seçimler yapmanıza yardımcı olacak.\n\nBu hafta, vücudunuzun nasıl tepki verdiğini ve yeni beslenme düzeniniz hakkındaki düşüncelerinizi öğrenmek için sabırsızlanıyorum. Her zaman olduğu gibi bize ulaşabilirsiniz. Gözlemlerinizi ve yorumlarınızı merak ediyorum.\n\nSevgilerle,",
       "kilitli": false,
       "githubLink": "https://github.com/mustafasacar35/nutrition-planner/blob/main/patients/hasta_1755361735190_azi_me_surucu.json",
       "githubRawLink": "https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/patients/hasta_1755361735190_azi_me_surucu.json",
@@ -1488,7 +1488,8 @@
         "haşhaş ezmesi ekmeği (1 dilim)",
         "enginar ya da karnabahar mantısı (100 gr kıyma ile)",
         "kıymalı ıspanak yemeği"
-      ]
+      ],
+      "ekNotlar": ""
     },
     {
       "haftaNo": 7,
@@ -1750,6 +1751,6 @@
   ],
   "olusturmaTarihi": "2025-08-16T16:28:55.190Z",
   "yeniSistem": true,
-  "sonGuncelleme": "2025-08-16T19:25:16.229Z",
+  "sonGuncelleme": "2025-08-16T22:00:29.374Z",
   "githubKaydedildi": true
 }
