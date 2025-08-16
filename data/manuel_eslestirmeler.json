@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "sonGuncelleme": "2025-08-16T08:39:52.355Z",
+  "sonGuncelleme": "2025-08-16T08:40:07.183Z",
   "eslestirmeler": {
     "kofte": {
       "orijinalMetin": "köfte",
@@ -15,6 +15,14 @@
         "yogurtlu_pancar_salatasi.jpg"
       ],
       "eklemeTarihi": "2025-08-16T08:39:40.118Z"
+    },
+    "kiymali karnabahar lahana yemegi 150 gram kiyma ile": {
+      "orijinalMetin": "kıymalı karnabahar / lahana yemeği (150 gram kıyma ile)",
+      "kartlar": [
+        "kiymali_karnabahar_yemegi.jpg",
+        "kiymali_lahana_yemegi.jpg"
+      ],
+      "eklemeTarihi": "2025-08-16T08:40:01.950Z"
     }
   }
 }
