@@ -1235,22 +1235,42 @@
       <!-- Header -->
       <div style="background: linear-gradient(135deg, #28a745, #20c997); color: white; padding: 20px; border-radius: 12px 12px 0 0;">
         <h2 style="margin: 0; display: flex; align-items: center; gap: 10px;">
-          <span style="font-size: 24px;">🤖</span>
-          GPT Prompt Yönetimi
+          <span id="aiPanelIcon" style="font-size: 24px;">🤖</span>
+          <span id="aiPanelTitle">AI Prompt Yönetimi</span>
         </h2>
-        <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 14px;">Beslenme listesi yorumlama için prompt şablonlarını yönetin</p>
+        <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 14px;">Beslenme listesi yorumlama için AI asistanı ve prompt şablonlarını yönetin</p>
       </div>
 
       <!-- İçerik -->
       <div style="overflow-y: auto; max-height: calc(90vh - 140px); padding: 20px;">
         
-        <!-- GPT API Ayarları -->
-        <div style="margin-bottom: 25px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #007bff;">
-          <h3 style="margin: 0 0 15px 0; color: #007bff; display: flex; align-items: center; gap: 8px;">
-            <span>🔑</span> GPT API Ayarları
+        <!-- AI Seçici -->
+        <div style="margin-bottom: 25px; padding: 15px; background: #e3f2fd; border-radius: 8px; border-left: 4px solid #1976d2;">
+          <h3 style="margin: 0 0 15px 0; color: #1976d2; display: flex; align-items: center; gap: 8px;">
+            <span>🎯</span> AI Seçimi
           </h3>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <div>
+          <div style="display: flex; gap: 20px; align-items: center;">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px; border-radius: 8px; background: white; border: 2px solid #ddd; transition: all 0.3s;">
+              <input type="radio" name="aiChoice" value="gpt" id="choiceGPT" checked onchange="switchAI('gpt')" style="margin: 0;">
+              <span style="font-size: 20px;">🤖</span>
+              <span style="font-weight: bold;">ChatGPT</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px; border-radius: 8px; background: white; border: 2px solid #ddd; transition: all 0.3s;">
+              <input type="radio" name="aiChoice" value="grok" id="choiceGrok" onchange="switchAI('grok')" style="margin: 0;">
+              <span style="font-size: 20px;">🦾</span>
+              <span style="font-weight: bold;">Grok AI</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- API Ayarları (Dinamik) -->
+        <div id="apiSettingsContainer" style="margin-bottom: 25px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #007bff;">
+          <h3 style="margin: 0 0 15px 0; color: #007bff; display: flex; align-items: center; gap: 8px;">
+            <span id="apiIcon">🔑</span> <span id="apiTitle">ChatGPT API Ayarları</span>
+          </h3>
+          <div id="apiInputsContainer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <!-- GPT Inputs (Default) -->
+            <div id="gptInputs">
               <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #495057;">API Key:</label>
               <input type="password" id="gptApiKey" placeholder="sk-..." style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px;">
             </div>
@@ -1260,6 +1280,19 @@
                 <option value="gpt-4">GPT-4</option>
                 <option value="gpt-4-turbo">GPT-4 Turbo</option>
                 <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+              </select>
+            </div>
+            <!-- Grok Inputs (Hidden) -->
+            <div id="grokInputs" style="display: none;">
+              <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #495057;">xAI API Key:</label>
+              <input type="password" id="grokApiKey" placeholder="xai-..." style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px;">
+            </div>
+            <div id="grokModelContainer" style="display: none;">
+              <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #495057;">Model:</label>
+              <select id="grokModel" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px;">
+                <option value="grok-4-latest">Grok-4 Latest</option>
+                <option value="grok-beta">Grok Beta</option>
+                <option value="grok-vision-beta">Grok Vision Beta</option>
               </select>
             </div>
           </div>
@@ -1451,6 +1484,7 @@
             <div>
               <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #495057;">Model:</label>
               <select id="grokModel" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px;">
+                <option value="grok-4-latest">Grok-4 Latest</option>
                 <option value="grok-beta">Grok Beta</option>
                 <option value="grok-vision-beta">Grok Vision Beta</option>
               </select>
@@ -7592,7 +7626,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
                   gap: 6px;
                   transition: transform 0.2s ease;
                 " ${hafta.kilitli ? 'disabled' : ''}>
-                  <span>🚀</span> GPT ile Analiz Et
+                  <span>🚀</span> <span id="aiButtonText_${i}">GPT ile Analiz Et</span>
                 </button>
               </div>
 
@@ -7608,7 +7642,7 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
 
               <!-- GPT Sonuç - Kompakt -->
               <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 6px; font-weight: bold; color: #007bff; font-size: 12px;">🎯 GPT Analiz Sonucu:</label>
+                <label style="display: block; margin-bottom: 6px; font-weight: bold; color: #007bff; font-size: 12px;">🎯 <span id="aiResultLabel_${i}">GPT Analiz Sonucu</span>:</label>
                 <textarea id="gptMesaj_${i}" 
                           style="width: 100%; height: 100px; padding: 10px; border: 1px solid #b8daff; border-radius: 6px; font-size: 12px; resize: vertical; background: #ffffff; line-height: 1.4;"
                           placeholder="GPT analiz sonucu burada görünecek..."
@@ -10645,6 +10679,26 @@ function duzenleHafta(i) {
   
   // Tarif satırından alternatifli yemek adlarını ayıkla
   function extractYemekAdlari(satir) {
+    // Gereksiz metinleri temizle - saat, gün adları, genel açıklamalar
+    const gereksizKelimeler = [
+      /^(pazartesi|salı|çarşamba|perşembe|cuma|cumartesi|pazar)$/i,
+      /^(öğle|akşam|kahvaltı|ara öğün)$/i,
+      /tercihen|saat \d+:\d+|civarında|hava kararınca/i,
+      /günlük|adım|önerilir|su tüketimi|litre/i,
+      /^hafta$/i,
+      /^\d+ gram$/i,
+      /^\d+ adet$/i,
+      /^\d+ avuç$/i,
+      /^\d+ ölçek$/i
+    ];
+
+    // Eğer gereksiz kelime ise skip et
+    for (let pattern of gereksizKelimeler) {
+      if (pattern.test(satir.trim())) {
+        return []; // Boş array döndür
+      }
+    }
+
     // Baştaki * ve miktarları temizle
     let s = satir.replace(/^\*+\s*/, '');
     // Parantez içini, + ile eklenenleri, miktarları temizle
@@ -10666,7 +10720,7 @@ function duzenleHafta(i) {
       // Sadece ana yemek adını ayıkla: baştaki ve sondaki boşlukları, miktarları, "için" ve fazlalıkları sil
       adlar = adlar.map(a => a.replace(/^[0-9]+\s*/, '').replace(/\s*[0-9]+\s*(gram|gr|adet|dilim|kase|bardak|ml|kg|tsp|tbsp)?\s*$/i, '').replace(/\s*icin?$/i, '').replace(/\s*ile$/i, '').trim());
       // Çok kısa olanları atma - sadece boş olanları at
-      adlar = adlar.filter(a => a.length > 0);
+      adlar = adlar.filter(a => a.length > 2); // En az 3 karakter olsun
       tumAdlar = tumAdlar.concat(adlar);
     });
     
@@ -15497,10 +15551,88 @@ ${mesajlar.join('\n')}
     const GPT_SETTINGS_KEY = 'gptSettings';
     const GENEL_PROMPTLAR_KEY = 'genelPromptlar';
     const HAFTALIK_PROMPTLAR_KEY = 'haftalikPromptlar';
+
+    // AI seçim sistemi
+    function switchAI(aiType) {
+      const gptInputs = document.getElementById('gptInputs');
+      const grokInputs = document.getElementById('grokInputs');
+      const grokModelContainer = document.getElementById('grokModelContainer');
+      const apiIcon = document.getElementById('apiIcon');
+      const apiTitle = document.getElementById('apiTitle');
+      const panelIcon = document.getElementById('aiPanelIcon');
+      const panelTitle = document.getElementById('aiPanelTitle');
+      const apiContainer = document.getElementById('apiSettingsContainer');
+
+      if (aiType === 'grok') {
+        // Grok'a geç
+        gptInputs.style.display = 'none';
+        grokInputs.style.display = 'block';
+        grokModelContainer.style.display = 'block';
+        apiIcon.textContent = '🦾';
+        apiTitle.textContent = 'Grok AI API Ayarları';
+        panelIcon.textContent = '🦾';
+        panelTitle.textContent = 'Grok AI Prompt Yönetimi';
+        apiContainer.style.borderLeftColor = '#ff4444';
+        apiContainer.style.background = '#fff5f5';
+        
+        // Grok ayarlarını yükle
+        const grokSettings = JSON.parse(localStorage.getItem(GROK_SETTINGS_KEY) || '{}');
+        document.getElementById('grokApiKey').value = grokSettings.apiKey || '';
+        document.getElementById('grokModel').value = grokSettings.model || 'grok-4-latest';
+      } else {
+        // GPT'ye geç
+        gptInputs.style.display = 'block';
+        grokInputs.style.display = 'none';
+        grokModelContainer.style.display = 'none';
+        apiIcon.textContent = '🔑';
+        apiTitle.textContent = 'ChatGPT API Ayarları';
+        panelIcon.textContent = '🤖';
+        panelTitle.textContent = 'ChatGPT Prompt Yönetimi';
+        apiContainer.style.borderLeftColor = '#007bff';
+        apiContainer.style.background = '#f8f9fa';
+        
+        // GPT ayarlarını yükle
+        loadGptSettings();
+      }
+      
+      // Buton ve label metinlerini güncelle
+      updateAILabels(aiType);
+
+      // Seçim durumunu kaydet
+      localStorage.setItem('selectedAI', aiType);
+    }
+    
+    // AI buton ve label metinlerini güncelle
+    function updateAILabels(selectedAI) {
+      try {
+        const aiName = selectedAI.toUpperCase();
+        
+        // Tüm haftalardaki buton metinlerini güncelle
+        document.querySelectorAll('[id^="aiButtonText_"]').forEach(element => {
+          element.textContent = `${aiName} ile Analiz Et`;
+        });
+        
+        // Tüm haftalardaki sonuç label'larını güncelle
+        document.querySelectorAll('[id^="aiResultLabel_"]').forEach(element => {
+          element.textContent = `${aiName} Analiz Sonucu`;
+        });
+        
+        console.log(`✅ AI label'ları ${aiName} için güncellendi`);
+        
+      } catch (error) {
+        console.error('AI label güncelleme hatası:', error);
+      }
+    }
     
     // GPT panelini göster
     function showGptPanel() {
       document.getElementById('gptPanel').style.display = 'block';
+      
+      // Önceki seçimi yükle
+      const selectedAI = localStorage.getItem('selectedAI') || 'gpt';
+      document.getElementById(selectedAI === 'grok' ? 'choiceGrok' : 'choiceGPT').checked = true;
+      switchAI(selectedAI);
+      
       loadGptSettings();
       renderGenelPromptlar();
       renderHaftalikPromptlar();
@@ -15526,18 +15658,33 @@ ${mesajlar.join('\n')}
       }
     }
     
-    // GPT ayarlarını kaydet
+    // AI ayarlarını kaydet (seçilen AI'ya göre)
     function saveGptSettings() {
       try {
-        const settings = {
-          apiKey: document.getElementById('gptApiKey').value,
-          model: document.getElementById('gptModel').value
-        };
-        localStorage.setItem(GPT_SETTINGS_KEY, JSON.stringify(settings));
-        showToast('✅ GPT ayarları kaydedildi', 'success', 2000);
+        const selectedAI = document.querySelector('input[name="selectedAI"]:checked').value;
+        
+        if (selectedAI === 'gpt') {
+          const settings = {
+            apiKey: document.getElementById('gptApiKey').value,
+            model: document.getElementById('gptModel').value
+          };
+          localStorage.setItem(GPT_SETTINGS_KEY, JSON.stringify(settings));
+          showToast('✅ GPT ayarları kaydedildi', 'success', 2000);
+        } else if (selectedAI === 'grok') {
+          const settings = {
+            apiKey: document.getElementById('grokApiKey').value,
+            model: document.getElementById('grokModel').value
+          };
+          localStorage.setItem(GROK_SETTINGS_KEY, JSON.stringify(settings));
+          showToast('✅ Grok ayarları kaydedildi', 'success', 2000);
+        }
+        
+        // AI seçimini de kaydet
+        localStorage.setItem('selectedAI', selectedAI);
+        
       } catch (error) {
-        console.error('GPT ayarları kaydetme hatası:', error);
-        showToast('❌ GPT ayarları kaydedilemedi', 'error', 3000);
+        console.error('AI ayarları kaydetme hatası:', error);
+        showToast('❌ AI ayarları kaydedilemedi', 'error', 3000);
       }
     }
     
@@ -15757,7 +15904,7 @@ ${mesajlar.join('\n')}
         
         // PDF yüklü mü kontrol et
         if (!hafta.pdf && !hafta.pdfYolu) {
-          const pdfYukleOnay = confirm(`📄 ${haftaNo}. Hafta için yemek listesi PDF'i yüklü değil!\n\nGPT analizi yapmak için o haftaya uygun yemek listesi PDF'ini yüklemeniz gerekiyor.\n\nPDF yüklemek ister misiniz?`);
+          const pdfYukleOnay = confirm(`📄 ${haftaNo}. Hafta için yemek listesi PDF'i yüklü değil!\n\nAI analizi yapmak için o haftaya uygun yemek listesi PDF'ini yüklemeniz gerekiyor.\n\nPDF yüklemek ister misiniz?`);
           
           if (pdfYukleOnay) {
             // PDF yükleme inputunu tetikle
@@ -15776,12 +15923,25 @@ ${mesajlar.join('\n')}
           return; // Analizi durdur
         }
         
-        // GPT ayarlarını kontrol et
-        const settings = JSON.parse(localStorage.getItem(GPT_SETTINGS_KEY) || '{}');
-        if (!settings.apiKey) {
-          alert('❌ GPT API Key girilmemiş!\n\nLütfen GPT Yönetimi panelinden API Key\'inizi girin.');
-          showGptPanel();
-          return;
+        // Seçilen AI'yı kontrol et
+        const selectedAI = localStorage.getItem('selectedAI') || 'gpt';
+        
+        // AI ayarlarını kontrol et
+        let settings;
+        if (selectedAI === 'gpt') {
+          settings = JSON.parse(localStorage.getItem(GPT_SETTINGS_KEY) || '{}');
+          if (!settings.apiKey) {
+            alert('❌ GPT API Key girilmemiş!\n\nLütfen AI Yönetimi panelinden API Key\'inizi girin.');
+            showGptPanel();
+            return;
+          }
+        } else if (selectedAI === 'grok') {
+          settings = JSON.parse(localStorage.getItem(GROK_SETTINGS_KEY) || '{}');
+          if (!settings.apiKey) {
+            alert('❌ Grok API Key girilmemiş!\n\nLütfen AI Yönetimi panelinden API Key\'inizi girin.');
+            showGptPanel();
+            return;
+          }
         }
         
         // Dinamik ek bilgileri güncelle (açıklama varsa)
@@ -15789,7 +15949,7 @@ ${mesajlar.join('\n')}
         
         // Loading göster
         const gptMesajTextarea = document.getElementById(`gptMesaj_${haftaIndex}`);
-        gptMesajTextarea.value = '🤖 GPT analiz ediyor, lütfen bekleyin...';
+        gptMesajTextarea.value = `🤖 ${selectedAI.toUpperCase()} analiz ediyor, lütfen bekleyin...`;
         gptMesajTextarea.disabled = true;
         
         // Prompt parçalarını topla
@@ -16683,49 +16843,72 @@ ${mesajlar.join('\n')}
       console.log(`📊 Dinamik güncelleme: ${selectedAnalyses.length} hafta seçili, ${tokenSayisi} token, $${maliyet.toplamMaliyet.toFixed(4)} maliyet`);
     }
     
-    // GPT'ye prompt gönder
+    // AI'ye prompt gönder (seçilen AI'ya göre)
     async function sendToGpt(finalPrompt, haftaIndex, settings, gptMesajTextarea) {
       try {
-        // GPT API'ye gönder
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${settings.apiKey}`
-          },
-          body: JSON.stringify({
-            model: settings.model || 'gpt-4',
-            messages: [{ 
-              role: 'user', 
-              content: finalPrompt 
-            }],
-            max_tokens: 2000,
-            temperature: 0.7
-          })
-        });
+        const selectedAI = localStorage.getItem('selectedAI') || 'gpt';
+        let response;
+        
+        if (selectedAI === 'gpt') {
+          // GPT API'ye gönder
+          response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${settings.apiKey}`
+            },
+            body: JSON.stringify({
+              model: settings.model || 'gpt-4',
+              messages: [{ 
+                role: 'user', 
+                content: finalPrompt 
+              }],
+              max_tokens: 2000,
+              temperature: 0.7
+            })
+          });
+        } else if (selectedAI === 'grok') {
+          // Grok API'ye gönder
+          response = await fetch('https://api.x.ai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${settings.apiKey}`
+            },
+            body: JSON.stringify({
+              model: settings.model || 'grok-beta',
+              messages: [{ 
+                role: 'user', 
+                content: finalPrompt 
+              }],
+              max_tokens: 2000,
+              temperature: 0.7
+            })
+          });
+        }
         
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(`GPT API hatası: ${response.status} - ${errorText}`);
+          throw new Error(`${selectedAI.toUpperCase()} API hatası: ${response.status} - ${errorText}`);
         }
         
         const result = await response.json();
-        const gptYanit = result.choices[0].message.content;
+        const aiYanit = result.choices[0].message.content;
         
         // Sonucu göster
-        gptMesajTextarea.value = gptYanit;
+        gptMesajTextarea.value = aiYanit;
         gptMesajTextarea.disabled = false;
         
         // Senkronize GPT alanını da güncelle
         const syncGptArea = document.getElementById(`gptMesajSync_${haftaIndex}`);
         if (syncGptArea) {
-          syncGptArea.value = gptYanit;
-          console.log('✅ GPT analiz sonucu senkronize alana da kopyalandı');
+          syncGptArea.value = aiYanit;
+          console.log(`✅ ${selectedAI.toUpperCase()} analiz sonucu senkronize alana da kopyalandı`);
         }
         
         // Hafta verisine kaydet
         if (seciliHasta?.haftalar?.[haftaIndex]) {
-          seciliHasta.haftalar[haftaIndex].gptMesaj = gptYanit;
+          seciliHasta.haftalar[haftaIndex].gptMesaj = aiYanit;
           
           // Ek Notları kaydetmeden önce tekrarları temizle
           const ekNotlarDegeri = document.getElementById(`ekNotlar_${haftaIndex}`)?.value || '';
@@ -17082,7 +17265,7 @@ ${mesajlar.join('\n')}
       try {
         const settings = JSON.parse(localStorage.getItem(GROK_SETTINGS_KEY) || '{}');
         document.getElementById('grokApiKey').value = settings.apiKey || '';
-        document.getElementById('grokModel').value = settings.model || 'grok-beta';
+        document.getElementById('grokModel').value = settings.model || 'grok-4-latest';
         document.getElementById('grokProjectId').value = settings.projectId || '';
       } catch (error) {
         console.error('Grok ayarları yükleme hatası:', error);
@@ -17133,7 +17316,7 @@ ${mesajlar.join('\n')}
                 content: "Test mesajı: Merhaba!"
               }
             ],
-            model: settings.model || 'grok-beta',
+            model: settings.model || 'grok-4-latest',
             stream: false,
             temperature: 0.3
           })
@@ -17250,7 +17433,7 @@ ${mesajlar.join('\n')}
               role: h.role,
               content: h.content
             })),
-            model: settings.model || 'grok-beta',
+            model: settings.model || 'grok-4-latest',
             stream: false,
             temperature: 0.7,
             max_tokens: 1500
