@@ -15512,9 +15512,16 @@ ${mesajlar.join('\n')}
         console.log('🔄 Genel promptlar GitHub\'dan yükleniyor...');
         
         const result = await dosyaGitHubOku(GITHUB_PROMPTLAR_PATH);
+        console.log('🔍 DEBUG: GitHub\'dan dönen result:', result);
         
         if (result.success && result.data) {
           const githubData = result.data;
+          console.log('🔍 DEBUG: GitHub data yapısı:', {
+            version: githubData.version,
+            promptCount: githubData.promptCount,
+            promptlarLength: githubData.promptlar?.length
+          });
+          
           const promptlar = githubData.promptlar || [];
           
           console.log('✅ GitHub\'dan', promptlar.length, 'genel prompt yüklendi');
@@ -15527,7 +15534,7 @@ ${mesajlar.join('\n')}
           
           return true;
         } else {
-          console.log('ℹ️ GitHub\'da genel promptlar dosyası bulunamadı');
+          console.log('ℹ️ GitHub\'da genel promptlar dosyası bulunamadı', result.error);
           return false;
         }
       } catch (error) {
@@ -15548,9 +15555,16 @@ ${mesajlar.join('\n')}
         console.log('🔄 Haftalık promptlar GitHub\'dan yükleniyor...');
         
         const result = await dosyaGitHubOku(GITHUB_HAFTALIK_PROMPTLAR_PATH);
+        console.log('🔍 DEBUG: Haftalık GitHub\'dan dönen result:', result);
         
         if (result.success && result.data) {
           const githubData = result.data;
+          console.log('🔍 DEBUG: Haftalık GitHub data yapısı:', {
+            version: githubData.version,
+            promptCount: githubData.promptCount,
+            promptlarLength: githubData.promptlar?.length
+          });
+          
           const promptlar = githubData.promptlar || [];
           
           console.log('✅ GitHub\'dan', promptlar.length, 'haftalık prompt yüklendi');
@@ -15561,7 +15575,7 @@ ${mesajlar.join('\n')}
           // UI'yi güncelle (gerekirse)
           return true;
         } else {
-          console.log('ℹ️ GitHub\'da haftalık promptlar dosyası bulunamadı');
+          console.log('ℹ️ GitHub\'da haftalık promptlar dosyası bulunamadı', result.error);
           return false;
         }
       } catch (error) {
