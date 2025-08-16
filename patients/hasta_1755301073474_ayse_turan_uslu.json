@@ -338,7 +338,7 @@
         "tariflerdeki domatesi salça ile değişim yapabilirsiniz."
       ],
       "gptMesaj": "",
-      "kilitli": true,
+      "kilitli": false,
       "githubLink": "https://github.com/mustafasacar35/nutrition-planner/blob/main/patients/hasta_1755301073474_ayse_turan_uslu.json",
       "githubRawLink": "https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/patients/hasta_1755301073474_ayse_turan_uslu.json",
       "pdfMetinYok": false,
@@ -435,11 +435,12 @@
         "sebze çorbası",
         "haşhaş ezmesi ekmeği (1 dilim)"
       ],
-      "kilitlenmeTarihi": "2025-08-16T07:27:29.812Z"
+      "kilitlenmeTarihi": "2025-08-16T07:27:29.812Z",
+      "kilitAcmaTarihi": "2025-08-16T07:27:51.748Z"
     }
   ],
   "olusturmaTarihi": "2025-08-15T23:37:53.474Z",
   "yeniSistem": true,
-  "sonGuncelleme": "2025-08-16T07:27:29.848Z",
+  "sonGuncelleme": "2025-08-16T07:27:51.772Z",
   "githubKaydedildi": true
 }
