@@ -15721,15 +15721,22 @@ ${mesajlar.join('\n')}
         }
         
         const data = await res.json();
+        console.log('🔍 DEBUG: GitHub raw content length:', data.content?.length);
+        
         const icerik = decodeBase64UTF8(data.content);
+        console.log('🔍 DEBUG: Decoded content (first 100 chars):', icerik?.substring(0, 100));
+        
+        const parsedData = JSON.parse(icerik);
+        console.log('🔍 DEBUG: Parsed data type:', typeof parsedData, 'keys:', Object.keys(parsedData || {}));
         
         return {
           success: true,
-          data: JSON.parse(icerik),
+          data: parsedData,
           sha: data.sha
         };
         
       } catch (error) {
+        console.error('🔍 DEBUG: dosyaGitHubOku error:', error);
         return { success: false, error: error.message };
       }
     }
