@@ -1632,10 +1632,10 @@
       );
       
       if (!hasta) {
-        // Yeni hasta oluştur (manuel kayıt formatına uygun)
+        // Yeni hasta oluştur (STANDART ID ile)
         const hastaId = generatePatientId(hastaAdi);
         hasta = {
-          id: hastaId,
+          id: hastaId, // Tutarlı ID kullanımı
           isim: hastaAdi,
           ad: hastaAdi, // backward compatibility
           not: "",
@@ -1647,7 +1647,7 @@
           yeniSistem: true
         };
         hastalar.push(hasta);
-        console.log('✅ Yeni hasta oluşturuldu:', hastaAdi);
+        console.log(`✅ Yeni hasta oluşturuldu: ${hastaAdi} (ID: ${hastaId})`);
         
         // GitHub'a hasta listesi kaydet
         const token = document.getElementById('githubToken').value.trim();
@@ -1656,22 +1656,22 @@
             // Hasta listesini GitHub'a kaydet
             const hastaListesi = await hastaListesiYukle() || [];
             const yeniHastaListesi = {
-              id: hastaId,
+              id: hastaId, // Aynı ID'yi kullan
               isim: hastaAdi,
               kayitTarihi: new Date().toISOString(),
               durumu: 'aktif'
             };
             
             // Aynı hasta yoksa ekle
-            if (!hastaListesi.find(h => h.id === hastaId)) {
+            if (!hastaListesi.find(h => h.id === hastaId || h.isim === hastaAdi)) {
               hastaListesi.push(yeniHastaListesi);
-              await hastaListesiKaydet(hastaListesi);
+              await hastaListesiKaydet(hastaListesi); // Array olarak gönder
               console.log('✅ Hasta listesi GitHub\'a güncellendi');
             }
             
             // Hasta verisini GitHub'a kaydet
             await hastayiAyriKaydet(hasta);
-            console.log('✅ Hasta verisi GitHub\'a kaydedildi');
+            console.log(`✅ Hasta verisi GitHub'a kaydedildi: ${generateFileName(hasta)}`);
             
           } catch (error) {
             console.error('⚠️ GitHub kaydetme hatası:', error);
@@ -2938,7 +2938,7 @@
       }
     }
     
-    // Hasta listesini GitHub'a kaydet
+    // Hasta listesini GitHub'a kaydet (ARRAY VERİ TİPİ)
     async function hastaListesiKaydet(hastaListesi) {
       const token = document.getElementById('githubToken').value.trim();
       if (!token) {
@@ -2950,8 +2950,13 @@
         const owner = 'mustafasacar35';
         const repo = 'nutrition-planner';
         
+        // Array'i JSON string'e çevir
+        const jsonString = Array.isArray(hastaListesi) ? 
+          JSON.stringify(hastaListesi, null, 2) : 
+          hastaListesi;
+        
         // UTF-8 için doğru encoding
-        const content = encodeUTF8ToBase64(hastaListesi);
+        const content = encodeUTF8ToBase64(jsonString);
         
         // Önce mevcut dosyanın SHA'sını al
         let sha = undefined;
@@ -2972,7 +2977,7 @@
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            message: `Hasta listesi güncellendi: ${hastaListesi.length} hasta`,
+            message: `Hasta listesi güncellendi: ${Array.isArray(hastaListesi) ? hastaListesi.length : 'güncelleme'} hasta`,
             content: content,
             sha: sha
           })
@@ -3176,27 +3181,7 @@
 
     // === YENİ SİSTEM: HER HASTA İÇİN AYRI JSON DOSYASI ===
     
-    // Dosya adı oluşturma fonksiyonu
-    function generateFileName(hasta) {
-      if (!hasta || !hasta.isim) {
-        console.error('❌ generateFileName: Geçersiz hasta objesi', hasta);
-        return 'hasta_gecersiz.json';
-      }
-      
-      const temizIsim = hasta.isim
-        .toLowerCase()
-        .replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ş/g, 's')
-        .replace(/ü/g, 'u').replace(/ö/g, 'o').replace(/ı/g, 'i')
-        .replace(/[^a-z0-9]/g, '_')
-        .replace(/_+/g, '_')
-        .replace(/^_|_$/g, '');
-        
-      // ID yoksa isimden oluştur
-      const hastaId = hasta.id || temizIsim;
-      
-      return `hasta_${hastaId}_${temizIsim}.json`;
-    }
-    
+    // STANDART ID OLUŞTURMA FONKSİYONU
     function generatePatientId(isim) {
       if (!isim) return 'hasta_gecersiz';
       
@@ -3207,6 +3192,20 @@
         .replace(/[^a-z0-9]/g, '_')
         .replace(/_+/g, '_')
         .replace(/^_|_$/g, '');
+    }
+
+    // STANDART DOSYA ADI OLUŞTURMA FONKSİYONU (TUTARLI)
+    function generateFileName(hasta) {
+      if (!hasta || !hasta.isim) {
+        console.error('❌ generateFileName: Geçersiz hasta objesi', hasta);
+        return 'hasta_gecersiz.json';
+      }
+      
+      // Hasta ID'si yoksa isimden oluştur
+      const hastaId = hasta.id || generatePatientId(hasta.isim);
+      
+      // Dosya adı: hasta_[id].json formatı (basit ve tutarlı)
+      return `hasta_${hastaId}.json`;
     }
     
     // Patients klasörünü oluşturma
@@ -3295,8 +3294,9 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
           });
         }
         
-        // UTF-8 için doğru encoding
-        const content = encodeUTF8ToBase64(hasta);
+        // UTF-8 için doğru encoding (OBJECT -> JSON STRING)
+        const jsonString = JSON.stringify(hasta, null, 2);
+        const content = encodeUTF8ToBase64(jsonString);
         
         // Önce dosyanın SHA'sını kontrol et
         let sha = undefined;
@@ -6116,11 +6116,22 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         const owner = 'mustafasacar35';
         const repo = 'nutrition-planner';
         
-        // Dosya adı alternatifleri dene
+        // Dosya adı alternatifleri dene (TUTARLI SIRA)
+        const hastaId = generatePatientId(hastaBilgi.isim);
         const dosyaAdlari = [
+          // 1. Öncelik: Standart format (hasta_[id].json)
+          `hasta_${hastaId}.json`,
+          
+          // 2. Mevcut ID ile deneme (geri uyumluluk)
           generateFileName({ id: hastaBilgi.id, isim: hastaBilgi.isim }),
-          generateFileName({ id: hastaBilgi.id, isim: turkceKarakterDuzelt(hastaBilgi.isim) }),
+          
+          // 3. Eski formatlar (geri uyumluluk)
+          `hasta_${hastaBilgi.id}_${hastaId}.json`,
           generateFileName({ isim: hastaBilgi.isim }),
+          
+          // 4. Türkçe karakter düzeltmeli formatlar
+          `hasta_${generatePatientId(turkceKarakterDuzelt(hastaBilgi.isim))}.json`,
+          generateFileName({ id: hastaBilgi.id, isim: turkceKarakterDuzelt(hastaBilgi.isim) }),
           generateFileName({ isim: turkceKarakterDuzelt(hastaBilgi.isim) })
         ];
         
@@ -6152,7 +6163,14 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         
         if (hastaDetay) {
           // ⭐ YENİ YAKLAŞIM: localStorage'ı temel al, GitHub'ı sadece eksik PDF'ler için kullan
-          if (seciliHasta && seciliHasta.id === hastaDetay.id && seciliHasta.haftalar) {
+          // ID eşleştirmesi (flexible matching)
+          const githubHastaId = generatePatientId(hastaDetay.isim);
+          const localHastaId = generatePatientId(hastaBilgi.isim);
+          const idEslesiyor = hastaDetay.id === hastaBilgi.id || 
+                            githubHastaId === localHastaId ||
+                            hastaDetay.isim === hastaBilgi.isim;
+                            
+          if (seciliHasta && idEslesiyor && seciliHasta.haftalar) {
             console.log('🔄 localStorage verisi temel alınıyor, GitHub sadece eksik PDF bağlantıları için kullanılacak');
             
             // LocalStorage'daki hafta verilerini koru
@@ -6189,6 +6207,9 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
           } else {
             // Yeni hasta veya hafta verisi yok - GitHub verisini al
             console.log('🆕 GitHub\'dan hasta verisi alınıyor:', hastaDetay.isim);
+            
+            // GitHub'dan gelen ID'yi standart hale getir
+            hastaDetay.id = generatePatientId(hastaDetay.isim);
           }
           
           // Cache'i de güncelle (çoklu PDF işlemi için)
