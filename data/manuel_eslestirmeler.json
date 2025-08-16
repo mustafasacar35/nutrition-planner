@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "sonGuncelleme": "2025-08-16T08:40:21.651Z",
+  "sonGuncelleme": "2025-08-16T08:40:28.166Z",
   "eslestirmeler": {
     "kofte": {
       "orijinalMetin": "köfte",
@@ -23,6 +23,13 @@
         "kiymali_lahana_yemegi.jpg"
       ],
       "eklemeTarihi": "2025-08-16T08:40:01.950Z"
+    },
+    "hashas ezmesi ekmegi 1 dilim": {
+      "orijinalMetin": "haşhaş ezmesi ekmeği (1 dilim)",
+      "kartlar": [
+        "hashas_ezmesi_ekmegi.jpg"
+      ],
+      "eklemeTarihi": "2025-08-16T08:40:22.910Z"
     }
   }
 }
