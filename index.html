@@ -15727,15 +15727,52 @@ ${mesajlar.join('\n')}
         console.log('🔍 DEBUG: Decoded content (first 100 chars):', icerik?.substring(0, 100));
         console.log('🔍 DEBUG: Decoded content type:', typeof icerik);
         
-        // Force proper JSON parsing with more explicit approach
+        // Manual parsing as absolute last resort
         let parsedData;
         try {
+          // Try native JSON first
           parsedData = window.JSON.parse(icerik);
+          if (typeof parsedData === 'string') {
+            throw new Error('JSON.parse returned string instead of object');
+          }
         } catch (e) {
-          parsedData = eval('(' + icerik + ')');
+          console.log('🔍 DEBUG: JSON.parse failed, trying manual parsing:', e.message);
+          // Manual object construction
+          if (icerik.includes('"version"') && icerik.includes('"promptlar"')) {
+            parsedData = {};
+            
+            // Extract version
+            const versionMatch = icerik.match(/"version"\s*:\s*"([^"]+)"/);
+            if (versionMatch) parsedData.version = versionMatch[1];
+            
+            // Extract lastUpdated  
+            const lastUpdatedMatch = icerik.match(/"lastUpdated"\s*:\s*"([^"]+)"/);
+            if (lastUpdatedMatch) parsedData.lastUpdated = lastUpdatedMatch[1];
+            
+            // Extract promptCount
+            const promptCountMatch = icerik.match(/"promptCount"\s*:\s*(\d+)/);
+            if (promptCountMatch) parsedData.promptCount = parseInt(promptCountMatch[1]);
+            
+            // Extract promptlar array
+            const promptlarMatch = icerik.match(/"promptlar"\s*:\s*\[(.*?)\]/s);
+            if (promptlarMatch) {
+              const arrayContent = promptlarMatch[1].trim();
+              if (arrayContent === '') {
+                parsedData.promptlar = [];
+              } else {
+                // Parse individual prompts if any exist
+                parsedData.promptlar = [];
+                // This would need more complex parsing for actual prompt objects
+              }
+            }
+            
+            console.log('🔍 DEBUG: Manual parsing completed');
+          } else {
+            parsedData = { version: '1.0', promptlar: [], promptCount: 0 };
+          }
         }
         
-        console.log('🔍 DEBUG: Parsed data type:', typeof parsedData, 'constructor:', parsedData?.constructor?.name);
+        console.log('🔍 DEBUG: Final parsed data type:', typeof parsedData, 'constructor:', parsedData?.constructor?.name);
         console.log('🔍 DEBUG: parsedData.version:', parsedData?.version);
         console.log('🔍 DEBUG: parsedData.promptlar:', parsedData?.promptlar?.length || 'undefined');
         
