@@ -15866,44 +15866,68 @@ ${mesajlar.join('\n')}
           // Manuel parsing - JSON.parse bazen çalışmıyor, o yüzden direct parse deneyelim
           try {
             // Direct eval deneme (güvenli ortam)
-            parsedData = eval('(' + icerik + ')');
+            const evalResult = eval('(' + icerik + ')');
             console.log('🔍 DEBUG: Manual eval parsing successful');
-            console.log('🔍 DEBUG: parsedData.version:', parsedData?.version);
-            console.log('🔍 DEBUG: parsedData.promptlar length:', parsedData?.promptlar?.length);
+            console.log('🔍 DEBUG: evalResult type:', typeof evalResult, 'constructor:', evalResult?.constructor?.name);
+            
+            if (typeof evalResult === 'object' && evalResult !== null) {
+              parsedData = evalResult;
+              console.log('🔍 DEBUG: parsedData assigned from eval');
+              console.log('🔍 DEBUG: parsedData.version:', parsedData?.version);
+              console.log('🔍 DEBUG: parsedData.promptlar length:', parsedData?.promptlar?.length);
+            } else {
+              throw new Error('Eval result is not an object');
+            }
           } catch (evalError) {
             console.log('🔍 DEBUG: Eval parsing also failed:', evalError.message);
             
-            // Fallback: Simple regex parsing
-            parsedData = {};
-            
-            // Extract version
-            const versionMatch = icerik.match(/"version"\s*:\s*"([^"]+)"/);
-            if (versionMatch) {
-              parsedData.version = versionMatch[1];
-            }
-            
-            // Extract lastUpdated  
-            const lastUpdatedMatch = icerik.match(/"lastUpdated"\s*:\s*"([^"]+)"/);
-            if (lastUpdatedMatch) {
-              parsedData.lastUpdated = lastUpdatedMatch[1];
-            }
-            
-            // Extract promptCount
-            const promptCountMatch = icerik.match(/"promptCount"\s*:\s*(\d+)/);
-            if (promptCountMatch) {
-              parsedData.promptCount = parseInt(promptCountMatch[1]);
-            }
-            
-            // Try to get promptlar count from regex
-            const promptlarCountMatch = icerik.match(/"promptlar"\s*:\s*\[[\s\S]*?\]/);
-            if (promptlarCountMatch) {
-              // Count objects in array by counting opening braces
-              const arrayContent = promptlarCountMatch[0];
-              const objectCount = (arrayContent.match(/\{/g) || []).length;
-              parsedData.promptlar = new Array(objectCount).fill({});
-              console.log('🔍 DEBUG: Found promptlar array with', objectCount, 'items via regex');
-            } else {
-              parsedData.promptlar = [];
+            // Son çare: String'i tekrar JSON.parse deneyelim
+            try {
+              // Bazen decoded string hala JSON string olabiliyor
+              const cleanedContent = icerik.trim();
+              if (cleanedContent.startsWith('"') && cleanedContent.endsWith('"')) {
+                // Double-encoded JSON string
+                const unescapedContent = JSON.parse(cleanedContent);
+                parsedData = JSON.parse(unescapedContent);
+                console.log('🔍 DEBUG: Double-encoded JSON parsing successful');
+              } else {
+                throw new Error('Not double-encoded');
+              }
+            } catch (doubleParseError) {
+              console.log('🔍 DEBUG: Double parsing also failed:', doubleParseError.message);
+              
+              // Fallback: Simple regex parsing
+              parsedData = {};
+              
+              // Extract version
+              const versionMatch = icerik.match(/"version"\s*:\s*"([^"]+)"/);
+              if (versionMatch) {
+                parsedData.version = versionMatch[1];
+              }
+              
+              // Extract lastUpdated  
+              const lastUpdatedMatch = icerik.match(/"lastUpdated"\s*:\s*"([^"]+)"/);
+              if (lastUpdatedMatch) {
+                parsedData.lastUpdated = lastUpdatedMatch[1];
+              }
+              
+              // Extract promptCount
+              const promptCountMatch = icerik.match(/"promptCount"\s*:\s*(\d+)/);
+              if (promptCountMatch) {
+                parsedData.promptCount = parseInt(promptCountMatch[1]);
+              }
+              
+              // Try to get promptlar count from regex
+              const promptlarCountMatch = icerik.match(/"promptlar"\s*:\s*\[[\s\S]*?\]/);
+              if (promptlarCountMatch) {
+                // Count objects in array by counting opening braces
+                const arrayContent = promptlarCountMatch[0];
+                const objectCount = (arrayContent.match(/\{/g) || []).length;
+                parsedData.promptlar = new Array(objectCount).fill({});
+                console.log('🔍 DEBUG: Found promptlar array with', objectCount, 'items via regex');
+              } else {
+                parsedData.promptlar = [];
+              }
             }
           }
         }
