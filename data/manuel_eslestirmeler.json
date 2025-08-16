@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "sonGuncelleme": "2025-08-16T08:40:34.644Z",
+  "sonGuncelleme": "2025-08-16T08:40:41.961Z",
   "eslestirmeler": {
     "kofte": {
       "orijinalMetin": "köfte",
@@ -30,6 +30,13 @@
         "hashas_ezmesi_ekmegi.jpg"
       ],
       "eklemeTarihi": "2025-08-16T08:40:22.910Z"
+    },
+    "brokoli corbasi": {
+      "orijinalMetin": "brokoli çorbası",
+      "kartlar": [
+        "ketojenik_brokoli_corbasi.jpg"
+      ],
+      "eklemeTarihi": "2025-08-16T08:40:36.702Z"
     }
   }
 }
