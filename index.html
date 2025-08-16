@@ -1268,8 +1268,10 @@
             <div>
               <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #495057;">Model:</label>
               <select id="gptModel" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px;">
-                <option value="gpt-4">GPT-4</option>
+                <option value="gpt-4o">GPT-4o (Latest)</option>
+                <option value="gpt-4o-mini">GPT-4o Mini</option>
                 <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                <option value="gpt-4">GPT-4</option>
                 <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
               </select>
             </div>
@@ -1281,8 +1283,10 @@
             <div id="grokModelContainer" style="display: none;">
               <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #495057;">Model:</label>
               <select id="grokModel" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px;">
-                <option value="grok-beta">Grok Beta</option>
-                <option value="grok-2-1212">Grok 2 (Latest)</option>
+                <option value="grok-2-1212">Grok 2 (December 2024)</option>
+                <option value="grok-2-vision-1212">Grok 2 Vision (December 2024)</option>
+                <option value="grok-2-public">Grok 2 Public</option>
+                <option value="grok-vision-beta">Grok Vision Beta</option>
               </select>
             </div>
           </div>
@@ -15447,7 +15451,7 @@ ${mesajlar.join('\n')}
         // Grok ayarlarını yükle
         const grokSettings = JSON.parse(localStorage.getItem(GROK_SETTINGS_KEY) || '{}');
         document.getElementById('grokApiKey').value = grokSettings.apiKey || '';
-        document.getElementById('grokModel').value = grokSettings.model || 'grok-beta';
+        document.getElementById('grokModel').value = grokSettings.model || 'grok-2-1212';
       } else {
         // GPT'ye geç
         gptInputs.style.display = 'block';
@@ -16745,7 +16749,7 @@ ${mesajlar.join('\n')}
               'Authorization': `Bearer ${settings.apiKey}`
             },
             body: JSON.stringify({
-              model: settings.model || 'grok-beta',
+              model: settings.model || 'grok-2-1212',
               messages: [{ 
                 role: 'user', 
                 content: finalPrompt 
@@ -17134,7 +17138,7 @@ ${mesajlar.join('\n')}
       try {
         const settings = JSON.parse(localStorage.getItem(GROK_SETTINGS_KEY) || '{}');
         document.getElementById('grokApiKey').value = settings.apiKey || '';
-        document.getElementById('grokModel').value = settings.model || 'grok-beta';
+        document.getElementById('grokModel').value = settings.model || 'grok-2-1212';
         document.getElementById('grokProjectId').value = settings.projectId || '';
       } catch (error) {
         console.error('Grok ayarları yükleme hatası:', error);
@@ -17185,7 +17189,7 @@ ${mesajlar.join('\n')}
                 content: "Test mesajı: Merhaba!"
               }
             ],
-            model: settings.model || 'grok-beta',
+            model: settings.model || 'grok-2-1212',
             stream: false,
             temperature: 0.3
           })
@@ -17302,7 +17306,7 @@ ${mesajlar.join('\n')}
               role: h.role,
               content: h.content
             })),
-            model: settings.model || 'grok-beta',
+            model: settings.model || 'grok-2-1212',
             stream: false,
             temperature: 0.7,
             max_tokens: 1500
