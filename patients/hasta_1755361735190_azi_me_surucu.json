@@ -617,7 +617,7 @@
         "günlük ortalama 5000 adım önerilir",
         "günlük su tüketimi 2 litrenin üzerinde olması önerilir"
       ],
-      "gptMesaj": "",
+      "gptMesaj": "Merhaba Azime Hanım,\n\nÜçüncü haftamıza başlarken, programda daha önce attığımız adımların üzerine yeni katkılar eklemek için buradayız. Bu hafta, sindirim sistemimizin daha da güçlenmesini sağlayacak bazı değişiklikler yapacağız. İlk iki haftada temel bir temizlik sürecinden geçtik ve şimdi bu temiz zemine sağlıklı yapı taşları ekleyeceğiz.\n\nÖzellikle bu hafta, süt ürünlerini tekrar diyetinize dahil ediyoruz ama bu sefer daha kontrollü bir şekilde. Süt ürünleri, içerdikleri kalsiyum ve probiyotikler sayesinde hem kemik sağlığınızı destekler hem de bağırsak floranızı iyileştirebilir. Ancak, lipödem yönetiminde süt ürünlerinin tüketimini dengeli tutmak önemlidir. Bu nedenle, haftalık menünüzde ölçülü miktarda tulum ve kaşar peyniri yer alıyor. Bunlar, fermente ürünler oldukları için sindirim sistemi üzerinde daha olumlu etkiler yaratma potansiyeline sahiptir.\n\nMenüdeki diğer ögeler de bağırsak sağlığınızı desteklemek için özenle seçildi. Örneğin, badem unu ekmeği, gluten içermeyen bir alternatif olarak karşımıza çıkıyor. Gluten, bazı insanlarda inflamasyona neden olabilir ve lipödem belirtilerini şiddetlendirebilir. Aynı zamanda, yemek listesindeki çiğ badem ve ceviz gibi sağlıklı yağlar içeren kuruyemişler, hem enerji verir hem de inflamasyonu azaltmaya yardımcı olur. \n\nYine bu hafta, probiyotik açısından zengin olan ev yapımı yoğurdu ve sindirimi kolaylaştıran sebzeli omletler gibi yiyecekleri de menünüze ekledik. Bu tür probiyotikler, bağırsak floranızı destekleyerek genel sağlığınızı ve özellikle bağışıklık sisteminizi güçlendirir.\n\nBu hafta ayrıca, bağırsak sağlığını desteklemek için kollajen takviyesi almanızı öneriyoruz. Kollajen, bağırsak duvarlarınızın sağlığını korumak ve iyileştirmek için önemlidir, aynı zamanda cildinizin elastikiyetini artırmaya da yardımcı olur.\n\nEğer bu yeni eklemelerle ilgili herhangi bir sorunuz olursa veya nasıl hissettiğinizi paylaşmak isterseniz, lütfen bana ulaşmaktan çekinmeyin. Beslenme düzeninizde yaptığımız bu değişikliklerin vücudunuza nasıl uyum sağladığını duymak benim için önemli.\n\nHafta boyunca sağlıkla kalın,\nSevgilerimle.",
       "kilitli": false,
       "githubLink": "https://github.com/mustafasacar35/nutrition-planner/blob/main/patients/hasta_1755361735190_azi_me_surucu.json",
       "githubRawLink": "https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/patients/hasta_1755361735190_azi_me_surucu.json",
@@ -716,7 +716,8 @@
         "borani (yoğurtlu ıspanak)",
         "közlenmiş patlıcan salatası",
         "zeytinyağlı deniz börülcesi ya da brokoli salata"
-      ]
+      ],
+      "ekNotlar": ""
     },
     {
       "haftaNo": 4,
@@ -1748,6 +1749,6 @@
   ],
   "olusturmaTarihi": "2025-08-16T16:28:55.190Z",
   "yeniSistem": true,
-  "sonGuncelleme": "2025-08-16T16:39:37.420Z",
+  "sonGuncelleme": "2025-08-16T16:40:42.449Z",
   "githubKaydedildi": true
 }
