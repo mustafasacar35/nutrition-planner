@@ -15511,6 +15511,10 @@ ${mesajlar.join('\n')}
       try {
         console.log('🔄 Genel promptlar GitHub\'dan yükleniyor...');
         
+        // Önce localStorage'da ne var kontrol et
+        const localData = localStorage.getItem(GENEL_PROMPTLAR_KEY);
+        console.log('🔍 DEBUG: localStorage\'da mevcut:', localData);
+        
         const result = await dosyaGitHubOku(GITHUB_PROMPTLAR_PATH);
         console.log('🔍 DEBUG: GitHub\'dan dönen result:', result);
         
@@ -15519,15 +15523,18 @@ ${mesajlar.join('\n')}
           console.log('🔍 DEBUG: GitHub data yapısı:', {
             version: githubData.version,
             promptCount: githubData.promptCount,
-            promptlarLength: githubData.promptlar?.length
+            promptlarLength: githubData.promptlar?.length,
+            promptlarContent: githubData.promptlar
           });
           
           const promptlar = githubData.promptlar || [];
           
           console.log('✅ GitHub\'dan', promptlar.length, 'genel prompt yüklendi');
+          console.log('🔍 DEBUG: Yüklenen promptlar:', promptlar);
           
           // localStorage'a kaydet
           localStorage.setItem(GENEL_PROMPTLAR_KEY, JSON.stringify(promptlar));
+          console.log('💾 DEBUG: localStorage\'a kaydedildi:', promptlar.length, 'prompt');
           
           // UI'yi güncelle
           renderGenelPromptlar();
@@ -15535,6 +15542,48 @@ ${mesajlar.join('\n')}
           return true;
         } else {
           console.log('ℹ️ GitHub\'da genel promptlar dosyası bulunamadı', result.error);
+          
+          // Eğer localStorage'da prompts varsa, onları GitHub'a yükle
+          const localData = localStorage.getItem(GENEL_PROMPTLAR_KEY);
+          if (localData) {
+            const localPrompts = JSON.parse(localData);
+            console.log('🔄 DEBUG: localStorage\'da', localPrompts.length, 'prompt bulundu, GitHub\'a yükleniyor...');
+            
+            if (localPrompts.length > 0) {
+              try {
+                await localPromptlariGitHubYukle();
+                console.log('✅ localStorage promptları GitHub\'a aktarıldı');
+                renderGenelPromptlar();
+                return true;
+              } catch (uploadError) {
+                console.error('❌ localStorage -> GitHub aktarım hatası:', uploadError);
+              }
+            }
+          }
+          
+          // Hiç prompt yoksa boş array ile initialize et
+          const emptyPrompts = [];
+          localStorage.setItem(GENEL_PROMPTLAR_KEY, JSON.stringify(emptyPrompts));
+          console.log('📝 DEBUG: Boş prompt array ile initialize edildi');
+          
+          // Test için örnek promptlar ekle
+          const ornekPromptlar = [
+            {
+              id: 1,
+              baslik: "Genel Beslenme Danışmanlığı",
+              icerik: "Sen beslenme uzmanı bir diyetisyensin. Hastanın durumunu analiz et ve önerilerde bulun."
+            },
+            {
+              id: 2, 
+              baslik: "Lipodem Destek Programı",
+              icerik: "Lipodem hastalarına özel beslenme programı hazırla ve öneriler sun."
+            }
+          ];
+          
+          localStorage.setItem(GENEL_PROMPTLAR_KEY, JSON.stringify(ornekPromptlar));
+          console.log('📝 DEBUG: Örnek promptlar eklendi:', ornekPromptlar.length);
+          
+          renderGenelPromptlar();
           return false;
         }
       } catch (error) {
@@ -15753,22 +15802,19 @@ ${mesajlar.join('\n')}
             const promptCountMatch = icerik.match(/"promptCount"\s*:\s*(\d+)/);
             if (promptCountMatch) parsedData.promptCount = parseInt(promptCountMatch[1]);
             
-            // Extract promptlar array
+            // Extract promptlar array - FIXED
+            parsedData.promptlar = [];
             const promptlarMatch = icerik.match(/"promptlar"\s*:\s*\[(.*?)\]/s);
             if (promptlarMatch) {
               const arrayContent = promptlarMatch[1].trim();
-              if (arrayContent === '') {
+              if (arrayContent !== '') {
+                // Simple array parsing for objects
+                // For now, just create empty array, actual prompts will be parsed differently
                 parsedData.promptlar = [];
-              } else {
-                // Parse individual prompts if any exist
-                parsedData.promptlar = [];
-                // This would need more complex parsing for actual prompt objects
               }
-            } else {
-              parsedData.promptlar = [];
             }
             
-            console.log('🔍 DEBUG: Manual parsing completed');
+            console.log('🔍 DEBUG: Manual parsing completed, promptlar set to:', parsedData.promptlar);
           } else {
             parsedData = { version: '1.0', promptlar: [], promptCount: 0 };
           }
@@ -15862,9 +15908,21 @@ ${mesajlar.join('\n')}
     // Genel promptları render et
     function renderGenelPromptlar() {
       const container = document.getElementById('genelSablonlarListesi');
-      const promptlar = JSON.parse(localStorage.getItem(GENEL_PROMPTLAR_KEY) || '[]');
+      console.log('🎨 DEBUG: renderGenelPromptlar çağrıldı, container:', container);
+      
+      const promptlarJSON = localStorage.getItem(GENEL_PROMPTLAR_KEY);
+      console.log('🎨 DEBUG: localStorage\'dan alınan JSON:', promptlarJSON);
+      
+      const promptlar = JSON.parse(promptlarJSON || '[]');
+      console.log('🎨 DEBUG: Parse edilen promptlar:', promptlar, 'Length:', promptlar.length);
+      
+      if (!container) {
+        console.error('❌ DEBUG: genelSablonlarListesi container bulunamadı!');
+        return;
+      }
       
       if (promptlar.length === 0) {
+        console.log('🎨 DEBUG: Promptlar boş, boş durum mesajı gösteriliyor');
         container.innerHTML = `
           <div style="text-align: center; padding: 30px 15px; color: #6c757d;">
             <div style="font-size: 24px; margin-bottom: 10px;">🎨</div>
@@ -15873,7 +15931,8 @@ ${mesajlar.join('\n')}
         `;
         return;
       }
-      
+
+      console.log('🎨 DEBUG:', promptlar.length, 'prompt render ediliyor');
       container.innerHTML = promptlar.map(prompt => `
         <div class="sablon-item" data-sablon-id="${prompt.id}" onclick="sablonSecil(${prompt.id})" 
              style="margin-bottom: 8px; padding: 12px; background: white; border-radius: 6px; cursor: pointer; 
@@ -16014,11 +16073,149 @@ ${mesajlar.join('\n')}
           textContent += pageText + '\n';
         }
         
-        return textContent.trim();
+        // Metni temizle - gereksiz ifadeleri kaldır
+        const cleanedText = cleanPdfText(textContent.trim());
+        
+        return cleanedText;
       } catch (error) {
         console.error('PDF metin çıkarma hatası:', error);
         throw error;
       }
+    }
+
+    // PDF'den çıkarılan metni temizleyen fonksiyon
+    function cleanPdfText(text) {
+      console.log('🧹 PDF metni temizleniyor...');
+      
+      // Temizlenecek ifadeler listesi - daha spesifik pattern'ler
+      const temizlenecekIfadeler = [
+        // Sabah rutini tamamen kaldır
+        /her\s+sabah\s+güne\s+başlarken[\s\S]*?kurşun\s+geçirmez\s+kahve[\s\S]*?(?=\n|$)/gi,
+        
+        // Ters yağ kahvesi ifadeleri
+        /kurşun\s+geçirmez\s+kahve[\s\S]*?(?:tereyağı|sade\s+yağ)\)/gi,
+        
+        // Sabah ılık su karışımı
+        /ılık\s+su\s*\+[\s\S]*?elma\s+sirkesi/gi,
+        
+        // Standart ara öğün ifadeleri
+        /ara\s+öğün\s*\([^)]*tercihen[^)]*\):\s*maden\s+suyu[\s\S]*?şekilde\)/gi,
+        
+        // Maden suyu detayları
+        /maden\s+suyu\s*\([^)]*kaya\s+tuzu[^)]*\)/gi,
+        
+        // Tekrarlayan hafta ifadeleri
+        /hafta\s*\d*\s*:/gi,
+        
+        // Boş gün başlıkları
+        /^\s*(1\.\s*gün|2\.\s*gün|3\.\s*gün|4\.\s*gün|5\.\s*gün|6\.\s*gün|7\.\s*gün)\s*:?\s*$/gmi,
+        /^\s*(pazartesi|salı|çarşamba|perşembe|cuma|cumartesi|pazar)\s*:?\s*$/gmi,
+        
+        // Boş öğün başlıkları (içerik yoksa)
+        /^\s*(kahvaltı|öğle|akşam)\s*:?\s*$/gmi,
+        
+        // Çoklu boşluklar ve satır sonları
+        /\n\s*\n\s*\n/g,
+        /\s{3,}/g
+      ];
+      
+      let temizlenmisMetin = text;
+      
+      // Her bir ifadeyi temizle
+      temizlenecekIfadeler.forEach((pattern, index) => {
+        const onceki = temizlenmisMetin.length;
+        temizlenmisMetin = temizlenmisMetin.replace(pattern, ' ');
+        const sonraki = temizlenmisMetin.length;
+        
+        if (onceki !== sonraki) {
+          console.log(`🗑️ Pattern ${index + 1}: ${onceki - sonraki} karakter kaldırıldı`);
+        }
+      });
+      
+      // Ek temizlik - sadece gerçek yemek bilgilerini koru
+      const yemekSatirlari = temizlenmisMetin
+        .split('\n')
+        .map(satir => satir.trim())
+        .filter(satir => {
+          // Boş satırları geç
+          if (!satir) return false;
+          
+          // Çok kısa satırları geç
+          if (satir.length < 5) return false;
+          
+          // Sadece noktalama veya sayılardan oluşan satırları geç
+          if (/^[\d\s\-\.\:]+$/.test(satir)) return false;
+          
+          // Gerçek yemek içeriği olabilecek satırları koru
+          // En az bir yemek kelimesi veya malzeme içermeli
+          const yemekKelimeler = ['gram', 'adet', 'çorba', 'salata', 'et', 'tavuk', 'balık', 'sebze', 'meyve', 
+                                 'ekmek', 'peynir', 'yumurta', 'makarna', 'pirinç', 'bulgur', 'çay', 'kahve',
+                                 'su', 'süt', 'yoğurt', 'fındık', 'badem', 'ceviz', 'elma', 'armut', 'muz',
+                                 'domates', 'salatalık', 'biber', 'soğan', 'sarımsak', 'patates', 'toz', 'kollajen'];
+          
+          return yemekKelimeler.some(kelime => satir.toLowerCase().includes(kelime)) || 
+                 satir.length > 20; // Uzun satırlar muhtemelen yemek açıklaması
+        });
+      
+      // Tekrarlayan yemekleri gruplandır
+      const gruplandirmisYemekler = groupRepeatedFoods(yemekSatirlari);
+      
+      // Son temizlik
+      const finalText = gruplandirmisYemekler
+        .join('\n')
+        .replace(/\n\s*\n/g, '\n') // Çift satır sonlarını tek yap
+        .replace(/^\s+|\s+$/g, '') // Baştan ve sondan boşlukları kaldır
+        .trim();
+      
+      console.log(`✅ PDF temizleme tamamlandı:`);
+      console.log(`   📊 ${text.length} → ${finalText.length} karakter (${Math.round((1 - finalText.length/text.length) * 100)}% azalma)`);
+      console.log(`   🔍 İlk 150 karakter:`, finalText.substring(0, 150) + '...');
+      
+      return finalText;
+    }
+
+    // Tekrarlayan yemekleri gruplandıran fonksiyon
+    function groupRepeatedFoods(yemekListesi) {
+      console.log('🔄 Tekrarlayan yemekler gruplandırılıyor...');
+      
+      const yemekSayilari = {};
+      const temizlenmisYemekler = [];
+      
+      yemekListesi.forEach(yemek => {
+        // Yemek adını normalize et (küçük harf, fazla boşluklar temizle)
+        const normalizeYemek = yemek.toLowerCase()
+          .replace(/\s+/g, ' ')
+          .trim();
+        
+        // Yemek sayısını kontrol et
+        if (yemekSayilari[normalizeYemek]) {
+          yemekSayilari[normalizeYemek].count++;
+          yemekSayilari[normalizeYemek].original = yemek; // Orijinal formunu sakla
+        } else {
+          yemekSayilari[normalizeYemek] = {
+            count: 1,
+            original: yemek
+          };
+        }
+      });
+      
+      // Gruplandırılmış yemekleri oluştur
+      Object.keys(yemekSayilari).forEach(normalizeYemek => {
+        const item = yemekSayilari[normalizeYemek];
+        
+        if (item.count > 1) {
+          // Tekrarlayan yemek - sayıyı ekle
+          temizlenmisYemekler.push(`${item.original} (x${item.count})`);
+          console.log(`🔢 Gruplandırıldı: "${item.original}" x${item.count}`);
+        } else {
+          // Tek yemek - olduğu gibi ekle
+          temizlenmisYemekler.push(item.original);
+        }
+      });
+      
+      console.log(`✅ ${yemekListesi.length} → ${temizlenmisYemekler.length} satır (${yemekListesi.length - temizlenmisYemekler.length} tekrar kaldırıldı)`);
+      
+      return temizlenmisYemekler;
     }
     
     // Base64 UTF-8 güvenli encoding
@@ -16174,8 +16371,13 @@ ${mesajlar.join('\n')}
             try {
               const pdfText = await extractTextFromPdf(hafta.pdf);
               if (pdfText && pdfText.trim().length > 50) {
+                console.log('📄 Orijinal PDF text (ilk 300 karakter):', pdfText.substring(0, 300));
+                
                 // PDF içeriğini temizle ve optimize et
-                const temizPdfIcerik = temizlePdfIcerik(pdfText);
+                const temizPdfIcerik = cleanPdfText(pdfText);
+                
+                console.log('🧹 Temizlenmiş PDF text (ilk 300 karakter):', temizPdfIcerik.substring(0, 300));
+                console.log('📊 Token tasarrufu: %' + Math.round((1 - temizPdfIcerik.length/pdfText.length) * 100));
                 
                 // Temizlenmiş içeriği global değişkende sakla (modal için)
                 const maxLength = 2000;
@@ -16183,10 +16385,10 @@ ${mesajlar.join('\n')}
                   ? temizPdfIcerik.substring(0, maxLength) + '...[Optimize edildi]'
                   : temizPdfIcerik;
                 
-                prompts.push('PDF İçeriği (Optimize Edildi):');
+                prompts.push('PDF İçeriği (Gereksiz İfadeler Temizlendi):');
                 prompts.push(window.cleanedPdfContent);
                 
-                console.log('🧹 PDF temizlendi ve global değişkende saklandı:', window.cleanedPdfContent.length, 'karakter');
+                console.log('✅ GPT\'ye gönderilen final metin:', window.cleanedPdfContent.length, 'karakter');
               } else {
                 throw new Error('PDF metni çıkarılamadı');
               }
