@@ -744,16 +744,7 @@
             border-radius: 4px; 
             cursor: pointer; 
             font-size: 11px;
-          ">🤖 GPT Yönetimi</button>
-          <button onclick="showGrokPanel()" style="
-            padding: 6px 10px; 
-            background: #ff4444; 
-            color: white; 
-            border: none; 
-            border-radius: 4px; 
-            cursor: pointer; 
-            font-size: 11px;
-          ">🦾 Grok Yönetimi</button>
+          ">🤖 AI Yönetimi</button>
           <button onclick="showGoogleApiConfig()" style="
             padding: 6px 10px; 
             background: #6c757d; 
@@ -1290,9 +1281,8 @@
             <div id="grokModelContainer" style="display: none;">
               <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #495057;">Model:</label>
               <select id="grokModel" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px;">
-                <option value="grok-4-latest">Grok-4 Latest</option>
                 <option value="grok-beta">Grok Beta</option>
-                <option value="grok-vision-beta">Grok Vision Beta</option>
+                <option value="grok-2-1212">Grok 2 (Latest)</option>
               </select>
             </div>
           </div>
@@ -1455,128 +1445,7 @@
     </div>
   </div>
 
-  <!-- Grok Yönetim Paneli -->
-  <div id="grokPanel" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10002;" onclick="hideGrokPanel(event)">
-    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 12px; padding: 0; width: 90%; max-width: 1200px; max-height: 90%; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3);" onclick="event.stopPropagation()">
-      
-      <!-- Header -->
-      <div style="background: linear-gradient(135deg, #ff4444, #ff6666); color: white; padding: 20px; border-radius: 12px 12px 0 0;">
-        <h2 style="margin: 0; display: flex; align-items: center; gap: 10px;">
-          <span style="font-size: 24px;">🦾</span>
-          Grok AI Yönetimi
-        </h2>
-        <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 14px;">xAI Grok ile beslenme listesi yorumlama ve analiz</p>
-      </div>
-
-      <!-- İçerik -->
-      <div style="overflow-y: auto; max-height: calc(90vh - 140px); padding: 20px;">
-        
-        <!-- Grok API Ayarları -->
-        <div style="margin-bottom: 25px; padding: 15px; background: #fff5f5; border-radius: 8px; border-left: 4px solid #ff4444;">
-          <h3 style="margin: 0 0 15px 0; color: #ff4444; display: flex; align-items: center; gap: 8px;">
-            <span>🔑</span> Grok API Ayarları
-          </h3>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <div>
-              <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #495057;">xAI API Key:</label>
-              <input type="password" id="grokApiKey" placeholder="xai-..." style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px;">
-            </div>
-            <div>
-              <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #495057;">Model:</label>
-              <select id="grokModel" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px;">
-                <option value="grok-4-latest">Grok-4 Latest</option>
-                <option value="grok-beta">Grok Beta</option>
-                <option value="grok-vision-beta">Grok Vision Beta</option>
-              </select>
-            </div>
-          </div>
-          <div style="margin-top: 10px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #495057;">Proje ID (Opsiyonel):</label>
-            <input type="text" id="grokProjectId" placeholder="Grok projenizin ID'si (varsa)" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px;">
-          </div>
-        </div>
-
-        <!-- Test Bağlantısı -->
-        <div style="margin-bottom: 25px; padding: 15px; background: #f0f8ff; border-radius: 8px; border-left: 4px solid #0066cc;">
-          <h3 style="margin: 0 0 15px 0; color: #0066cc; display: flex; align-items: center; gap: 8px;">
-            <span>🧪</span> Bağlantı Testi
-          </h3>
-          <div style="display: flex; gap: 10px; align-items: center;">
-            <button onclick="testGrokConnection()" style="padding: 10px 20px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer;">
-              🔗 Grok Bağlantısını Test Et
-            </button>
-            <div id="grokTestStatus" style="font-size: 14px; color: #666;"></div>
-          </div>
-        </div>
-
-        <!-- Grok Özellikleri -->
-        <div style="margin-bottom: 25px;">
-          <h3 style="margin: 0 0 15px 0; color: #ff4444; display: flex; align-items: center; gap: 8px;">
-            <span>⚡</span> Grok Özellikleri
-          </h3>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
-            
-            <!-- Hızlı Analiz -->
-            <div style="padding: 15px; background: #fff; border: 1px solid #dee2e6; border-radius: 8px;">
-              <h4 style="margin: 0 0 10px 0; color: #ff4444;">⚡ Hızlı Analiz</h4>
-              <p style="font-size: 12px; color: #666; margin: 0 0 10px 0;">Seçili hasta verilerini Grok ile hızlıca analiz edin</p>
-              <button onclick="quickGrokAnalysis()" style="width: 100%; padding: 8px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                Hızlı Analiz Başlat
-              </button>
-            </div>
-
-            <!-- Gerçek Zamanlı Sorgu -->
-            <div style="padding: 15px; background: #fff; border: 1px solid #dee2e6; border-radius: 8px;">
-              <h4 style="margin: 0 0 10px 0; color: #ff4444;">💬 Gerçek Zamanlı Chat</h4>
-              <p style="font-size: 12px; color: #666; margin: 0 0 10px 0;">Grok ile canlı sohbet yapın</p>
-              <button onclick="openGrokChat()" style="width: 100%; padding: 8px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                Chat'i Aç
-              </button>
-            </div>
-
-            <!-- X.com Entegrasyonu -->
-            <div style="padding: 15px; background: #fff; border: 1px solid #dee2e6; border-radius: 8px;">
-              <h4 style="margin: 0 0 10px 0; color: #ff4444;">🐦 X.com Entegrasyonu</h4>
-              <p style="font-size: 12px; color: #666; margin: 0 0 10px 0;">Grok'un gerçek zamanlı veri erişimi</p>
-              <button onclick="enableXIntegration()" style="width: 100%; padding: 8px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                X.com Verilerini Kullan
-              </button>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Grok Chat Alanı -->
-        <div style="margin-bottom: 25px; padding: 15px; background: #f8f8f8; border-radius: 8px; border-left: 4px solid #ff4444;">
-          <h3 style="margin: 0 0 15px 0; color: #ff4444; display: flex; align-items: center; gap: 8px;">
-            <span>💬</span> Grok Chat
-          </h3>
-          <div id="grokChatArea" style="height: 300px; background: white; border: 1px solid #dee2e6; border-radius: 8px; overflow-y: auto; padding: 15px; margin-bottom: 15px;">
-            <div style="color: #666; text-align: center; padding: 50px 20px;">
-              Grok ile sohbet başlatmak için aşağıdaki input alanını kullanın
-            </div>
-          </div>
-          <div style="display: flex; gap: 10px;">
-            <input type="text" id="grokChatInput" placeholder="Grok'a sorunuzu yazın..." style="flex: 1; padding: 10px; border: 1px solid #dee2e6; border-radius: 4px;" onkeypress="if(event.key==='Enter') sendGrokMessage()">
-            <button onclick="sendGrokMessage()" style="padding: 10px 20px; background: #ff4444; color: white; border: none; border-radius: 4px; cursor: pointer;">
-              Gönder
-            </button>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Footer -->
-      <div style="background: #f8f9fa; padding: 15px 20px; border-radius: 0 0 12px 12px; border-top: 1px solid #dee2e6; display: flex; justify-content: space-between; align-items: center;">
-        <div style="color: #6c757d; font-size: 12px;">Grok ayarları otomatik kaydedilir</div>
-        <div>
-          <button onclick="hideGrokPanel()" style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-right: 10px;">Kapat</button>
-          <button onclick="saveGrokSettings()" style="background: #ff4444; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">💾 Kaydet</button>
-        </div>
-      </div>
-
-    </div>
-  </div>
+  
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   <script>
@@ -15578,7 +15447,7 @@ ${mesajlar.join('\n')}
         // Grok ayarlarını yükle
         const grokSettings = JSON.parse(localStorage.getItem(GROK_SETTINGS_KEY) || '{}');
         document.getElementById('grokApiKey').value = grokSettings.apiKey || '';
-        document.getElementById('grokModel').value = grokSettings.model || 'grok-4-latest';
+        document.getElementById('grokModel').value = grokSettings.model || 'grok-beta';
       } else {
         // GPT'ye geç
         gptInputs.style.display = 'block';
@@ -15661,7 +15530,7 @@ ${mesajlar.join('\n')}
     // AI ayarlarını kaydet (seçilen AI'ya göre)
     function saveGptSettings() {
       try {
-        const selectedAI = document.querySelector('input[name="selectedAI"]:checked').value;
+        const selectedAI = document.querySelector('input[name="aiChoice"]:checked').value;
         
         if (selectedAI === 'gpt') {
           const settings = {
@@ -17265,7 +17134,7 @@ ${mesajlar.join('\n')}
       try {
         const settings = JSON.parse(localStorage.getItem(GROK_SETTINGS_KEY) || '{}');
         document.getElementById('grokApiKey').value = settings.apiKey || '';
-        document.getElementById('grokModel').value = settings.model || 'grok-4-latest';
+        document.getElementById('grokModel').value = settings.model || 'grok-beta';
         document.getElementById('grokProjectId').value = settings.projectId || '';
       } catch (error) {
         console.error('Grok ayarları yükleme hatası:', error);
@@ -17316,7 +17185,7 @@ ${mesajlar.join('\n')}
                 content: "Test mesajı: Merhaba!"
               }
             ],
-            model: settings.model || 'grok-4-latest',
+            model: settings.model || 'grok-beta',
             stream: false,
             temperature: 0.3
           })
@@ -17433,7 +17302,7 @@ ${mesajlar.join('\n')}
               role: h.role,
               content: h.content
             })),
-            model: settings.model || 'grok-4-latest',
+            model: settings.model || 'grok-beta',
             stream: false,
             temperature: 0.7,
             max_tokens: 1500
