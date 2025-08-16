@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -6118,33 +6117,11 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
         const repo = 'nutrition-planner';
         
         // Dosya adı alternatifleri dene
-        const temizIsim = turkceKarakterDuzelt(hastaBilgi.isim);
-        const basitTemizIsim = hastaBilgi.isim.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
-        const basitTemizIsim2 = temizIsim.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
-        
         const dosyaAdlari = [
-          // Önce mevcut ID ile dene
           generateFileName({ id: hastaBilgi.id, isim: hastaBilgi.isim }),
-          generateFileName({ id: hastaBilgi.id, isim: temizIsim }),
-          
-          // ID olmadan dene
+          generateFileName({ id: hastaBilgi.id, isim: turkceKarakterDuzelt(hastaBilgi.isim) }),
           generateFileName({ isim: hastaBilgi.isim }),
-          generateFileName({ isim: temizIsim }),
-          
-          // Basit format (sadece isim bazlı ID ile)
-          `hasta_${basitTemizIsim}.json`,
-          `hasta_${basitTemizIsim2}.json`,
-          
-          // Generatepatientid formatı ile
-          `hasta_${generatePatientId(hastaBilgi.isim)}_${basitTemizIsim}.json`,
-          `hasta_${generatePatientId(temizIsim)}_${basitTemizIsim2}.json`,
-          
-          // Eski format uyumluluğu için  
-          `hasta_${hastaBilgi.isim.toLowerCase().replace(/[^a-z0-9]/g, '_')}.json`,
-          `hasta_${temizIsim.toLowerCase().replace(/[^a-z0-9]/g, '_')}.json`,
-          
-          // Hasta ID'sini kullanarak başka formatlar
-          `hasta_${hastaBilgi.id}_${temizIsim.toLowerCase().replace(/[^a-z0-9]/g, '_')}.json`
+          generateFileName({ isim: turkceKarakterDuzelt(hastaBilgi.isim) })
         ];
         
         // Çift entryleri kaldır
@@ -6170,52 +6147,6 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
             }
           } catch (e) {
             console.log(`❌ Dosya bulunamadı: ${dosyaAdi}`);
-          }
-        }
-        
-        // Hiç dosya bulunamadıysa GitHub'da kapsamlı arama yap
-        if (!hastaDetay) {
-          console.log('🔍 GitHub patients klasöründen kapsamlı arama yapılıyor...');
-          try {
-            const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/patients`);
-            if (response.ok) {
-              const files = await response.json();
-              const hastaFiles = files.filter(f => f.name.endsWith('.json') && f.name.startsWith('hasta_'));
-              
-              console.log(`🔍 GitHub'da ${hastaFiles.length} hasta dosyası bulundu, isimlerde arama yapılıyor...`);
-              
-              // Hasta adını içeren dosyaları bul
-              const uygunDosyalar = hastaFiles.filter(file => {
-                const dosyaAdi = file.name.toLowerCase();
-                const aramaIsimleri = [
-                  hastaBilgi.isim.toLowerCase(),
-                  temizIsim.toLowerCase(),
-                  basitTemizIsim,
-                  basitTemizIsim2,
-                  generatePatientId(hastaBilgi.isim),
-                  generatePatientId(temizIsim)
-                ];
-                
-                return aramaIsimleri.some(isim => dosyaAdi.includes(isim.replace(/[^a-z0-9]/g, '_')));
-              });
-              
-              console.log(`🎯 ${uygunDosyalar.length} uygun dosya bulundu:`, uygunDosyalar.map(f => f.name));
-              
-              // İlk uygun dosyayı dene
-              if (uygunDosyalar.length > 0) {
-                const dosya = uygunDosyalar[0];
-                console.log(`🔍 Uygun dosya deneniyor: ${dosya.name}`);
-                const detayResponse = await fetch(dosya.download_url);
-                if (detayResponse.ok) {
-                  const data = await detayResponse.json();
-                  hastaDetay = data;
-                  bulunanDosya = dosya.name;
-                  console.log(`✅ Uygun dosya başarıyla yüklendi: ${dosya.name}`);
-                }
-              }
-            }
-          } catch (searchError) {
-            console.log('⚠️ GitHub arama hatası:', searchError);
           }
         }
         
@@ -17137,6 +17068,3 @@ ${mesajlar.join('\n')}
 
 </body>
 </html>
-
-
-
