@@ -16,6 +16,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- Türkçe karakter desteği için font ekle -->
   <script>
+    // GitHub API Konfigürasyonu (GLOBAL)
+    const githubOwner = 'mustafasacar35';
+    const githubRepo = 'nutrition-data';
+    
     // jsPDF font encoding düzeltmesi
     window.fixTurkishChars = function(text) {
       if (!text || typeof text !== 'string') return text;
@@ -11305,13 +11309,36 @@ function duzenleHafta(i) {
       const pirzolaSatirlar = lines.filter(l => l.toLowerCase().includes('pirzola'));
       console.log('🥩 "pirzola" içeren satırlar:', pirzolaSatirlar);
       
+      // İSTENMEYEN SATIRLARI FİLTRELE (meta bilgiler, tarih bilgileri vs.)
+      const unwantedPatterns = [
+        /^(tarih|aralıklı\s*oruç|uygulanacak\s*menü|öğün\s*sayı|temmuz|ağustos|eylül|ekim|kasım|aralık|ocak|şubat|mart|nisan|mayıs|haziran)/i,
+        /^(pazartesi|salı|çarşamba|perşembe|cuma|cumartesi|pazar)$/i,
+        /^(öğle|akşam|sabah|kahvaltı).*tercihen/i,
+        /hafta\s*arasında.*beslenme/i,
+        /günlük\s*(ortalama|su\s*tüketimi)/i,
+        /ketojenik|low\s*carb/i,
+        /^[0-9]+\.\s*hafta$/i,
+        /hafta$/i
+      ];
+      
       // Satır başında rakam, *, miktar, büyük harf, veya yemek adı olabilecek her şeyi al
-      const filtered = lines.filter(l =>
-        /^[0-9]+\./.test(l) || // 1. ...
-        /^\*/.test(l) || // * ...
-        /^[0-9]+[\.,]?\s*(gram|gr|adet|yemek\s*kaşığı|tatlı\s*kaşığı|su\s*bardağı|dilim|kase|çay\s*bardağı|bardak|kaşık|tbsp|tsp|ml|kg|g)(\s|\.|\,|$)/i.test(l) || // miktar ile başlayan (nokta, virgül, boşluk veya satır sonu ile biter)
-        /^[A-ZİĞÜŞÖÇ]/.test(l) // büyük harf ile başlayan
-      );
+      // ANCAK meta bilgileri hariç tut
+      const filtered = lines.filter(l => {
+        // Önce istenmeyen kalıpları kontrol et
+        const isUnwanted = unwantedPatterns.some(pattern => pattern.test(l));
+        if (isUnwanted) {
+          console.log('❌ İstenmeyen satır filtreli:', l);
+          return false;
+        }
+        
+        // Gerçek yemek adlarını al
+        return (
+          /^[0-9]+\./.test(l) || // 1. ...
+          /^\*/.test(l) || // * ...
+          /^[0-9]+[\.,]?\s*(gram|gr|adet|yemek\s*kaşığı|tatlı\s*kaşığı|su\s*bardağı|dilim|kase|çay\s*bardağı|bardak|kaşık|tbsp|tsp|ml|kg|g)(\s|\.|\,|$)/i.test(l) || // miktar ile başlayan
+          /^[A-ZİĞÜŞÖÇ]/.test(l) // büyük harf ile başlayan
+        );
+      });
       
       console.log('🔍 Filtrelenmiş satır sayısı:', filtered.length);
       console.log('📋 Filtrelenmiş satırlar:', filtered);
@@ -11358,7 +11385,7 @@ function duzenleHafta(i) {
         }
         
         return temizlenmis;
-      });
+      }).filter(r => r.length > 0); // Boş stringleri filtrele
       
       console.log('✅ Final tarif listesi:', result);
       console.log('🥑 Final listede avokado var mı?', result.filter(r => r.includes('avokado')));
