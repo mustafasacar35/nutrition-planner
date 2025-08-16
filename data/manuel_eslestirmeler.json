@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "sonGuncelleme": "2025-08-16T07:30:15.099Z",
+  "sonGuncelleme": "2025-08-16T07:30:28.005Z",
   "eslestirmeler": {
     "avokadolu omlet": {
       "orijinalMetin": "avokadolu omlet",
@@ -30,6 +30,13 @@
         "kiymali_kabak_yemegi.jpg"
       ],
       "eklemeTarihi": "2025-08-14T22:07:10.290Z"
+    },
+    "kofte ekmeksiz baharatlarla": {
+      "orijinalMetin": "köfte (ekmeksiz, baharatlarla)",
+      "kartlar": [
+        "keto_kofte.jpg"
+      ],
+      "eklemeTarihi": "2025-08-16T07:30:24.705Z"
     }
   }
 }
