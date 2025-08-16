@@ -12779,6 +12779,82 @@ Detaylı bilgiler için tarayıcı konsolunu (F12) açın.`);
           }
         });
       }
+      
+      // ✅ ÖNEMLİ: Eşleşmeyen tarifleri bu haftaya özel güncelle
+      updateEslesmeyenTariflerHaftaSpesifik(haftaIndex);
+    }
+    
+    // Eşleşmeyen tarifleri hafta spesifik güncelle
+    function updateEslesmeyenTariflerHaftaSpesifik(haftaIndex) {
+      console.log(`🔄 ${haftaIndex + 1}. hafta için eşleşmeyen tarifleri güncelleniyor...`);
+      
+      if (!seciliHasta || !seciliHasta.haftalar || !seciliHasta.haftalar[haftaIndex]) {
+        console.log('❌ Hasta veya hafta verisi bulunamadı');
+        return;
+      }
+      
+      const hafta = seciliHasta.haftalar[haftaIndex];
+      const eslesmeyenTarifler = hafta.eslesmeyenTarifler || [];
+      
+      console.log(`📊 ${haftaIndex + 1}. hafta eşleşmeyen tarif sayısı:`, eslesmeyenTarifler.length);
+      
+      // Accordion başlık ve içeriğini güncelle
+      const eslesmeyenlerBaslik = document.getElementById('eslesmeyenlerBaslik');
+      const eslesmeyenlerContent = document.getElementById('eslesmeyenlerContent');
+      
+      if (!eslesmeyenlerBaslik || !eslesmeyenlerContent) {
+        console.log('❌ Eşleşmeyen tariflerin DOM elementleri bulunamadı');
+        return;
+      }
+      
+      if (eslesmeyenTarifler.length > 0) {
+        // Başlık güncelle - hafta numarası ve tarif sayısı ile
+        eslesmeyenlerBaslik.textContent = `🚫 ${haftaIndex + 1}. Hafta - Eşleşmeyen Tarifler (${eslesmeyenTarifler.length})`;
+        
+        // İçeriği temizle ve yeniden doldur
+        eslesmeyenlerContent.innerHTML = '';
+        
+        eslesmeyenTarifler.forEach(tarif => {
+          const p = document.createElement('p');
+          p.textContent = tarif;
+          p.style.color = '#dc3545';
+          p.style.margin = '6px 0';
+          p.style.padding = '4px 8px';
+          p.style.background = '#fff5f5';
+          p.style.borderLeft = '3px solid #dc3545';
+          p.style.borderRadius = '4px';
+          p.style.cursor = 'pointer';
+          p.style.transition = 'background-color 0.2s';
+          p.title = `${haftaIndex + 1}. hafta - Tıkla ve manuel eşleştirme yap`;
+          
+          // Hover efekti
+          p.onmouseenter = () => p.style.background = '#ffe6e6';
+          p.onmouseleave = () => p.style.background = '#fff5f5';
+          
+          // Tıklama olayı - Manuel eşleştirme panelini aç
+          p.onclick = () => {
+            console.log(`🔗 ${haftaIndex + 1}. hafta eşleşmeyen tarif tıklandı:`, tarif);
+            eslesmeyenTarifManuelEslestir(tarif);
+          };
+          
+          eslesmeyenlerContent.appendChild(p);
+        });
+        
+        console.log(`✅ ${haftaIndex + 1}. hafta eşleşmeyen tarifleri UI'ye eklendi:`, eslesmeyenTarifler.length, 'adet');
+        
+      } else {
+        // Eşleşmeyen tarif yoksa
+        eslesmeyenlerBaslik.textContent = `✅ ${haftaIndex + 1}. Hafta - Tüm Tarifler Eşleşti`;
+        eslesmeyenlerContent.innerHTML = `
+          <div style="text-align: center; color: #28a745; padding: 20px; background: #f8fff8; border-radius: 8px;">
+            <div style="font-size: 24px; margin-bottom: 10px;">🎉</div>
+            <div style="font-weight: bold; margin-bottom: 5px;">${haftaIndex + 1}. Hafta Tamamlandı!</div>
+            <div style="font-size: 12px; color: #666;">Tüm tarifler başarıyla eşleştirildi.</div>
+          </div>
+        `;
+        
+        console.log(`✅ ${haftaIndex + 1}. hafta için tüm tarifler eşleşmiş durumda`);
+      }
     }
     window.gosterEslesenKartlarSidebar = gosterEslesenKartlarSidebar;
 
