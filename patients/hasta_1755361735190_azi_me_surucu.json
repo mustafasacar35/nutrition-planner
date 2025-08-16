@@ -381,7 +381,7 @@
         "günlük ortalama 5000 adım önerilir",
         "günlük su tüketimi 2 litrenin üzerinde olması önerilir"
       ],
-      "gptMesaj": "",
+      "gptMesaj": "Merhaba Azime Hanım,\n\nBu hafta lipödemle mücadelemizde ilerlemeye devam ediyoruz. Geçen hafta beslenme düzeninizde yaptığımız değişikliklerin vücudunuza nasıl uyum sağladığını merak ediyorum. Bu haftaki menümüzde de lipödem yönetimine destek olacak öğeleri özellikle seçtik.\n\nYemek listemizdeki hindi, somon ve et füme gibi protein kaynakları, inflamasyonu azaltmaya yardımcı olur ve uzun süreli tokluk hissi sağlar. Bu proteinler, hem kas kütlenizi korumanıza yardımcı olurken hem de vücuttaki ödem ve inflamasyonla mücadele etmenize destek olur. Keten tohumu ekmeği ise lif açısından zengindir ve sindirim sisteminizin düzenli çalışmasına katkı sağlar. Lipödem hastalarında sık rastlanan kabızlık problemine karşı bu tür lifli gıdaları diyetinize eklemeniz oldukça önemli.\n\nHaftalık menünüzde sıkça yer verdiğimiz zeytin ve çiğ badem gibi sağlıklı yağ kaynakları, vücudunuzun inflamasyonla savaşmasına yardımcı olurken aynı zamanda insülin direncini düşürmeye de destek olur. Bu besinler, lipödem yönetiminde çok kritik bir rol oynar çünkü sağlıklı yağlar, vücutta yağ yakımını destekleyerek lipödem semptomlarının hafiflemesine yardımcı olabilir.\n\nYeşilliklerle zenginleştirilmiş salatalarınız, antioksidanlar açısından zengin olup, vücudun toksinlerden arınmasına ve inflamasyonla mücadele etmesine yardımcı olur. Özellikle maydanoz, dereotu gibi yeşillikler karaciğer sağlığını destekleyici özellikler taşır.\n\nBu hafta eklenen yeni bir öğe olarak kollajen tozu, cildinizin sağlığını desteklemek ve bağ dokunuzun güçlenmesine yardımcı olmak için menünüze dahil edildi. Kollajen, aynı zamanda bağ dokusunun sağlıklı kalmasına ve elastikiyetinin korunmasına katkıda bulunur.\n\nMenünüzdeki çeşitlilik, hem damak zevkinizi tatmin etmeyi hem de lipödemle mücadelede gerekli olan çeşitli besin öğelerini sağlamayı amaçlamaktadır. Her bir yemeğin, lipödem yönetimi bağlamında nasıl bir fayda sağladığını anlamanız, bu süreci daha bilinçli ve motive olmuş şekilde sürdürmenize yardımcı olabilir.\n\nBu hafta vücudunuzda hissettiğiniz değişiklikleri ve yemeklerle ilgili düşüncelerinizi merak ediyorum. Her zaman olduğu gibi, herhangi bir sorunuz veya ihtiyacınız olduğunda bana ulaşmaktan çekinmeyin.\n\nSevgilerle,",
       "kilitli": false,
       "githubLink": "https://github.com/mustafasacar35/nutrition-planner/blob/main/patients/hasta_1755361735190_azi_me_surucu.json",
       "githubRawLink": "https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/patients/hasta_1755361735190_azi_me_surucu.json",
@@ -477,7 +477,8 @@
         "mantarlı tavuk sote",
         "köfte (ekmeksiz, baharatlarla)",
         "keten tohumu ekmeği"
-      ]
+      ],
+      "ekNotlar": ""
     },
     {
       "haftaNo": 3,
@@ -1747,6 +1748,6 @@
   ],
   "olusturmaTarihi": "2025-08-16T16:28:55.190Z",
   "yeniSistem": true,
-  "sonGuncelleme": "2025-08-16T16:38:39.738Z",
+  "sonGuncelleme": "2025-08-16T16:39:37.420Z",
   "githubKaydedildi": true
 }
