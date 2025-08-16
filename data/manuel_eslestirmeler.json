@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "sonGuncelleme": "2025-08-16T07:31:28.423Z",
+  "sonGuncelleme": "2025-08-16T07:31:44.189Z",
   "eslestirmeler": {
     "avokadolu omlet": {
       "orijinalMetin": "avokadolu omlet",
@@ -37,6 +37,15 @@
         "keto_kofte.jpg"
       ],
       "eklemeTarihi": "2025-08-16T07:30:24.705Z"
+    },
+    "kiymali lahana kabak yesil fasulye yemegi 100 gr kiyma ile": {
+      "orijinalMetin": "kıymalı lahana / kabak/ yeşil fasulye yemeği (100 gr kıyma ile)",
+      "kartlar": [
+        "kiymali_kabak_yemegi.jpg",
+        "kiymali_lahana_yemegi.jpg",
+        "kiymali_taze_fasulye.jpg"
+      ],
+      "eklemeTarihi": "2025-08-16T07:31:42.292Z"
     }
   }
 }
