@@ -1022,12 +1022,23 @@
       <button onclick="eslesmemeKurallariniTemizle()" style="background:#6c757d; color:white; padding:10px 20px; border:none; border-radius:5px; cursor:pointer; margin-left:10px;">
         Tüm Yasakları Temizle
       </button>
-      <button onclick="eslesmemeKurallariniGitHubKaydet()" style="background:#007bff; color:white; padding:10px 20px; border:none; border-radius:5px; cursor:pointer; margin-left:10px;">
-        GitHub'a Kaydet
+    </div>
+    
+    <!-- İkinci satır: GitHub ve JSON işlemleri -->
+    <div style="margin-bottom:15px;">
+      <button onclick="eslesmemeKurallariniGitHubKaydet()" style="background:#007bff; color:white; padding:8px 15px; border:none; border-radius:5px; cursor:pointer; font-size:12px;">
+        📤 GitHub'a Kaydet
       </button>
-      <button onclick="eslesmemeKurallariniGitHubYukle()" style="background:#6f42c1; color:white; padding:10px 20px; border:none; border-radius:5px; cursor:pointer; margin-left:10px;">
-        GitHub'dan Yükle
+      <button onclick="eslesmemeKurallariniGitHubYukle()" style="background:#6f42c1; color:white; padding:8px 15px; border:none; border-radius:5px; cursor:pointer; margin-left:5px; font-size:12px;">
+        📥 GitHub'dan Yükle
       </button>
+      <button onclick="eslesmemeKurallariniJSONIndir()" style="background:#17a2b8; color:white; padding:8px 15px; border:none; border-radius:5px; cursor:pointer; margin-left:5px; font-size:12px;">
+        💾 JSON İndir
+      </button>
+      <button onclick="document.getElementById('eslesmemeKurallariniJSONYukle').click()" style="background:#fd7e14; color:white; padding:8px 15px; border:none; border-radius:5px; cursor:pointer; margin-left:5px; font-size:12px;">
+        📁 JSON Yükle
+      </button>
+      <input type="file" id="eslesmemeKurallariniJSONYukle" accept=".json" style="display:none;" onchange="eslesmemeKurallariniJSONYukle(event)">
     </div>
     <div id="eslesmemeStatus" style="margin-bottom:15px; padding:10px; border-radius:5px; display:none;"></div>
     <div>
@@ -1068,12 +1079,23 @@
       <button onclick="manuelEslestirmeleriTemizle()" style="background:#dc3545; color:white; padding:10px 20px; border:none; border-radius:5px; cursor:pointer; margin-left:10px;">
         Tüm Eşleştirmeleri Temizle
       </button>
-      <button onclick="manuelEslestirmeleriGitHubKaydet()" style="background:#007bff; color:white; padding:10px 20px; border:none; border-radius:5px; cursor:pointer; margin-left:10px;">
-        GitHub'a Kaydet
+    </div>
+    
+    <!-- İkinci satır: GitHub ve JSON işlemleri -->
+    <div style="margin-bottom:15px;">
+      <button onclick="manuelEslestirmeleriGitHubKaydet()" style="background:#007bff; color:white; padding:8px 15px; border:none; border-radius:5px; cursor:pointer; font-size:12px;">
+        📤 GitHub'a Kaydet
       </button>
-      <button onclick="manuelEslestirmeleriGitHubYukle()" style="background:#6f42c1; color:white; padding:10px 20px; border:none; border-radius:5px; cursor:pointer; margin-left:10px;">
-        GitHub'dan Yükle
+      <button onclick="manuelEslestirmeleriGitHubYukle()" style="background:#6f42c1; color:white; padding:8px 15px; border:none; border-radius:5px; cursor:pointer; margin-left:5px; font-size:12px;">
+        📥 GitHub'dan Yükle
       </button>
+      <button onclick="manuelEslestirmeleriJSONIndir()" style="background:#17a2b8; color:white; padding:8px 15px; border:none; border-radius:5px; cursor:pointer; margin-left:5px; font-size:12px;">
+        💾 JSON İndir
+      </button>
+      <button onclick="document.getElementById('manuelEslestirmeJSONYukle').click()" style="background:#fd7e14; color:white; padding:8px 15px; border:none; border-radius:5px; cursor:pointer; margin-left:5px; font-size:12px;">
+        📁 JSON Yükle
+      </button>
+      <input type="file" id="manuelEslestirmeJSONYukle" accept=".json" style="display:none;" onchange="manuelEslestirmeleriJSONYukle(event)">
     </div>
     <div id="manuelEslestirmeStatus" style="margin-bottom:15px; padding:10px; border-radius:5px; display:none;"></div>
     <div>
@@ -4687,6 +4709,148 @@ Kullanıcı 13+ hafta olan hastaları manuel olarak arşivler.
           manuelEslestirmeStatusGoster(`❌ GitHub yükleme hatası: ${error.message}`, 'error');
         }
       }
+    }
+
+    // --- JSON İndirme/Yükleme Fonksiyonları (Manuel Eşleştirme) ---
+    function manuelEslestirmeleriJSONIndir() {
+      try {
+        const data = {
+          version: "1.0",
+          timestamp: new Date().toISOString(),
+          source: "local_export",
+          data: manuelEslestirmeler
+        };
+        
+        const jsonStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `manuel_eslestirmeler_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        manuelEslestirmeStatusGoster('✅ JSON dosyası indirildi!', 'success');
+        
+        // Konsola log
+        console.log('📥 Manuel eşleştirmeler JSON olarak indirildi:', Object.keys(manuelEslestirmeler).length, 'adet');
+      } catch (error) {
+        console.error('Manuel eşleştirme JSON indirme hatası:', error);
+        manuelEslestirmeStatusGoster('❌ JSON indirme hatası: ' + error.message, 'error');
+      }
+    }
+    
+    function manuelEslestirmeleriJSONYukle(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const jsonData = JSON.parse(e.target.result);
+          
+          // Validasyon
+          if (jsonData.data && typeof jsonData.data === 'object') {
+            const eskiSayi = Object.keys(manuelEslestirmeler).length;
+            
+            // Veriyi yükle (mevcut verinin üzerine yaz)
+            manuelEslestirmeler = jsonData.data;
+            
+            // LocalStorage'a kaydet
+            localStorage.setItem('manuelEslestirmeler', JSON.stringify(manuelEslestirmeler));
+            
+            // Listeyi güncelle
+            manuelEslestirmeListesiniGoster();
+            
+            const yeniSayi = Object.keys(manuelEslestirmeler).length;
+            manuelEslestirmeStatusGoster(`✅ JSON yüklendi! ${eskiSayi} → ${yeniSayi} eşleştirme`, 'success');
+            
+            // Konsola log
+            console.log('📤 Manuel eşleştirmeler JSON\'dan yüklendi:', yeniSayi, 'adet');
+          } else {
+            throw new Error('Geçersiz JSON yapısı');
+          }
+        } catch (error) {
+          console.error('Manuel eşleştirme JSON yükleme hatası:', error);
+          manuelEslestirmeStatusGoster('❌ JSON yükleme hatası: ' + error.message, 'error');
+        }
+      };
+      reader.readAsText(file);
+      
+      // Input'u temizle
+      event.target.value = '';
+    }
+    
+    // --- JSON İndirme/Yükleme Fonksiyonları (Eşleşme Yasakları) ---
+    function eslesmemeKurallariniJSONIndir() {
+      try {
+        const data = {
+          version: "1.0",
+          timestamp: new Date().toISOString(),
+          source: "local_export",
+          data: eslesmemeKurallari
+        };
+        
+        const jsonStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `eslesmeme_kurallari_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        eslesmemeStatusGoster('✅ JSON dosyası indirildi!', 'success');
+        
+        // Konsola log
+        console.log('📥 Eşleşme yasakları JSON olarak indirildi:', Object.keys(eslesmemeKurallari).length, 'adet');
+      } catch (error) {
+        console.error('Eşleşme yasakları JSON indirme hatası:', error);
+        eslesmemeStatusGoster('❌ JSON indirme hatası: ' + error.message, 'error');
+      }
+    }
+    
+    function eslesmemeKurallariniJSONYukle(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const jsonData = JSON.parse(e.target.result);
+          
+          // Validasyon
+          if (jsonData.data && typeof jsonData.data === 'object') {
+            const eskiSayi = Object.keys(eslesmemeKurallari).length;
+            
+            // Veriyi yükle (mevcut verinin üzerine yaz)
+            eslesmemeKurallari = jsonData.data;
+            
+            // LocalStorage'a kaydet
+            localStorage.setItem('eslesmemeKurallari', JSON.stringify(eslesmemeKurallari));
+            
+            // Listeyi güncelle
+            eslesmemeListesiniGoster();
+            
+            const yeniSayi = Object.keys(eslesmemeKurallari).length;
+            eslesmemeStatusGoster(`✅ JSON yüklendi! ${eskiSayi} → ${yeniSayi} yasak`, 'success');
+            
+            // Konsola log
+            console.log('📤 Eşleşme yasakları JSON\'dan yüklendi:', yeniSayi, 'adet');
+          } else {
+            throw new Error('Geçersiz JSON yapısı');
+          }
+        } catch (error) {
+          console.error('Eşleşme yasakları JSON yükleme hatası:', error);
+          eslesmemeStatusGoster('❌ JSON yükleme hatası: ' + error.message, 'error');
+        }
+      };
+      reader.readAsText(file);
+      
+      // Input'u temizle
+      event.target.value = '';
     }
 
     // --- Kart Silme Fonksiyonları ---
