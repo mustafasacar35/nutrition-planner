@@ -16,7 +16,44 @@
       "githubUrl": "https://github.com/mustafasacar35/nutrition-planner/blob/main/pdfs/GÜLER VESEKCİ_2_hafta.pdf",
       "indirmeUrl": "https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/pdfs/GÜLER VESEKCİ_2_hafta.pdf",
       "kayitTarihi": "2025-08-16T16:27:11.948Z",
-      "tarifKartlar": [],
+      "tarifKartlar": [
+        {
+          "tarifAdi": "köfte",
+          "kartResmi": "keto_kofte.jpg",
+          "kartData": "https://mustafasacar35.github.io/nutrition-planner/tarifler/keto_kofte.jpg",
+          "eslesmeTuru": "manuel eşleştirme"
+        },
+        {
+          "tarifAdi": "kabak sote (1 adet kabak ve 1 yemek kaşığı zeytinyağı ile)",
+          "kartResmi": "kabak_sote.jpg",
+          "kartData": "https://mustafasacar35.github.io/nutrition-planner/tarifler/kabak_sote.jpg",
+          "eslesmeTuru": "tam eşleşme"
+        },
+        {
+          "tarifAdi": "ciğer kavurma (istenilen baharatlarla)",
+          "kartResmi": "ciger_kavurma.jpg",
+          "kartData": "https://mustafasacar35.github.io/nutrition-planner/tarifler/ciger_kavurma.jpg",
+          "eslesmeTuru": "tam eşleşme"
+        },
+        {
+          "tarifAdi": "yumurtalı ıspanak/pazı/ semizotu kavurma (2 yumurta, 100 gr. ispanak, 1 yemek kaşığı zeytinyağı, tercihen",
+          "kartResmi": "yumurtali_ispanak.jpg",
+          "kartData": "https://mustafasacar35.github.io/nutrition-planner/tarifler/yumurtali_ispanak.jpg",
+          "eslesmeTuru": "tam eşleşme"
+        },
+        {
+          "tarifAdi": "patlıcan kebabı (2 adet orta boy patlıcan,200 gram kıyma ile yapılan köfte: patlıcanlar halka halka doğranıp çöp şişe",
+          "kartResmi": "patlican_kebabi.jpg",
+          "kartData": "https://mustafasacar35.github.io/nutrition-planner/tarifler/patlican_kebabi.jpg",
+          "eslesmeTuru": "ardışık eşleşme"
+        },
+        {
+          "tarifAdi": "zeytinyağlı deniz börülcesi (1 tatlı kaşığı zeytinyağı ekleyelim)",
+          "kartResmi": "zeytinyagli_deniz_borulcesi.jpg",
+          "kartData": "https://mustafasacar35.github.io/nutrition-planner/tarifler/zeytinyagli_deniz_borulcesi.jpg",
+          "eslesmeTuru": "tam eşleşme"
+        }
+      ],
       "tarifler": [
         "güler vesekci̇ / 29 temmuz -4 ağustos 2024",
         "her sabah güne başlarken:",
@@ -89,7 +126,77 @@
       "kilitli": false,
       "githubLink": "https://github.com/mustafasacar35/nutrition-planner/blob/main/patients/hasta_1755359106109_guler_vesekci.json",
       "githubRawLink": "https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/patients/hasta_1755359106109_guler_vesekci.json",
-      "pdfMetinYok": false
+      "pdfMetinYok": false,
+      "eslesmeyenTarifler": [
+        "güler vesekci̇ / 29 temmuz -4 ağustos 2024",
+        "her sabah güne başlarken:",
+        "ılık su + 1 yk. zeytinyağı + 5-10 damla limon - 1 yk. elma sirkesi",
+        "kurşun geçirmez kahve (1 fincan kahve + 1 tatlı kaşığı hindistan cevizi yağı veya tereyağı / sade yağ)",
+        "pazartesi̇",
+        "sahanda yumurta (2 yumurta - 1 tatlı kaşığı tereyağı)",
+        "pastırma",
+        "badem unu ekmeği (1 dilim)",
+        "zeytin (5 adet)",
+        "yeşillikler (dereotu, roka, maydanoz, marul vs. + sirke, limon )",
+        "yeşil salata (marul, dereotu, roka, kırmızı lahana, 1 tatlı kaşığı zeytinyağı)",
+        "toz kollajen 1 ölçek",
+        "sali",
+        "haşlanmış yumurta (2 adet) + (üzerine eritilmiş 1 tatlı kaşığı tereyağı ve istenilen baharatlar",
+        "zeytin (5 adet)",
+        "badem unu ekmeği (1 dilim)",
+        "ceviz (3 adet)",
+        "yeşillikler (4 yaprak marul, 4-5 yaprak roka, 4-5 dal maydanoz + limon ve sirke +1 tatlı kaşığı zeytinyağı ile)",
+        "hindi ızgara tava",
+        "semizotu salatası (2 avuç semizotu,1 adet orta boy domates,1 adet salatalık,1 adet biber ve 1 yemek kaşığı",
+        "fındık (10 adet)",
+        "sahanda yumurta (1 adet + 1 tatlı kaşığı tereyağı ile)",
+        "kasap sucuk (50 gram)",
+        "zeytin (5 adet)",
+        "badem unu ekmeği (1 dilim)",
+        "salatalık (orta boy) + cherry domates (2 adet)+ 4-5 dal maydanoz+ 2 adet küçük yeşil biber",
+        "fındık (10 adet)",
+        "roka salatası (yarım bağ roka, 1 adet küçük salatalık, 3 adet cherry domates, yarım kırmızı soğan + limon, 1 yemek",
+        "kollajen (1 ölçek 10 gram)",
+        "sebzeli omlet (1 yumurta,1 adet yeşil biber, 5 yaprak ıspanak / pazı, 1 yemek kaşığı zeytinyağı)",
+        "zeytin (10 adet)",
+        "yeşillikler (dereotu, roka, maydanoz, marul vs. + sirke ve limon +1 tatlı kaşığı zeytinyağı ile)",
+        "ızgara ya da fırında balık (çupra, levrek, alabalık vs.)",
+        "yeşillikler (dereotu, roka, maydanoz, marul vs. + 1 yemek kaşığı zeytinyağı)",
+        "bir yemek kaşığı tahin içerisine, 1 adet ezilmiş ceviz içi ve hafif tarçın serpin)",
+        "kollajen (1 ölçek 10 gram)",
+        "sahanda yumurta (2 yumurta, 1 tatlı kaşığı tereyağ)",
+        "salatalık (orta boy) + cherry domates (2 adet)",
+        "badem unu ekmeği (1 dilim)",
+        "ceviz (5 adet)",
+        "kıymalı lahana / kabak yemeği",
+        "mevsim salata (marul, dereotu, roka, maydanoz, 1 adet küçük salatalık, 1 adet küçük domates + 1 tatlı kaşığı",
+        "badem unu ekmeği (1 dilim)",
+        "kollajen (1 ölçek 10 gram)",
+        "cumartesi̇",
+        "zeytin (10 adet)",
+        "badem unu ekmeği (1 dilim)",
+        "yeşillikler (4 yaprak marul, 4-5 yaprak roka, 4-5 dal tere, limon ile)",
+        "bitter çikolata (2 kare)",
+        "kırmızı et ile güveç (domates, biber ve soğan ile)",
+        "semizotu salatası (2 avuç semizotu,1 adet orta boy domates,1 adet salatalık,1 adet biber ve 1 tatlı kaşığı zeytinyağı)",
+        "fındık (20 adet)",
+        "kollajen (1 ölçek 10 gram)",
+        "menemen (1 yumurta ile)",
+        "pastırma",
+        "yeşillikler (4 yaprak marul, 4-5 yaprak roka, 4-5 dal maydanoz, limon ve sirke + 1 tatlı kaşığı zeytinyağı ile)",
+        "badem unu ekmeği (1 dilim)",
+        "zeytin (5 adet)",
+        "kollajen (1 ölçek 10 gram)",
+        "ara öğün (tercihen saat 15:00-16:00 civarında): maden suyu (2 çimdik kaya tuzu ve limon 5-10 damla limon"
+      ],
+      "eslesenTarifler": [
+        "köfte",
+        "kabak sote (1 adet kabak ve 1 yemek kaşığı zeytinyağı ile)",
+        "ciğer kavurma (istenilen baharatlarla)",
+        "yumurtalı ıspanak/pazı/ semizotu kavurma (2 yumurta, 100 gr. ispanak, 1 yemek kaşığı zeytinyağı, tercihen",
+        "patlıcan kebabı (2 adet orta boy patlıcan,200 gram kıyma ile yapılan köfte: patlıcanlar halka halka doğranıp çöp şişe",
+        "zeytinyağlı deniz börülcesi (1 tatlı kaşığı zeytinyağı ekleyelim)"
+      ]
     },
     {
       "haftaNo": 9,
@@ -102,7 +209,7 @@
       "pdfYolu": "pdfs/GÜLER VESEKCİ_2_hafta.pdf",
       "githubUrl": "https://github.com/mustafasacar35/nutrition-planner/blob/main/pdfs/GÜLER VESEKCİ_2_hafta.pdf",
       "indirmeUrl": "https://raw.githubusercontent.com/mustafasacar35/nutrition-planner/main/pdfs/GÜLER VESEKCİ_2_hafta.pdf",
-      "kayitTarihi": "2025-08-16T21:58:52.861Z",
+      "kayitTarihi": "2025-08-18T12:59:04.412Z",
       "tarifKartlar": [],
       "tarifler": [
         "tarih",
@@ -289,6 +396,6 @@
   ],
   "olusturmaTarihi": "2025-08-16T15:45:06.109Z",
   "yeniSistem": true,
-  "sonGuncelleme": "2025-08-16T21:58:52.861Z",
+  "sonGuncelleme": "2025-08-18T12:59:04.412Z",
   "githubKaydedildi": true
 }
